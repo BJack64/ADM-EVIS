@@ -1,0 +1,224 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+@using eFakturADM.Logic.Objects
+@model eFakturADM.Web.Models.IdPajakModel
+@using eFakturADM.Web.Helpers
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+   
+    List<SelectListItem> listKreditPajak = new List<SelectListItem>();
+    listKreditPajak.Add(new SelectListItem { Text = "Ya", Value = "1", Selected = true });
+    listKreditPajak.Add(new SelectListItem { Text = "Tidak", Value = "0" });
+    var monthList = GlobalFunctionHelper.GetMasaPajakOpenList();
+    var yearList = new List<SelectListItem>();
+    
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Status Validasi Faktur Pajak" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form">
+        <input type="hidden" id="FakturPajakId" value="@Model.FakturPajakId" />
+        <input type="hidden" id="IsForceMasaPajak" value="@Model.isForceMasaPajak" /> 
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Masa Pajak</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("bulanMasaPajak", monthList, new { @class = "form-control w-sm", @onchange = "loadTahunPajak(this)" })
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-3 control-label">Tahun Pajak</label>
+                <div class="col-md-9 form-inline">
+                    <div class="input-group w-sm">
+                        @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control w-sm" })
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+
+                <div class="radio-list">
+                    <div>
+                        <label class="col-md-6 control-label">Apakah Faktur Pajak ini Dikreditkan ?</label>
+                        @for (int i = 0; i < listKreditPajak.Count; i++)
+                        {
+                            <label class="radios">
+                                <span>
+                                    @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                </span>
+                                @listKreditPajak[i].Text
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">&nbsp;</label>
+                <div class="col-md-9" id="err-validasi-div">
+
+                </div>
+            </div>
+
+        </div>
+    </form>
+</script>
+<script src="~/Content/plugins/jquery-masked/jquery.masked.js"></script>
+<script type="text/javascript">
+
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        loadTahunPajak($('#bulanMasaPajak option:selected'));
+
+    };
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 600, "auto", true,
+            {
+                Submit: function () {
+                    var selectAll = $('#selectall').is(':checked');
+					
+                    NoFaktur1 = $("#input-search-nofaktur1").val();
+                    NoFaktur2 = $("#input-search-nofaktur2").val();
+                    NPWPVendor = $("#input-search-npwpvendor").val();
+                    NamaVendor = $("#input-search-namavendor").val();
+                    TglFakturStart = $("#input-search-tglawal").val();
+                    TglFakturEnd = $("#input-search-tglakhir").val();
+                    Status = $("#lst-status-approval option:selected").val();
+                    ScanDateAwal = $('#input-search-scandate-awal').val();
+                    ScanDateAkhir = $('#input-search-scandate-akhir').val();
+                    Source = $('#lst-source option:selected').val();
+                    Remark = $('#input-search-remark').val();
+
+                    sSearch_1 = $('#input-ssearch1').val();
+                    sSearch_2 = $('#input-ssearch2').val();
+                    sSearch_3 = $('#input-ssearch3').val();
+                    sSearch_4 = $('#input-ssearch4').val();
+                    sSearch_5 = $('#input-ssearch5').val();
+                    sSearch_6 = $('#input-ssearch6').val();
+                    sSearch_7 = $('#input-ssearch7').val();
+                    sSearch_8 = $('#input-ssearch8').val();
+                    sSearch_9 = $('#input-ssearch9').val();
+                    sSearch_10 = $('#input-ssearch10').val();
+                    sSearch_11 = $('#input-ssearch11').val();
+                    sSearch_12 = $('#input-ssearch12').val();
+
+
+                    var FakturPajakIds = $("#FakturPajakId").val();
+                    var BulanMasaPajak = $("#bulanMasaPajak").val();
+                    var TahunMasaPajak = $("#listTahunPajak").val();
+                    var KreditPajak = $('input[name=kreditpajak]:checked').val();
+                    var IsForceMasaPajak = $("#IsForceMasaPajak").val();
+
+                    ReceivedStart = $("#input-search-received-awal").val();
+                    ReceivedEnd = $("#input-search-received-akhir").val();
+
+
+                    var SetMasaData = {
+                        FakturPajakIds: FakturPajakIds,
+                        BulanMasaPajak: BulanMasaPajak,
+                        TahunMasaPajak: TahunMasaPajak,
+                        KreditPajak: KreditPajak,
+                        NoFaktur1: NoFaktur1,
+                        NoFaktur2: NoFaktur2,
+                        NPWP: NPWPVendor,
+                        Nama: NamaVendor,
+                        TglFakturStart: TglFakturStart,
+                        TglFakturEnd: TglFakturEnd,
+                        Status: Status,
+                        scanDateAwal: ScanDateAwal,
+                        scanDateAkhir: ScanDateAkhir,
+                        receivedStart: ReceivedStart,
+                        receivedEnd: ReceivedEnd,
+                        source: Source,
+                        remark: Remark,
+                        sSearch_1: sSearch_1,
+                        sSearch_2: sSearch_2,
+                        sSearch_3: sSearch_3,
+                        sSearch_4: sSearch_4,
+                        sSearch_5: sSearch_5,
+                        sSearch_6: sSearch_6,
+                        sSearch_7: sSearch_7,
+                        sSearch_8: sSearch_8,
+                        sSearch_9: sSearch_9,
+                        sSearch_10: sSearch_10,
+                        sSearch_11: sSearch_11,
+                        sSearch_12: sSearch_12,
+                        selectAll: selectAll,
+                        isForceMasaPajak: IsForceMasaPajak
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("Validasi","OutstandingFp")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify(SetMasaData),
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 2:
+                                    toastr.warning(data.Html.Message, "Status Validasi Faktur Pajak", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                                case 3:
+                                    toastr.error(data.Html.Message, "Status Validasi Faktur Pajak", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    dialog.close();
+                                    break;
+                            };
+                            if (data.Html.InfoType == 1) {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_FORM,
+                                    title: 'Informasi Faktur Pajak Expire',
+                                    message: data.Html.Message,
+                                    buttons: [{
+                                        label: 'Oke',
+                                        cssClass: 'btn-submit btn-delay',
+                                        action: function (dialog) {
+                                                    BootstrapDialog.closeAll();
+                                                    var table = $('#tbl-fakturpajak').DataTable();
+                                                    table.ajax.reload();
+                                        }
+                                    },
+                                                                        
+                                    ]
+                                });
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            },
+            true, InitForm);
+    });
+
+
+    function loadTahunPajak(e) {
+        var aMonth = $(e).val();
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+</script>

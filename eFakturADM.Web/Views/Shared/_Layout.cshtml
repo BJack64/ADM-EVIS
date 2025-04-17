@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!-- BEGIN HEAD -->
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=11">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="@Url.Content("~/Content/plugins/uniform/css/uniform.default.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/bootstrap-switch/css/bootstrap-switch.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/font-awesome/css/font-awesome.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/simple-line-icons/simple-line-icons.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/bootstrap/css/bootstrap.css")" rel="stylesheet" type="text/css" />
+    <!-- BEGIN THEME STYLES -->
+    <link href="@Url.Content("~/Content/theme/components.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/custom.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/default.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/layout.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/light.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/datatable.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/theme/short.css")" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 8]>
+    <link href="@Url.Content("~/Content/theme/bootstrap-ie7.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/font-awesome/css/font-awesome-ie7.css")" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="@Url.Content("~/Content/plugins/pagination/pagination.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/sweetalert/lib/sweet-alert.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/bootstrap3-dialog/css/bootstrap-dialog.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/bootstrap-datepicker/css/datepicker.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/select2/select2.css")" rel="stylesheet" type="text/css" />
+
+    <link href="@Url.Content("~/Content/plugins/toastr/toastr.css")" rel="stylesheet" type="text/css" />
+    @*<link href="@Url.Content("~/Content/theme/datatable.css")" rel="stylesheet" type="text/css" />*@
+    <link href="@Url.Content("~/Content/plugins/datatables/media/css/jquery.dataTables.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/plugins/datatables/media/css/fixedColumns.dataTables.css")" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 9]>
+    <script src="@Url.Content("~/Content/plugins/html5.min.js")"></script>
+    <script src="@Url.Content("~/Content/plugins/respond.min.js")"></script>
+    <script src="@Url.Content("~/Content/plugins/excanvas.min.js")"></script>
+    <script src="@Url.Content("~/Content/plugins/json2.min.js")"></script>
+    <![endif]-->
+    <!-- BEGIN JAVASCRIPTS -->
+    <script src="@Url.Content("~/Content/plugins/jquery.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/jquery-migrate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/moment.js")" type="text/javascript"></script>
+    <!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+    <script src="@Url.Content("~/Content/plugins/jquery-ui/jquery-ui.1.11.2.custom.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/bootstrap/js/bootstrap.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/jquery-slimscroll/jquery.slimscroll.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/jquery.blockui.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/uniform/jquery.uniform.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/bootstrap-switch/js/bootstrap-switch.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/bootstrap3-dialog/js/bootstrap-dialog.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/select2/select2.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Content/plugins/text-exapnder/jquery.expander.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/scroll-to/jquery.scrollTo.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/toastr/toastr.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/datatables/media/js/jquery.dataTables.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/datatables/media/js/fnPagingInfo.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/datatables/media/js/fnReloadAjax.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/datatables/media/js/fixedColumns.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/pagination/jquery.pagination.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/jquery-form/jquery.form.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/plugins/jquery-cookie/jquery.cookie.js")" type="text/javascript"></script>
+
+    @Scripts.Render("~/bundles/app")
+    @Scripts.Render("~/bundles/ui")
+    @RenderSection("styles", required: false)
+    <link rel="shortcut icon" href="~/Content/images/favicon.ico" />
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+<!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+<!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+<!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+<!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+<!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+<!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+<body class="page-header-fixed page-footer page-quick-sidebar-over-content">
+    <!-- BEGIN HEADER -->
+    @Html.Partial("_Header")
+    <!-- END HEADER -->
+    <div class="clearfix">
+    </div>
+    <!-- BEGIN CONTAINER -->
+    <div class="page-container">
+        <!-- BEGIN SIDEBAR -->
+        @Html.Partial("_Sidebar")
+        <!-- END SIDEBAR -->
+        <div class="page-content-wrapper">
+            <div class="page-content">
+                <!-- BEGIN PAGE HEAD -->
+                @RenderSection("PageHead", required: false)
+                <!-- END PAGE HEAD -->
+                <!-- BEGIN ACTUAL CONTENT -->
+                @RenderBody()
+                <!-- END ACTUAL CONTENT -->
+            </div>
+        </div>
+    </div>
+    <!-- END CONTAINER -->
+    <!-- BEGIN FOOTER -->
+    @Html.Partial("_Footer")
+    <!-- END FOOTER -->
+    <!-- PAGE DEPENDENT SCRIPT -->
+    @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        /* Init Metronic's core jquery plugins and layout scripts */
+        jQuery(document).ready(function () {
+            Metronic.init(); // init metronic core componets
+            Layout.init(); // init layout
+            Demo.init(); // init demo features
+        });
+    </script>
+    <!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

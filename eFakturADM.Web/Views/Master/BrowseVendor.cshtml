@@ -1,0 +1,74 @@
+﻿@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Browse Vendor" data-dialog-spinner="spinner-@dialogId">
+
+    <table id="table-browse-vendor" class="table table-hover">
+        <thead>
+            <tr class="bg-light">
+                <th>NPWP</th>
+                <th>Nama</th>
+                <th>Alamat</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</script>
+
+<script type="text/javascript">
+    var selected = [];
+    App.PreventDoubleSubmit();
+    function InitTable() {
+        var oTable = $('#table-browse-vendor').dataTable({
+            "stateSave": false,
+            "pageLength": 10,
+            "autoWidth": false,
+            "sDom": "<'row bg-light dker b-b'<'col-sm-6'><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            "sPaginationType": "simple_numbers",
+            "sAjaxSource": '@Url.Action("ListVendor", "Master")',
+            "columns": [
+                { "data": "FormatedNpwp", "orderable": true, "searchable": true },
+                { "data": "Nama", "orderable": true, "searchable": true },
+                { "data": "Alamat", "orderable": true, "searchable": true },
+                {
+                    "data": "VendorId",
+                    "orderable": false,
+                    "className": "text-center",
+                    "render": function (data, type, row, full, meta) {
+                        return '<button type="button" class="btn btn-sm btn-default vendor-select" data-vendor-id="' + row.VendorId + '" data-vendor-npwp="' + row.FormatedNpwp + '" data-vendor-nama="' + row.Nama + '" data-vendor-alamat="' + row.Alamat + '">Select</button>';
+                    }
+                }
+            ],
+            "order": [[0, "desc"]]
+        });
+
+        $("body").on("click", ".vendor-select", function (e) {
+            if('@Model' == "Search"){
+                $("#input-search-npwpvendor").val($(this).attr("data-vendor-npwp"));
+                $("#input-search-namavendor").val($(this).attr("data-vendor-nama"));
+
+                $("#@dialogId").remove();
+                $("body").attr("style", "overflow-y:scroll");
+            }
+            else{
+                $("#input-scanmanual-npwplawantransaksi").val($(this).attr("data-vendor-npwp"));
+                $("#input-scanmanual-namalawantransaksi").val($(this).attr("data-vendor-nama"));
+                $("#input-scanmanual-alamatlawantransaksi").val($(this).attr("data-vendor-alamat"));
+                $("#hdn-scanmanual-vendorid").val($(this).attr("data-vendor-id"));
+
+                $("#@dialogId").remove();
+                $("body").attr("style", "overflow-y:scroll");
+            }
+        });
+    };
+
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 700, 600, true,
+        {
+        },
+        true, InitTable)
+    });
+</script>

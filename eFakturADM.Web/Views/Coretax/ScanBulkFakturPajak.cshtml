@@ -1,0 +1,773 @@
+﻿@{
+    ViewBag.Title = "Scan QR Code Bulk Faktur Pajak Coretax";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<SelectListItem> listKreditPajak = new List<SelectListItem>();
+    listKreditPajak.Add(new SelectListItem { Text = "Ya", Value = "Ya", Selected = true });
+    listKreditPajak.Add(new SelectListItem { Text = "Tidak", Value = "Tidak" });
+}
+
+@section Styles {
+    <style>
+        /*        .sticky-action-column {
+            position: sticky !important;
+            right: 0 !important;
+            background-color: #fff;
+            z-index: 2 !important;
+        }*/
+        /* Pastikan latar belakang kolom tetap sama */
+
+        .DTFC_LeftWrapper th,
+        .DTFC_RightWrapper th {
+            background-color: #d8849b; /* Warna putih solid */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Bayangan sisi kiri */
+            z-index: 9999; /* Pastikan tetap di atas konten lainnya */
+            position: sticky; /* Gunakan sticky agar tetap di atas saat scroll */
+            top: 0; /* Agar header tetap di atas saat scroll */
+            border-collapse: separate; /* Pastikan border terlihat */
+            border-bottom: 1px solid #111111; /* Border bawah */
+        }
+
+        .DTFC_RightWrapper th {
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Bayangan sisi kanan */
+        }
+
+        table.dataTable {
+            background-color: #ffffff; /* Latar belakang tabel */
+            border-collapse: collapse; /* Menghilangkan jarak antar border tabel */
+            width: 100%; /* Pastikan tabel memanjang memenuhi wrapper */
+        }
+
+            table.dataTable th,
+            table.dataTable td {
+                padding: 8px 12px; /* Jarak dalam sel tabel */
+                text-align: left; /* Penyelarasan teks ke kiri */
+            }
+
+        .DTFC_LeftWrapper,
+        .DTFC_RightWrapper {
+            position: relative; /* Menjaga posisi wrapper tetap di atas */
+            z-index: 9994; /* Menjaga wrapper tetap di bawah header */
+        }
+
+        table.dataTable_wrapper {
+            position: relative;
+            z-index: 1; /* Pastikan wrapper tabel di bawah header */
+        }
+
+        /* Optional: Jika menggunakan overflow pada wrapper */
+        table.dataTable_wrapper {
+            overflow-x: auto; /* Memungkinkan scroll horizontal */
+        }
+        /* Menghilangkan border dan background pada header dan body tabel */
+        .dataTables_wrapper table.dataTable th,
+        .dataTables_wrapper table.dataTable td {
+            border: none !important;
+            /*background: none !important;*/
+            box-shadow: none !important;
+        }
+
+        /* Menghilangkan gaya pada FixedColumns */
+        .fixedColumns th {
+            padding: 20px; /* Sesuaikan padding sesuai kebutuhan */
+            text-align: left; /* Atur perataan teks */
+            background-color: #f2f2f2 !important; /* Warna latar belakang */
+            border-bottom: 1px solid #111111;
+            white-space: normal !important; /* Allow wrapping */
+            max-width: 200px !important; /* Set a max width for the column */
+            overflow: hidden !important; /* Hide overflow */
+            text-overflow: ellipsis !important; /* Optional: add ellipsis for overflow text */
+        }
+        /* Menimpa gaya pada th di dalam .dataTables_scrollBody */
+        .dataTables_scrollBody th {
+            /* Menimpa gaya yang tidak diinginkan */
+            background: none !important; /* Menghilangkan latar belakang */
+            border: none !important; /* Menghilangkan border */
+            box-shadow: none !important; /* Menghilangkan bayangan */
+            color: inherit; /* Menggunakan warna teks default */
+            padding: 10px; /* Sesuaikan padding sesuai kebutuhan */
+            text-align: left; /* Atur perataan teks */
+        }
+        /* Target the FixedColumns wrapper for the right side */
+        /*.DTFC_RightWrapper th,
+        .DTFC_RightWrapper td {
+            white-space: normal !important;*/ /* Allow text to wrap */
+        /*max-width: 100px !important;*/ /* Adjust as needed */
+        /*overflow-wrap: break-word !important;*/ /* Ensure long words break */
+        /*}*/
+
+        /* Optional: Set a max width for the ErrorMessages column */
+        /*.DTFC_RightWrapper td:nth-child(12) {*/ /* Replace 'n' with the actual index of the ErrorMessages column */
+        /*white-space: normal !important;*/ /* Allow text to wrap */
+        /*max-width: 100px !important;*/ /* Adjust as needed */
+        /*overflow-wrap: break-word !important;*/ /* Ensure long words break */
+        /*}*/
+        .text-center {
+            text-align: center !important;
+        }
+    </style>
+}
+
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>Scan QR Code Bulk Faktur Pajak Coretax</h1>
+    </div>
+</div>
+
+<div class="portlet light">
+    <div class="portlet-body">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <label class="col-md-3 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                        <div class="col-md-9">
+                            <div class="radio-list">
+                                <div>
+                                    @for (int i = 0; i < listKreditPajak.Count; i++)
+                                    {
+                                        <label class="radios">
+                                            <span>
+                                                @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                            </span>
+                                            @listKreditPajak[i].Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row form-group">
+
+                @*<ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab-scan-qr" onclick="confirmTabChange(event, 'qr')">Scan QR Code</a></li>
+                    <li><a href="#tab-scan-pdf" onclick="confirmTabChange(event, 'pdf')">Upload PDF</a></li>
+                </ul>*@
+
+                <div class="tab-content">
+                    <div id="tab-scan-qr" class="tab-pane fade in active">
+                        <div class="col-md-12">
+
+                            <div class="row form-group">
+                                <label class="col-md-2 control-label">Scan QR Code<span class="required"> *</span></label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="input-scansatuan-qrcode" onkeypress="processQRCode(event)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-scan-pdf" class="tab-pane fade">
+                            <form enctype="multipart/form-data" id="uploadForm" style="display: block;">
+                                <div class="form-group row" id="fileGroup">
+                                    <label for="file" class="col-form-label col-md-2">Pilih File PDF:</label>
+                                    <div class="col-md-6">
+                                        <input type="file" name="file" id="file" class="form-control" required accept="application/pdf" onchange="enableSubmit()" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" id="uploadButton" class="btn btn-primary" disabled>Upload</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @*<label class="col-md-2 control-label">Scan QR Code<span class="required"> *</span></label>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="input-scansatuan-qrcode" onkeypress="processQRCode(event)" />
+                    </div>*@
+            </div>
+        </div>
+
+        <!-- Tabel untuk menampilkan hasil scan QR Code -->
+        <div class="form-group row">
+            <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                <legend class="title-legend">List Data</legend>
+            </fieldset>
+
+            <div class="table-scrollable">
+                <table id="tbl-faktur-pajak-from-coretax" class="table table-hover table-blue nowrap">
+                    <thead>
+                        <tr>
+                            <th>Nama Penjual</th>
+                            <th>NPWP Penjual</th>
+                            <th>Nama Pembeli</th>
+                            <th>NPWP Pembeli</th>
+                            <th>No Faktur</th>
+                            <th>Tanggal Faktur</th>
+                            <th>Harga Jual</th>
+                            <th>PPN</th>
+                            <th>PPnBM</th>
+                            <th>Status Faktur</th>
+                            <th>Dikreditkanr</th>
+                            <th>Filling Index</th>
+                            <th style="width:64px" class="error-messages">Error Messages</th>
+                            <th style="width:64px">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data akan dimasukkan secara dinamis melalui JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Tombol untuk submit batch -->
+        <div style="display: flex; gap: 10px; flex-wrap: nowrap; white-space: nowrap;">
+            <button id="submitBatchButton" class="btn btn-primary" onclick="submitBatch()" disabled>
+                <i class="icon-paper-plane"></i> Submit Batch
+            </button>
+            <button id="resetDataButton" class="btn btn-danger" onclick="resetData()" style="display: none;">
+                <i class="icon-trash"></i> Reset Data
+            </button>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Spinner untuk menunjukkan loading -->
+<div id="spinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+    <div class="spinner-border text-white" role="status">
+        <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i> Please wait...
+    </div>
+</div>
+
+<script>
+    let scanData = JSON.parse(localStorage.getItem('scanData')) || [];
+    console.log($.fn.dataTable.version); // Cek versi DataTables
+    console.log($.fn.dataTable.FixedColumns.version); // Cek versi FixedColumns
+
+    document.addEventListener("DOMContentLoaded", function () {
+        checkLocalStorage();
+    });
+
+    function checkLocalStorage() {
+        let scanData = JSON.parse(localStorage.getItem("scanData") || "[]");
+        let submitBtn = document.getElementById("submitBatchButton");
+        let resetBtn = document.getElementById("resetDataButton");
+
+        if (scanData.length > 0) {
+            submitBtn.disabled = false;  // Aktifkan tombol submit
+            resetBtn.style.display = "block";  // Tampilkan tombol reset
+        } else {
+            submitBtn.disabled = true;  // Nonaktifkan tombol submit
+            resetBtn.style.display = "none";  // Sembunyikan tombol reset
+        }
+    }
+
+
+    $(document).ready(function () {
+        // Initialize DataTable with the data from localStorage
+        var table = $('#tbl-faktur-pajak-from-coretax').DataTable({
+            //"bFilter": true,
+            //"bLengthChange": true,
+            //"bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+            //"serverSide": false,
+            //"iDisplayLength": 10,
+            //"aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+            //"autoWidth": false,
+            "data": scanData, // Data dari variabel
+            "columns": [
+                { "data": "Nama_Penjual", "title": "Nama Penjual" },
+                { "data": "NPWP_Penjual", "title": "NPWP Penjual" },
+                { "data": "Nama_Pembeli", "title": "Nama Pembeli" },
+                { "data": "NPWP_Pembeli", "title": "NPWP Pembeli" },
+                { "data": "Nomor_Faktur_Pajak", "title": "Nomor Faktur Pajak" },
+                { "data": "Tanggal_Faktur_Pajak", "title": "Tanggal Faktur Pajak" },
+                { "data": "Harga_Jual", "title": "Harga Jual" },
+                { "data": "PPN", "title": "PPN" },
+                { "data": "PPnBM", "title": "PPnBM" },
+                { "data": "Status_Faktur", "title": "Status Faktur" },
+                {
+                    "data": "Dikreditkan", "title": "Dikreditkan", "render": function (data, type, row) {
+                        if (row.Dikreditkan) {
+                            return '<span class="icon-check" style="color: black;"></span>';
+                        } else {
+                            return '<span class="icon-close" style="color: red;"></span>';
+                        }
+                    }
+                },
+                {
+                    "data": "Filling_Index", "title": "Filling Index", "className": "text-center",
+                },
+                {
+                    data: "Error_Messages",
+                    title: "Errors",
+                    className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (data.length > 0) {
+                            return '<button class="btn btn-warning" onclick="checkErrors(\'' + row.Nomor_Faktur_Pajak + '\',\'' + data + '\')"><i class="icon-bell"></i> (' + data.length + ')</button>';
+                        } else {
+                            if (row.Filling_Index != "") {
+                                return '<span class="icon-check" style="color: black;"></span>';
+                            } else {
+                                return '';
+                            }
+                        }
+                    }
+                },
+                {
+                    "data": null,
+                    "title": "Aksi",
+                    className: "text-center",
+                    "render": function (data, type, row) {
+                        if (row.Filling_Index != "") {
+                            return '<span class="icon-check" style="color: black;"></span>';
+                        } else {
+                            return '<button class="btn btn-danger" onclick="removeRow(\'' + row.Nomor_Faktur_Pajak + '\')"><i class="icon-trash"></i></button>';
+                        }
+                    }
+                }
+            ],
+            "rowCallback": function (row, data, index) {
+                if (data.Filling_Index !== "") { // Jika Filling Index tidak kosong
+                    $(row).css("background-color", "#ccffcc");
+                } else if (data.Error_Messages.length > 0) {
+                    $(row).css("background-color", "#ffcccc");
+                } else {
+                    $(row).css("background-color", "#ffffff");
+                }
+                $(".dataTables_scrollBody th").removeAttr('class');
+
+            },
+            columnDefs: [
+                { orderable: false, targets: '_all' } // Nonaktifkan sortable untuk semua kolom
+            ],
+            fixedColumns: {
+                leftColumns: 0,  // Kolom pertama sticky
+                rightColumns: 3  // Tidak ada kolom sticky di kanan
+            },
+            paging: true,
+            scrollCollapse: true,
+            scrollX: true,
+            scrollY: 300,
+            //"sDom": "<'row bg-light dker b-b'<'col-sm-6 btncollection'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+            "sPaginationType": "simple_numbers",
+            "drawCallback": function (settings) {
+                // Menghapus kelas tertentu dari elemen th di dalam .dataTables_scrollBody
+                $(".dataTables_scrollBody th").removeAttr('class');
+            }
+        });
+
+        // Menghapus atribut class dari th di dalam .dataTables_scrollBody
+        //    $(".dataTables_scrollBody th").removeAttr('class');
+    });
+
+    function processQRCode(event) {
+        if (event.key === 'Enter') {
+            const qrCode = document.getElementById("input-scansatuan-qrcode").value;
+
+            const regex = /^[A-Za-z0-9\s]+#[0-9]+#[A-Za-z0-9\s]+#[A-Za-z0-9]+#[A-Za-z0-9]+#[0-9]{2}-[0-9]{2}-[0-9]{4}#[\d.,]+#[\d.,]+#[\d.,]+#[A-Za-z]+$/;
+
+            let errorMessages = "";
+
+            if (regex.test(qrCode)) {
+                const data = qrCode.split("#");
+
+                // Clear the QR Code input field before processing
+                document.getElementById("input-scansatuan-qrcode").value = "";
+
+                // Validate NPWP Penjual
+                if (!/^\d+$/.test(data[1]) || ![15, 16, 20, 22].includes(data[1].length)) {
+                    errorMessages += "- NPWP Penjual tidak valid.\n";
+                }
+
+                // Validate Nomor Faktur Pajak
+                if (!/^\d+$/.test(data[4]) || data[4].length !== 17) {
+                    errorMessages += "- Nomor Faktur Pajak tidak valid.\n";
+                }
+
+                if (errorMessages) {
+                    BootstrapDialog.alert({
+                        title: 'Warning',
+                        message: errorMessages,
+                        type: BootstrapDialog.TYPE_WARNING,
+                        buttonLabel: 'OK',
+                    });
+                    document.getElementById("input-scansatuan-qrcode").focus();
+                    return;
+                }
+
+                // Check if the Faktur Pajak already exists
+                const existingIndex = scanData.findIndex(item => item.Nomor_Faktur_Pajak === data[4]);
+                if (existingIndex !== -1) {
+                    BootstrapDialog.show({
+                        title: 'Konfirmasi Pembaruan',
+                        message: `Nomor Faktur Pajak ${data[4]} sudah ada. Apakah Anda ingin memperbarui datanya?`,
+                        type: BootstrapDialog.TYPE_WARNING,
+                        buttons: [
+                            {
+                                label: 'Batal',
+                                cssClass: 'btn-secondary',
+                                action: function (dialogRef) {
+                                    dialogRef.close();
+                                    document.getElementById("input-scansatuan-qrcode").focus();
+                                }
+                            },
+                            {
+                                label: 'Perbarui',
+                                cssClass: 'btn-primary',
+                                action: function (dialogRef) {
+                                    // Update the existing data
+                                    scanData[existingIndex] = {
+                                        Nama_Penjual: data[0],
+                                        NPWP_Penjual: data[1],
+                                        Nama_Pembeli: data[2],
+                                        NPWP_Pembeli: data[3],
+                                        Nomor_Faktur_Pajak: data[4],
+                                        Tanggal_Faktur_Pajak: data[5],
+                                        Harga_Jual: data[6],
+                                        PPN: data[7],
+                                        PPnBM: data[8],
+                                        Status_Faktur: data[9],
+                                        Dikreditkan: (document.querySelector('input[name="kreditpajak"]:checked')?.value || "Ya") === "Ya",
+                                        Filling_Index: "",
+                                        Error_Messages: []
+                                    };
+
+                                    // Save updated scanData to localStorage
+                                    localStorage.setItem('scanData', JSON.stringify(scanData));
+
+                                    // Refresh the DataTable
+                                    var table = $('#tbl-faktur-pajak-from-coretax').DataTable();
+                                    table.clear().rows.add(scanData).draw();
+
+                                    dialogRef.close();
+                                    document.getElementById("input-scansatuan-qrcode").focus();
+                                }
+                            }
+                        ]
+                    });
+
+                } else {
+                    // Add new scanned data
+                    const newScanData = {
+                        Nama_Penjual: data[0],
+                        NPWP_Penjual: data[1],
+                        Nama_Pembeli: data[2],
+                        NPWP_Pembeli: data[3],
+                        Nomor_Faktur_Pajak: data[4],
+                        Tanggal_Faktur_Pajak: data[5],
+                        Harga_Jual: data[6],
+                        PPN: data[7],
+                        PPnBM: data[8],
+                        Status_Faktur: data[9],
+                        Dikreditkan: (document.querySelector('input[name="kreditpajak"]:checked')?.value || "Ya") === "Ya",
+                        Filling_Index: "",
+                        Error_Messages: []
+                    };
+
+                    scanData.push(newScanData);
+
+                    // Save updated scanData to localStorage
+                    localStorage.setItem('scanData', JSON.stringify(scanData));
+
+                    // Add new data to DataTable
+                    var table = $('#tbl-faktur-pajak-from-coretax').DataTable();
+                    table.clear().rows.add(scanData).draw();
+                }
+                showSpinner();
+            } else {
+                BootstrapDialog.alert({
+                    title: 'Warning',
+                    message: "QR Code format tidak valid.",
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttonLabel: 'OK',
+                });
+            }
+
+            // Autofocus back to the QR Code input field
+            document.getElementById("input-scansatuan-qrcode").focus();
+            checkLocalStorage();
+            hideSpinner();
+        }
+    }
+
+    function checkErrors(nomorFaktur, errors) {
+        // Create an array to hold formatted error messages with numbering
+        const formattedErrors = errors.split(',').map((error, index) => {
+            return `${index + 1}. ${error}`;
+        }).join('<br />'); // Join the formatted messages with line breaks
+
+        // Show the Bootstrap dialog with formatted errors
+        BootstrapDialog.alert({
+            title: 'Error No. Faktur ' + nomorFaktur,
+            message: formattedErrors,
+            type: BootstrapDialog.TYPE_WARNING,
+            buttonLabel: 'OK',
+        });
+    }
+
+
+    // Fungsi untuk menghapus baris dari DataTable dan localStorage dengan konfirmasi
+    function removeRow(fakturNo) {
+        // Tampilkan dialog konfirmasi
+        BootstrapDialog.show({
+            title: 'Konfirmasi Hapus',
+            message: `Apakah Anda yakin ingin menghapus Faktur Pajak dengan nomor ${fakturNo}?`,
+            type: BootstrapDialog.TYPE_WARNING, // Dialog tipe peringatan
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) {
+                        dialogRef.close();
+                    }
+                },
+                {
+                    label: 'Hapus',
+                    cssClass: 'btn-danger',
+                    action: function (dialogRef) {
+                        showSpinner();
+                        // Jika pengguna mengonfirmasi, lanjutkan penghapusan
+                        scanData = scanData.filter(scan => scan.Nomor_Faktur_Pajak !== fakturNo);
+
+                        // Simpan scanData yang telah diperbarui ke localStorage
+                        localStorage.setItem('scanData', JSON.stringify(scanData));
+
+                        // Hapus baris dari DataTable
+                        var table = $('#tbl-faktur-pajak-from-coretax').DataTable();
+                        table.clear().rows.add(scanData).draw();
+
+                        // Tampilkan dialog sukses
+                        BootstrapDialog.alert({
+                            title: 'Berhasil',
+                            message: 'Faktur Pajak berhasil dihapus.',
+                            type: BootstrapDialog.TYPE_SUCCESS,
+                            buttonLabel: 'OK',
+                        });
+                        checkLocalStorage();
+                        hideSpinner();
+
+                        dialogRef.close();
+                    }
+                }
+            ]
+        });
+    }
+
+
+    // Submit batch function
+    function submitBatch() {
+        if (scanData.length === 0) {
+            BootstrapDialog.alert({
+                title: 'Warning',
+                message: "Tidak ada data untuk dikirim.",
+                type: BootstrapDialog.TYPE_WARNING,
+                buttonLabel: 'OK',
+            });
+            return;
+        }
+
+        // Tampilkan dialog konfirmasi
+        BootstrapDialog.show({
+            title: 'Konfirmasi Pengiriman',
+            message: 'Apakah Anda yakin ingin mengirim data ini?',
+            type: BootstrapDialog.TYPE_INFO, // Dialog tipe informasi
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) {
+                        dialogRef.close(); // Menutup dialog jika dibatalkan
+                    }
+                },
+                {
+                    label: 'Kirim',
+                    cssClass: 'btn-primary',
+                    action: function (dialogRef) {
+                        // Tampilkan spinner
+                        showSpinner();
+
+                        var formData = new FormData();
+
+                        // Menambahkan data ke FormData
+                        scanData.forEach(function (item, index) {
+                            console.log("FillingIndex : " + index + " : " + item.FillingIndex)
+                            if (item.FillingIndex === undefined || item.FillingIndex === "") { // Hanya tambahkan jika FillingIndex kosong
+                                formData.append('fakturPajakList[' + index + '].Nama_Penjual', item.Nama_Penjual);
+                                formData.append('fakturPajakList[' + index + '].NPWP_Penjual', item.NPWP_Penjual);
+                                formData.append('fakturPajakList[' + index + '].Nama_Pembeli', item.Nama_Pembeli);
+                                formData.append('fakturPajakList[' + index + '].NPWP_Pembeli', item.NPWP_Pembeli);
+                                formData.append('fakturPajakList[' + index + '].Nomor_Faktur_Pajak', item.Nomor_Faktur_Pajak);
+                                formData.append('fakturPajakList[' + index + '].Tanggal_Faktur_Pajak', item.Tanggal_Faktur_Pajak);
+                                formData.append('fakturPajakList[' + index + '].Harga_Jual', item.Harga_Jual);
+                                formData.append('fakturPajakList[' + index + '].PPN', item.PPN);
+                                formData.append('fakturPajakList[' + index + '].PPnBM', item.PPnBM);
+                                formData.append('fakturPajakList[' + index + '].Status_Faktur', item.Status_Faktur);
+                                formData.append('fakturPajakList[' + index + '].Dikreditkan', item.Dikreditkan);
+
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/Coretax/SaveScanBulk',
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                // Menyembunyikan spinner
+                                hideSpinner();
+                                // Check if the response indicates success
+                                let successCount = 0;
+                                let errorCount = 0;
+
+                                response.data.forEach(entry => {
+                                    const { nomorFaktur, fillingIndex, errorMessages } = entry;
+                                    console.log(entry);
+                                    console.log(nomorFaktur);
+                                    console.log(fillingIndex);
+                                    console.log(errorMessages);
+                                    console.log(scanData);
+                                    // Check if the nomorFaktur already exists in scanData
+                                    const existingEntryIndex = scanData.findIndex(item => item.Nomor_Faktur_Pajak === nomorFaktur);
+
+                                    if (existingEntryIndex !== -1) {
+                                        // Update existing entry
+                                        scanData[existingEntryIndex].Filling_Index = fillingIndex;
+                                        scanData[existingEntryIndex].Error_Messages = errorMessages;
+                                        console.log(scanData[existingEntryIndex]);
+                                    } else {
+                                        console.log(nomorFaktur + " tidak ada");
+                                    }
+
+                                    // Count successes and errors
+                                    if (errorMessages.length > 0) {
+                                        errorCount++;
+                                    } else {
+                                        successCount++;
+                                    }
+                                });
+
+                                // Update localStorage
+                                localStorage.setItem('scanData', JSON.stringify(scanData));
+
+                                //// Format error messages with numerical ordering
+                                //scanData.forEach(item => {
+                                //    item.Error_Messages = item.Error_Messages.map((error, index) => `${index + 1}. ${error}`);
+                                //});
+
+                                // Display notifications
+                                if (errorCount > 0) {
+                                    BootstrapDialog.alert({
+                                        title: 'Success',
+                                        message: `Data berhasil dikirim. Total Success: ${successCount}, Total Errors: ${errorCount}`,
+                                        type: BootstrapDialog.TYPE_SUCCESS,
+                                        buttonLabel: 'OK',
+                                    });
+                                } else {
+                                    BootstrapDialog.alert({
+                                        title: 'Success',
+                                        message: `Data berhasil dikirim. Total Success: ${successCount}`,
+                                        type: BootstrapDialog.TYPE_SUCCESS,
+                                        buttonLabel: 'OK',
+                                    });
+                                }
+
+
+                                //var scanData = localStorage.getItem('scanData');
+
+                                // Add new data to DataTable
+                                var table = $('#tbl-faktur-pajak-from-coretax').DataTable();
+                                table.clear().rows.add(scanData).draw();
+                            },
+                            error: function (xhr, status, error) {
+                                hideSpinner();
+
+                                console.error("Error during AJAX request:", error);
+                                //alert("An error occurred while saving the data.");
+                                BootstrapDialog.alert({
+                                    title: 'Warning',
+                                    message: "Terjadi kesalahan saat mengirim data.",
+                                    type: BootstrapDialog.TYPE_WARNING,
+                                    buttonLabel: 'OK',
+                                });
+
+                            }
+                        });
+
+                        dialogRef.close(); // Menutup dialog setelah pengiriman
+                    }
+                }
+            ]
+        });
+    }
+
+    // Fungsi untuk menampilkan spinner loading
+    function showSpinner() {
+        $('#spinner').show();
+    }
+
+    // Fungsi untuk menyembunyikan spinner loading
+    function hideSpinner() {
+        $('#spinner').hide();
+    }
+
+    function confirmTabChange(event, tabType) {
+        event.preventDefault(); // Mencegah aksi default link
+
+        const targetTab = $(event.target).attr('href'); // Ambil href sebagai target tab
+
+        BootstrapDialog.show({
+            title: 'Konfirmasi Perubahan Tab',
+            message: 'Data pada tab akan dihapus. Apakah Anda yakin ingin melanjutkan?',
+            type: BootstrapDialog.TYPE_WARNING,
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) {
+                        dialogRef.close(); // Tutup dialog
+                    }
+                },
+                {
+                    label: 'Lanjutkan',
+                    cssClass: 'btn-primary',
+                    action: function (dialogRef) {
+                        $('.nav-tabs a[href="' + targetTab + '"]').tab('show'); // Pindah ke tab target
+                        dialogRef.close(); // Tutup dialog
+                    }
+                }
+            ]
+        });
+    }
+
+    function resetData() {
+        BootstrapDialog.show({
+            title: 'Konfirmasi Reset Data Tabel',
+            message: 'Data pada Tabel akan di reset. Apakah Anda yakin ingin melanjutkan?',
+            type: BootstrapDialog.TYPE_WARNING,
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) {
+                        dialogRef.close(); // Tutup dialog
+                    }
+                },
+                {
+                    label: 'Lanjutkan',
+                    cssClass: 'btn-primary',
+                    action: function (dialogRef) {
+                        showSpinner();
+                        localStorage.removeItem('scanData');
+                        scanData = JSON.parse(localStorage.getItem('scanData')) || [];
+                        checkLocalStorage();
+                        var table = $('#tbl-faktur-pajak-from-coretax').DataTable();
+                        table.clear().rows.add(scanData).draw();
+                        hideSpinner();
+                        dialogRef.close(); // Tutup dialog
+                    }
+                }
+            ]
+        });
+    }
+
+    hideSpinner();
+
+
+</script>

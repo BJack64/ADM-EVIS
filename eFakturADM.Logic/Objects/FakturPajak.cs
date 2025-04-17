@@ -1,0 +1,200 @@
+﻿using eFakturADM.Logic.Core;
+using eFakturADM.Logic.Utilities;
+using System;
+using System.Data;
+
+namespace eFakturADM.Logic.Objects
+{
+    public partial class FakturPajak
+    {
+        public int TotalItems { get; set; }
+    }
+    public partial class FakturPajak
+    {
+        public long FakturPajakId { get; set; }
+        public string FCode { get; set; }
+        public string UrlScan { get; set; }
+        public string KdJenisTransaksi { get; set; }
+        public string FgPengganti { get; set; }
+        public string NoFakturPajak { get; set; }
+        public DateTime? TglFaktur { get; set; }
+        public string NPWPPenjual { get; set; }
+        public string NamaPenjual { get; set; }
+        public string AlamatPenjual { get; set; }
+        public int? VendorId { get; set; }
+        public string NPWPLawanTransaksi { get; set; }
+        public string NamaLawanTransaksi { get; set; }
+        public string AlamatLawanTransaksi { get; set; }
+        public decimal? JumlahHargaJual { get; set; }
+        public bool? IsCoretax { get; set; }
+        public decimal? JumlahDPP { get; set; }
+        public decimal? JumlahPPN { get; set; }
+        public decimal? JumlahPPNBM { get; set; }
+        public string StatusApproval { get; set; }
+        public string StatusFaktur { get; set; }
+        public bool? Dikreditkan { get; set; }
+        public int? MasaPajak { get; set; }
+        public int? TahunPajak { get; set; }
+        public int? MasaPajakPengkreditan { get; set; }
+        public int? TahunPajakPengkreditan { get; set; }
+        public DateTime? ReceivingDate { get; set; }
+        public string Pesan { get; set; }
+        public int FPType { get; set; }
+        public string FillingIndex { get; set; }
+        public int ScanType { get; set; }
+
+        public bool IsDeleted { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Modified { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
+
+        public string TglFakturString { get; set; }
+        public string ReceivingDateString { get; set; }
+        public string DPPString { get; set; }
+        public string PPNString { get; set; }
+        public string PPNBMString { get; set; }
+
+        public string FormatedNoFaktur { get; set; }
+        public string FormatedNpwpPenjual { get; set; }
+
+        public string FormatedNpwpLawanTransaksi { get; set; }
+        
+        public string MasaPajakName { get; set; }
+        public string ErrorMessage { get; set; }
+
+        public int Status { get; set; }
+        public string StatusText { get; set; }
+
+        public int? StatusReconcile { get; set; }
+
+        public string Referensi { get; set; }
+
+        public string JenisTransaksi { get; set; }
+        public string JenisDokumen { get; set; }
+        public string NoFakturYangDiganti { get; set; }
+        public long? ObjectID { get; set; }
+        public string CertificateID { get; set; }
+        public string StatusPayment { get; set; }
+        public string Remark { get; set; }
+        public string Source { get; set; }
+        public bool IsOutstanding { get; set; }
+        public bool IsCreatedCSV { get; set; }
+        public long? FakturPajakTerlaporID { get; set; }
+        public bool StatusRegular { get; set; }
+        public string NamaPelaporan { get; set; }
+        public string StatusPelaporan { get; set; }
+        public bool IsByPass { get; set; }
+        public DateTime? TglFaktur010 { get; set; }
+        public string TglFakturString010 { get; set; }
+    }
+
+    /// <summary>
+    /// Provides a wrapper on single item in the Location database table. The properties of this class mapped on appropriate database fields and methods provide saving and loading into/from database.
+    /// An instance of this class can be created by new word or loaded from a database using Location class which returns collection of Location by different condition.  
+    /// </summary>     
+    public partial class FakturPajak : ApplicationObject, IApplicationObject
+    {
+        
+        /// <summary>
+        /// Loads result set field values and saves into properties of class.
+        /// </summary>
+        /// <param name="dr">DataReader object which represents current row in the resultset.</param>
+        /// <returns>Returns true if it was successfully loaded.</returns>
+        public virtual bool Load(IDataReader dr)
+        {
+            IsValid = false;
+
+            FakturPajakId = DBUtil.GetLongField(dr, "FakturPajakId");
+            FCode = DBUtil.GetCharField(dr, "FCode");
+            UrlScan = DBUtil.GetCharField(dr, "UrlScan");
+            NPWPPenjual = DBUtil.GetCharField(dr, "NPWPPenjual");
+            KdJenisTransaksi = DBUtil.GetCharField(dr, "KdJenisTransaksi");
+            FgPengganti = DBUtil.GetCharField(dr, "FgPengganti");
+            NoFakturPajak = DBUtil.GetCharField(dr, "NoFakturPajak");
+            TglFaktur = DBUtil.GetDateTimeNullField(dr, "TglFaktur");
+            NPWPPenjual = DBUtil.GetCharField(dr, "NPWPPenjual");
+            NamaPenjual = DBUtil.GetCharField(dr, "NamaPenjual");
+            AlamatPenjual = DBUtil.GetCharField(dr, "AlamatPenjual");
+            VendorId = DBUtil.GetIntNullField(dr, "VendorId");
+            NPWPLawanTransaksi = DBUtil.GetCharField(dr, "NPWPLawanTransaksi");
+            NamaLawanTransaksi = DBUtil.GetCharField(dr, "NamaLawanTransaksi");
+            AlamatLawanTransaksi = DBUtil.GetCharField(dr, "AlamatLawanTransaksi");
+            JumlahHargaJual = DBUtil.GetDecimalNullField(dr, "JumlahHargaJual");
+            JumlahDPP = DBUtil.GetDecimalNullField(dr, "JumlahDPP");
+            JumlahPPN = DBUtil.GetDecimalNullField(dr, "JumlahPPN");
+            JumlahPPNBM = DBUtil.GetDecimalNullField(dr, "JumlahPPNBM");
+            StatusApproval = DBUtil.GetCharField(dr, "StatusApproval");
+            StatusFaktur = DBUtil.GetCharField(dr, "StatusFaktur");
+            Dikreditkan = DBUtil.GetBoolNullField(dr, "Dikreditkan");
+            MasaPajak = DBUtil.GetIntNullField(dr, "MasaPajak");
+            TahunPajak = DBUtil.GetIntNullField(dr, "TahunPajak");
+            ReceivingDate = DBUtil.GetDateTimeNullField(dr, "ReceivingDate");
+            Pesan = DBUtil.GetCharField(dr, "Pesan");
+            
+            FPType = DBUtil.GetIntField(dr, "FPType");
+            FillingIndex = DBUtil.GetCharField(dr, "FillingIndex");
+            ScanType = DBUtil.GetIntField(dr, "ScanType");
+
+            IsDeleted = DBUtil.GetBoolField(dr, "IsDeleted");
+            Created = DBUtil.GetDateTimeField(dr, "Created");
+            Modified = DBUtil.GetDateTimeNullField(dr, "Modified");
+            CreatedBy = DBUtil.GetCharField(dr, "CreatedBy");
+            ModifiedBy = DBUtil.GetCharField(dr, "ModifiedBy");
+
+            TotalItems = DBUtil.GetIntField(dr, "TotalItems");
+
+            TglFakturString = ConvertHelper.DateTimeConverter.ToShortDateString(TglFaktur);
+            ReceivingDateString = ConvertHelper.DateTimeConverter.ToShortDateString(ReceivingDate);
+
+            DPPString = ConvertHelper.DecimalConverter.ToString(JumlahDPP, 2);
+            PPNString = ConvertHelper.DecimalConverter.ToString(JumlahPPN, 2);
+            PPNBMString = ConvertHelper.DecimalConverter.ToString(JumlahPPNBM, 2);
+
+            FormatedNoFaktur = DBUtil.GetCharField(dr, "FormatedNoFaktur");
+            FormatedNpwpPenjual = DBUtil.GetCharField(dr, "FormatedNpwpPenjual");
+            FormatedNpwpLawanTransaksi = DBUtil.GetCharField(dr, "FormatedNpwpLawanTransaksi");
+
+            Status = DBUtil.GetIntField(dr, "Status");
+            StatusText = DBUtil.GetCharField(dr, "StatusText");
+
+            MasaPajakName = DBUtil.GetCharField(dr, "MasaPajakName");
+
+            ErrorMessage = DBUtil.GetCharField(dr, "ErrorMessage");
+
+            StatusReconcile = DBUtil.GetIntNullField(dr, "StatusReconcile");
+
+            Referensi = DBUtil.GetCharField(dr, "Referensi");
+
+            JenisTransaksi = DBUtil.GetCharField(dr, "JenisTransaksi");
+            JenisDokumen = DBUtil.GetCharField(dr, "JenisDokumen");
+            NoFakturYangDiganti = DBUtil.GetCharField(dr, "NoFakturYangDiganti");
+            ObjectID = DBUtil.GetLongNullField(dr, "ObjectID");
+            CertificateID = DBUtil.GetCharField(dr, "CertificateID");
+            StatusPayment = DBUtil.GetCharField(dr, "StatusPayment");
+            Remark = DBUtil.GetCharField(dr, "Remark");
+            Source = DBUtil.GetCharField(dr, "Source");
+            IsOutstanding = DBUtil.GetBoolField(dr, "IsOutstanding");
+            IsCreatedCSV = DBUtil.GetBoolField(dr, "IsCreatedCSV");
+            FakturPajakTerlaporID = DBUtil.GetLongNullField(dr, "FakturPajakTerlaporID");
+            StatusRegular = DBUtil.GetBoolField(dr, "StatusRegular");
+            NamaPelaporan = DBUtil.GetCharField(dr, "NamaPelaporan");
+            StatusPelaporan = DBUtil.GetCharField(dr, "StatusPelaporan");
+            IsByPass = DBUtil.GetBoolField(dr, "IsByPass");
+            TglFaktur010 = DBUtil.GetDateTimeNullField(dr, "TglFaktur010");
+            TglFakturString010 = ConvertHelper.DateTimeConverter.ToShortDateString(TglFaktur010);
+
+            IsCoretax = DBUtil.GetBoolField(dr, "IsCoretax");
+            IsValid = true;
+            return IsValid;
+        }
+
+        public class FakturPajakExpired
+        {
+            public int ExpiredFakturPajak { get; set; }
+            public int NotExpiredFakturPajak { get; set; }
+            public int PajakTidakSesuai { get; set; }
+            public int PajakSudahDilaporkan { get; set; }
+        }
+    }
+}

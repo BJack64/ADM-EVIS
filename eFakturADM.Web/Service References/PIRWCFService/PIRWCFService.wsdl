@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WL5G3N0:definitions xmlns:WL5G3N1="http://tempuri.org/" xmlns:WL5G3N3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:WL5G3N2="http://www.w3.org/2006/05/addressing/wsdl" name="PIRWCFService" targetNamespace="http://tempuri.org/" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/">
+  <WL5G3N0:types>
+    <xsd:schema xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" targetNamespace="http://tempuri.org/Imports" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/PIR_QueryService/Proxy_Service/PIRServiceProxy?SCHEMA%2FPIR_QueryService%2FWSDL%2FXMLSchema_-1844669320" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/PIR_QueryService/Proxy_Service/PIRServiceProxy?SCHEMA%2FPIR_QueryService%2FWSDL%2FXMLSchema_-119188423" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/PIR_QueryService/Proxy_Service/PIRServiceProxy?SCHEMA%2FPIR_QueryService%2FWSDL%2FXMLSchema_1606292474" namespace="http://schemas.datacontract.org/2004/07/PIRService" />
+    </xsd:schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="IPIRWCFService_GetDataByGGI_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetDataByGGI" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IPIRWCFService_GetDataByGGI_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetDataByGGIResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IPIRWCFService_GetDataByField_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetDataByField" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IPIRWCFService_GetDataByField_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetDataByFieldResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IPIRWCFService_GetAllEntity_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetAllEntity" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IPIRWCFService_GetAllEntity_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:GetAllEntityResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="IPIRWCFService">
+    <WL5G3N0:operation name="GetDataByGGI">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetDataByGGI" message="WL5G3N1:IPIRWCFService_GetDataByGGI_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetDataByGGIResponse" message="WL5G3N1:IPIRWCFService_GetDataByGGI_OutputMessage" />
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDataByField">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetDataByField" message="WL5G3N1:IPIRWCFService_GetDataByField_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetDataByFieldResponse" message="WL5G3N1:IPIRWCFService_GetDataByField_OutputMessage" />
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetAllEntity">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetAllEntity" message="WL5G3N1:IPIRWCFService_GetAllEntity_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IPIRWCFService/GetAllEntityResponse" message="WL5G3N1:IPIRWCFService_GetAllEntity_OutputMessage" />
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="BasicHttpBinding_IPIRWCFService" type="WL5G3N1:IPIRWCFService">
+    <WL5G3N3:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <WL5G3N0:operation name="GetDataByGGI">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IPIRWCFService/GetDataByGGI" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDataByField">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IPIRWCFService/GetDataByField" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetAllEntity">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IPIRWCFService/GetAllEntity" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="PIRWCFService">
+    <WL5G3N0:port name="BasicHttpBinding_IPIRWCFService" binding="WL5G3N1:BasicHttpBinding_IPIRWCFService">
+      <WL5G3N3:address location="http://idepbpn-uapoa01:8011/PIR_QueryService/Proxy_Service/PIRServiceProxy" />
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

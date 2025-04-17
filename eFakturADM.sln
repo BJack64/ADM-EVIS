@@ -1,0 +1,359 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{AE333036-8D4D-44C0-B83B-0E2E01FCDEDF}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.Logic", "eFakturADM.Logic\eFakturADM.Logic.csproj", "{6B743A22-8499-47DF-B061-3F9A4EE3DF20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.Web", "eFakturADM.Web\eFakturADM.Web.csproj", "{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 Presentation", "01 Presentation", "{C8FF2CAC-83DA-41C9-AFA2-7C2B72239804}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 Business Logic", "02 Business Logic", "{F9E61717-14ED-40C2-9C49-41744BDF7067}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 Shared", "03 Shared", "{16477E6C-7041-4C44-927B-52A2940575F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 Watcher", "04 Watcher", "{D9A3FC0B-790B-4E15-AE21-2D95EA4E27C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.Shared", "eFakturADM.Shared\eFakturADM.Shared.csproj", "{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 Services", "05 Services", "{0D6D3093-B227-452E-9C6F-71D92B886490}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.FileManager", "eFakturADM.CreateFile\eFakturADM.FileManager.csproj", "{EB8C372C-0D89-4440-AC42-7540ABC3FD95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.DJPLib", "eFakturADM.DJPLib\eFakturADM.DJPLib.csproj", "{1B514077-29B5-44F1-A31D-0145E115627B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.Shared.TestConsole", "eFakturADM.Shared.TestConsole\eFakturADM.Shared.TestConsole.csproj", "{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherLibrary", "WatcherLibrary\WatcherLibrary.csproj", "{97B5799E-7353-487C-85D4-07C3857CC821}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherLibraryMoveFile", "WatcherLibraryMoveFile\WatcherLibraryMoveFile.csproj", "{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherOutboxLibrary", "WatcherOutboxLibrary\WatcherOutboxLibrary.csproj", "{53B093CF-4125-40EC-9A73-AD2A61E22DCC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherInboxService", "WatcherInboxService\WatcherInboxService.csproj", "{2C74006E-986D-451C-8790-36FF1A670C0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherOutboxService", "WatcherOutboxService\WatcherOutboxService.csproj", "{96EDF62E-9C70-4387-B576-1283239287B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherService", "WatcherService\WatcherService.csproj", "{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherConsole", "WatcherConsole\WatcherConsole.csproj", "{9F541FCB-0708-44DF-9E0F-7177D084FB75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.DJPService", "eFakturADM.FakturPajakService\eFakturADM.DJPService.csproj", "{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.Data", "eFakturADM.ParamTable\eFakturADM.Data.csproj", "{FF56623A-088C-4D87-9DEB-1523556C2152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.FPOutstandingService", "eFakturADM.FPOutstandingService\eFakturADM.FPOutstandingService.csproj", "{95D9F20F-4670-4400-88D6-69812949117F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06 Api", "06 Api", "{2D1CB7DE-AC41-4276-9012-586911D6D065}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.WebApi", "eFakturADM.WebApi\eFakturADM.WebApi.csproj", "{B96207CF-819E-41B7-93F3-7FD148B4B9FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.ExternalLib", "eFakturADM.ExternalLib\eFakturADM.ExternalLib.csproj", "{216461B8-95CD-4072-A0E3-67EEDDB34BF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerRepostingService", "SchedulerRepostingService\SchedulerRepostingService.csproj", "{B9736E35-09A8-47FB-85D4-1B33B79D026E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eFakturADM.SchedulerService", "eFakturADM.SchedulerService\eFakturADM.SchedulerService.csproj", "{503A81D5-5280-44B9-AEE9-2862569DD1B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerRepostingService2", "SchedulerRepostingService2\SchedulerRepostingService2.csproj", "{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM64 = Debug|ARM64
+		Release|Any CPU = Release|Any CPU
+		Release|ARM64 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Debug|ARM64.Build.0 = Debug|ARM64
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Release|ARM64.ActiveCfg = Release|ARM64
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20}.Release|ARM64.Build.0 = Release|ARM64
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Debug|ARM64.Build.0 = Debug|ARM64
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Release|ARM64.ActiveCfg = Release|ARM64
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09}.Release|ARM64.Build.0 = Release|ARM64
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Debug|ARM64.Build.0 = Debug|ARM64
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Release|ARM64.ActiveCfg = Release|ARM64
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F}.Release|ARM64.Build.0 = Release|ARM64
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Debug|ARM64.Build.0 = Debug|ARM64
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Release|ARM64.ActiveCfg = Release|ARM64
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95}.Release|ARM64.Build.0 = Release|ARM64
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Debug|ARM64.Build.0 = Debug|ARM64
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Release|ARM64.ActiveCfg = Release|ARM64
+		{1B514077-29B5-44F1-A31D-0145E115627B}.Release|ARM64.Build.0 = Release|ARM64
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Debug|ARM64.Build.0 = Debug|ARM64
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Release|ARM64.ActiveCfg = Release|ARM64
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709}.Release|ARM64.Build.0 = Release|ARM64
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Debug|ARM64.Build.0 = Debug|ARM64
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Release|ARM64.ActiveCfg = Release|ARM64
+		{97B5799E-7353-487C-85D4-07C3857CC821}.Release|ARM64.Build.0 = Release|ARM64
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Debug|ARM64.Build.0 = Debug|ARM64
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Release|ARM64.ActiveCfg = Release|ARM64
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29}.Release|ARM64.Build.0 = Release|ARM64
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Debug|ARM64.Build.0 = Debug|ARM64
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Release|ARM64.ActiveCfg = Release|ARM64
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC}.Release|ARM64.Build.0 = Release|ARM64
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Debug|ARM64.Build.0 = Debug|ARM64
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Release|ARM64.ActiveCfg = Release|ARM64
+		{2C74006E-986D-451C-8790-36FF1A670C0B}.Release|ARM64.Build.0 = Release|ARM64
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Debug|ARM64.Build.0 = Debug|ARM64
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Release|ARM64.ActiveCfg = Release|ARM64
+		{96EDF62E-9C70-4387-B576-1283239287B2}.Release|ARM64.Build.0 = Release|ARM64
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Debug|ARM64.Build.0 = Debug|ARM64
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Release|ARM64.ActiveCfg = Release|ARM64
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680}.Release|ARM64.Build.0 = Release|ARM64
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Debug|ARM64.Build.0 = Debug|ARM64
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Release|ARM64.ActiveCfg = Release|ARM64
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75}.Release|ARM64.Build.0 = Release|ARM64
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Debug|ARM64.Build.0 = Debug|ARM64
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Release|ARM64.ActiveCfg = Release|ARM64
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88}.Release|ARM64.Build.0 = Release|ARM64
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Debug|ARM64.Build.0 = Debug|ARM64
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Release|ARM64.ActiveCfg = Release|ARM64
+		{FF56623A-088C-4D87-9DEB-1523556C2152}.Release|ARM64.Build.0 = Release|ARM64
+		{95D9F20F-4670-4400-88D6-69812949117F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D9F20F-4670-4400-88D6-69812949117F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D9F20F-4670-4400-88D6-69812949117F}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{95D9F20F-4670-4400-88D6-69812949117F}.Debug|ARM64.Build.0 = Debug|ARM64
+		{95D9F20F-4670-4400-88D6-69812949117F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D9F20F-4670-4400-88D6-69812949117F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D9F20F-4670-4400-88D6-69812949117F}.Release|ARM64.ActiveCfg = Release|ARM64
+		{95D9F20F-4670-4400-88D6-69812949117F}.Release|ARM64.Build.0 = Release|ARM64
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA}.Release|ARM64.Build.0 = Release|ARM64
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Debug|ARM64.Build.0 = Debug|ARM64
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Release|ARM64.ActiveCfg = Release|ARM64
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7}.Release|ARM64.Build.0 = Release|ARM64
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E}.Release|ARM64.Build.0 = Release|ARM64
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Debug|ARM64.Build.0 = Debug|ARM64
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Release|ARM64.ActiveCfg = Release|ARM64
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7}.Release|ARM64.Build.0 = Release|ARM64
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Debug|ARM64.Build.0 = Debug|ARM64
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Release|ARM64.ActiveCfg = Release|ARM64
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27}.Release|ARM64.Build.0 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6B743A22-8499-47DF-B061-3F9A4EE3DF20} = {F9E61717-14ED-40C2-9C49-41744BDF7067}
+		{62014DB7-FCEE-4EFB-ABDB-DBBBFFEE7A09} = {C8FF2CAC-83DA-41C9-AFA2-7C2B72239804}
+		{7286FC10-01E2-4250-B9DB-A69ECC2AB19F} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{EB8C372C-0D89-4440-AC42-7540ABC3FD95} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{1B514077-29B5-44F1-A31D-0145E115627B} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{A78F75E5-99C0-44BD-B071-2DBF0FD8E709} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{97B5799E-7353-487C-85D4-07C3857CC821} = {D9A3FC0B-790B-4E15-AE21-2D95EA4E27C5}
+		{263C97C9-F18A-47F8-9831-3C5E4DEE0A29} = {D9A3FC0B-790B-4E15-AE21-2D95EA4E27C5}
+		{53B093CF-4125-40EC-9A73-AD2A61E22DCC} = {D9A3FC0B-790B-4E15-AE21-2D95EA4E27C5}
+		{2C74006E-986D-451C-8790-36FF1A670C0B} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{96EDF62E-9C70-4387-B576-1283239287B2} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{FF6925B0-C589-40D4-BBE7-AEDD7F99C680} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{9F541FCB-0708-44DF-9E0F-7177D084FB75} = {D9A3FC0B-790B-4E15-AE21-2D95EA4E27C5}
+		{21DCB896-A2B9-47DE-9D1C-AF6C421BED88} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{FF56623A-088C-4D87-9DEB-1523556C2152} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{95D9F20F-4670-4400-88D6-69812949117F} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{B96207CF-819E-41B7-93F3-7FD148B4B9FA} = {2D1CB7DE-AC41-4276-9012-586911D6D065}
+		{216461B8-95CD-4072-A0E3-67EEDDB34BF7} = {16477E6C-7041-4C44-927B-52A2940575F7}
+		{B9736E35-09A8-47FB-85D4-1B33B79D026E} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{503A81D5-5280-44B9-AEE9-2862569DD1B7} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+		{72E42A1B-151A-4AAE-BE04-3BA42AEAED27} = {0D6D3093-B227-452E-9C6F-71D92B886490}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06BBEF8E-D13A-47B6-BAC5-4070815D3146}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 21
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://dev.azure.com/atlantica
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = eFakturADM.Logic\\eFakturADM.Logic.csproj
+		SccProjectTopLevelParentUniqueName1 = eFakturADM.sln
+		SccProjectName1 = eFakturADM.Logic
+		SccLocalPath1 = eFakturADM.Logic
+		SccProjectUniqueName2 = eFakturADM.Web\\eFakturADM.Web.csproj
+		SccProjectTopLevelParentUniqueName2 = eFakturADM.sln
+		SccProjectName2 = eFakturADM.Web
+		SccLocalPath2 = eFakturADM.Web
+		SccProjectUniqueName3 = eFakturADM.Shared\\eFakturADM.Shared.csproj
+		SccProjectTopLevelParentUniqueName3 = eFakturADM.sln
+		SccProjectName3 = eFakturADM.Shared
+		SccLocalPath3 = eFakturADM.Shared
+		SccProjectUniqueName4 = eFakturADM.DJPLib\\eFakturADM.DJPLib.csproj
+		SccProjectTopLevelParentUniqueName4 = eFakturADM.sln
+		SccProjectName4 = eFakturADM.DJPLib
+		SccLocalPath4 = eFakturADM.DJPLib
+		SccProjectUniqueName5 = eFakturADM.Shared.TestConsole\\eFakturADM.Shared.TestConsole.csproj
+		SccProjectTopLevelParentUniqueName5 = eFakturADM.sln
+		SccProjectName5 = eFakturADM.Shared.TestConsole
+		SccLocalPath5 = eFakturADM.Shared.TestConsole
+		SccProjectUniqueName6 = WatcherLibrary\\WatcherLibrary.csproj
+		SccProjectTopLevelParentUniqueName6 = eFakturADM.sln
+		SccProjectName6 = WatcherLibrary
+		SccLocalPath6 = WatcherLibrary
+		SccProjectUniqueName7 = WatcherLibraryMoveFile\\WatcherLibraryMoveFile.csproj
+		SccProjectTopLevelParentUniqueName7 = eFakturADM.sln
+		SccProjectName7 = WatcherLibraryMoveFile
+		SccLocalPath7 = WatcherLibraryMoveFile
+		SccProjectUniqueName8 = WatcherOutboxLibrary\\WatcherOutboxLibrary.csproj
+		SccProjectTopLevelParentUniqueName8 = eFakturADM.sln
+		SccProjectName8 = WatcherOutboxLibrary
+		SccLocalPath8 = WatcherOutboxLibrary
+		SccProjectUniqueName9 = WatcherInboxService\\WatcherInboxService.csproj
+		SccProjectTopLevelParentUniqueName9 = eFakturADM.sln
+		SccProjectName9 = WatcherInboxService
+		SccLocalPath9 = WatcherInboxService
+		SccProjectUniqueName10 = WatcherOutboxService\\WatcherOutboxService.csproj
+		SccProjectTopLevelParentUniqueName10 = eFakturADM.sln
+		SccProjectName10 = WatcherOutboxService
+		SccLocalPath10 = WatcherOutboxService
+		SccProjectUniqueName11 = WatcherService\\WatcherService.csproj
+		SccProjectTopLevelParentUniqueName11 = eFakturADM.sln
+		SccProjectName11 = WatcherService
+		SccLocalPath11 = WatcherService
+		SccProjectUniqueName12 = WatcherConsole\\WatcherConsole.csproj
+		SccProjectTopLevelParentUniqueName12 = eFakturADM.sln
+		SccProjectName12 = WatcherConsole
+		SccLocalPath12 = WatcherConsole
+		SccProjectUniqueName13 = eFakturADM.FakturPajakService\\eFakturADM.DJPService.csproj
+		SccProjectTopLevelParentUniqueName13 = eFakturADM.sln
+		SccProjectName13 = eFakturADM.FakturPajakService
+		SccLocalPath13 = eFakturADM.FakturPajakService
+		SccProjectUniqueName14 = eFakturADM.ParamTable\\eFakturADM.Data.csproj
+		SccProjectTopLevelParentUniqueName14 = eFakturADM.sln
+		SccProjectName14 = eFakturADM.ParamTable
+		SccLocalPath14 = eFakturADM.ParamTable
+		SccProjectUniqueName15 = eFakturADM.CreateFile\\eFakturADM.FileManager.csproj
+		SccProjectTopLevelParentUniqueName15 = eFakturADM.sln
+		SccProjectName15 = eFakturADM.CreateFile
+		SccLocalPath15 = eFakturADM.CreateFile
+		SccProjectUniqueName16 = eFakturADM.FPOutstandingService\\eFakturADM.FPOutstandingService.csproj
+		SccProjectTopLevelParentUniqueName16 = eFakturADM.sln
+		SccProjectName16 = eFakturADM.FPOutstandingService
+		SccLocalPath16 = eFakturADM.FPOutstandingService
+		SccProjectUniqueName17 = eFakturADM.WebApi\\eFakturADM.WebApi.csproj
+		SccProjectTopLevelParentUniqueName17 = eFakturADM.sln
+		SccProjectName17 = eFakturADM.WebApi
+		SccLocalPath17 = eFakturADM.WebApi
+		SccProjectUniqueName18 = eFakturADM.ExternalLib\\eFakturADM.ExternalLib.csproj
+		SccProjectTopLevelParentUniqueName18 = eFakturADM.sln
+		SccProjectName18 = eFakturADM.ExternalLib
+		SccLocalPath18 = eFakturADM.ExternalLib
+		SccProjectUniqueName19 = SchedulerRepostingService\\SchedulerRepostingService.csproj
+		SccProjectTopLevelParentUniqueName19 = eFakturADM.sln
+		SccProjectName19 = SchedulerRepostingService
+		SccLocalPath19 = SchedulerRepostingService
+		SccProjectUniqueName20 = eFakturADM.SchedulerService\\eFakturADM.SchedulerService.csproj
+		SccProjectTopLevelParentUniqueName20 = eFakturADM.sln
+		SccProjectName20 = eFakturADM.SchedulerService
+		SccLocalPath20 = eFakturADM.SchedulerService
+	EndGlobalSection
+EndGlobal

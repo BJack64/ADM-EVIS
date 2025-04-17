@@ -1,0 +1,451 @@
+﻿@using eFakturADM.Web.Helpers
+@{
+    ViewBag.Title = "Scan QR Code Pembetulan IWS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMasaPajakCloseList();
+    var yearList = new List<SelectListItem>();
+
+    var listKreditPajak = new List<SelectListItem>
+    {
+        new SelectListItem {Text = "Ya", Value = "Ya", Selected = true},
+        new SelectListItem {Text = "Tidak", Value = "Tidak"}
+    };
+}
+
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>Scan QR Code Pembetulan IWS</h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <!-- Filtering Header -->
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Masa Pajak</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm" })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Tahun Pajak</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control w-sm" })
+                        </div>
+                        <div class="col-md-4" style="padding-top:7px;">
+                            <input type="checkbox" id="cbx-scansatuan-setmasapajak">Set Masa Pajak
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Receiving Date<span class="required"> *</span></label>
+                        <div class="col-md-2" style="display:table">
+                            <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                            <input class="form-control datepicker" size="16" type="text" id="input-scansatuan-receivingdate" value="@DateTime.Now.ToString("dd/MM/yyyy")" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Filling Index & Count -->
+        <div class="form-group padding-bottom-10 " style=" border-bottom:1px solid #eaeaea;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Filing Index</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-ordner" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-9 control-label" style="text-align:right">Count</label>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control w-xss" id="input-scansatuan-count" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <label class="col-md-3 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                        <div class="col-md-9">
+                            <div class="radio-list">
+                                <div>
+                                    @for (int i = 0; i < listKreditPajak.Count; i++)
+                                    {
+                                        <label class="radios">
+                                            <span>
+                                                @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                            </span>
+                                            @listKreditPajak[i].Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-2 control-label">Scan<span class="required"> *</span></label>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="input-scansatuan-scanurl" style="margin-left:-3px" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">No Faktur</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-nofaktur" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">NPWP Penjual</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-npwppenjual" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Nama Penjual</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-namapenjual" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Tanggal Faktur</label>
+                        <div class="col-md-8 w-md" style="display:table">
+                            <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                            <input class="form-control datepicker" size="16" type="text" id="input-scansatuan-tanggalfaktur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" disabled="disabled" />
+
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Alamat Penjual</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" style="resize:none;" rows="3" id="input-scansatuan-alamatpenjual" disabled="disabled"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Jumlah DPP</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control text-right" id="input-scansatuan-jumlahdpp" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Jumlah PPN</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control text-right" id="input-scansatuan-jumlahppn" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Jumlah PPnBM</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control text-right" id="input-scansatuan-jumlahppnbm" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Status Approval</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-statusapproval" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Status Faktur</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-statusfaktur" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        //FirstLoad
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+        $('#input-scansatuan-receivingdate').datepicker().on('changeDate', function () {
+            setDataCountIws();
+        });
+
+        //firsload
+        setDataCountIws();
+        
+        $("#input-scansatuan-scanurl").focus();
+    });
+
+    function setDataCountIws() {
+        var rc = $('#input-scansatuan-receivingdate').val();
+        var jsonData = JSON.stringify({ receivingDate: rc });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetCountByReceivingDate", "ScanQRCode")",
+            contentType: 'application/json; charset=utf-8',
+            dataType: "json",
+            data: jsonData,
+            cache: false,
+            success: function (result) {
+                $('#input-scansatuan-count').val(result.aaDat);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    $("#input-scansatuan-scanurl").keypress(function (e) {
+        if (e.which == 13) {
+            var scanUrl = $("#input-scansatuan-scanurl").val();
+            $("#input-scansatuan-scanurl").attr("disabled", "disabled");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetDataFromDJP", "ScanQRCode")",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    URL: scanUrl
+                }),
+                cache: false,
+                success: function (result) {
+                    if (result.InfoType == 2) {
+                        toastr.warning(result.ErrorMsg, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        $("#input-scansatuan-scanurl").removeAttr("disabled");
+                        resetField();
+                    }
+                    else {
+                        if (result.Data != null) {
+                            pushData(result, result.ScanUrl);
+                        }
+                        else {
+                            toastr.warning("No Data", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                            $("#input-scansatuan-scanurl").removeAttr("disabled");
+                            resetField();
+                        }
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    App.DialogError(xhr, textStatus, errorThrown);
+                    $("#input-scansatuan-scanurl").removeAttr("disabled");
+                    $("#input-scansatuan-scanurl").focus();
+                }
+            });
+        }
+    });
+
+    $('#cbx-scansatuan-setmasapajak').click(function () {
+        if ($(this).is(':checked')) {
+            $("#listMasaPajak").attr("disabled", "disabled");
+            $("#listTahunPajak").attr("disabled", "disabled");
+            $("#input-scansatuan-receivingdate").attr("disabled", "disabled");
+        } else {
+            $("#listMasaPajak").removeAttr("disabled");
+            $("#listTahunPajak").removeAttr("disabled");
+            $("#input-scansatuan-receivingdate").removeAttr("disabled");
+        }
+    });
+
+    function pushData(oDataDjp, scanUrl) {
+
+        var dataToPush = {
+            FakturPajakId: -1,
+            UrlScan: scanUrl,
+            NoFakturPajak: oDataDjp.Data.NomorFaktur,
+            NPWPLawanTransaksi: oDataDjp.Data.NpwpLawanTransaksi,
+            NamaLawanTransaksi: oDataDjp.Data.NamaLawanTransaksi,
+            TglFaktur: oDataDjp.Data.TanggalFaktur,
+            AlamatLawanTransaksi: oDataDjp.Data.AlamatLawanTransaksi,
+            JumlahDPP: oDataDjp.Data.JumlahDpp,
+            JumlahPPN: oDataDjp.Data.JumlahPpn,
+            JumlahPPNBM: oDataDjp.Data.JumlahPpnBm,
+            MasaPajak: $('#listMasaPajak option:selected').val(),
+            TahunPajak: $('#listTahunPajak option:selected').val(),
+            ReceivingDate: $('#input-scansatuan-receivingdate').val(),
+            Dikreditkan: $('input[name=kreditpajak]:checked').val(),
+            FgPengganti: oDataDjp.Data.FgPengganti,
+            KdJenisTransaksi: oDataDjp.Data.KdJenisTransaksi,
+            NPWPPenjual: oDataDjp.Data.NpwpPenjual,
+            NamaPenjual: oDataDjp.Data.NamaPenjual,
+            AlamatPenjual: oDataDjp.Data.AlamatPenjual,
+            StatusApproval: oDataDjp.Data.StatusApproval,
+            StatusFaktur: oDataDjp.Data.StatusFaktur,
+            FpDetailTransaksi: oDataDjp.Data.DetailTransaksi
+        };
+
+        var jsonData = JSON.stringify({ info: dataToPush });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ValidationScanPembetulanIws", "ScanQRCode")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                switch (data.Html.InfoType) {
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        bindInvalidData(data.aaDat);
+                        break;
+                };
+                if (data.Html.InfoType == 1) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("PushScanPembetulanIws", "ScanQRCode")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: jsonData,
+                        cache: false,
+                        success: function(response) {
+                            switch (response.Html.InfoType) {
+                            case 0:
+                                toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            case 1:
+                                toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            case 2:
+                                toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                dialog.close();
+                                break;
+                            case 3:
+                                toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            }
+                            if (response.Html.InfoType == 1) {
+                                $('#input-scansatuan-ordner').val(response.aaData.FillingIndex);
+                                $("#input-scansatuan-nofaktur").val(response.aaData.FormatedNoFaktur);
+                                $("#input-scansatuan-npwppenjual").val(response.aaData.FormatedNpwpPenjual);
+                                $("#input-scansatuan-namapenjual").val(response.aaData.NamaPenjual);
+                                $("#input-scansatuan-tanggalfaktur").val(response.aaData.TglFakturString);
+                                $("#input-scansatuan-alamatpenjual").val(response.aaData.AlamatPenjual);
+                                $("#input-scansatuan-jumlahdpp").val(response.aaData.DPPString);
+                                $("#input-scansatuan-jumlahppn").val(response.aaData.PPNString);
+                                $("#input-scansatuan-jumlahppnbm").val(response.aaData.PPNBMString);
+                                $("#input-scansatuan-statusapproval").val(response.aaData.StatusApproval);
+                                $("#input-scansatuan-statusfaktur").val(response.aaData.StatusFaktur);
+                                setDataCountIws();
+                            }
+                            
+                            $("#input-scansatuan-scanurl").val('');
+                            $("#input-scansatuan-scanurl").removeAttr("disabled");
+                            $("#input-scansatuan-scanurl").focus();
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                            
+                            $("#input-scansatuan-scanurl").val('');
+                            $("#input-scansatuan-scanurl").removeAttr("disabled");
+                            $("#input-scansatuan-scanurl").focus();
+                        }
+                    });
+                } else {
+                    $("#input-scansatuan-scanurl").focus();
+                    $("#input-scansatuan-scanurl").val('');
+                    $("#input-scansatuan-scanurl").removeAttr("disabled");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+                
+                $("#input-scansatuan-scanurl").val('');
+                $("#input-scansatuan-scanurl").removeAttr("disabled");
+                $("#input-scansatuan-scanurl").focus();
+            }
+        });
+    }
+
+    function bindInvalidData(aaData) {
+        $('#input-scansatuan-ordner').val('');
+        $("#input-scansatuan-nofaktur").val(aaData.FormatedNoFaktur);
+        $("#input-scansatuan-npwppenjual").val(aaData.FormatedNpwpPenjual);
+        $("#input-scansatuan-namapenjual").val(aaData.NamaPenjual);
+        $("#input-scansatuan-tanggalfaktur").val(aaData.TglFaktur);
+        $("#input-scansatuan-alamatpenjual").val(aaData.AlamatPenjual);
+        $("#input-scansatuan-jumlahdpp").val(_addCommas(aaData.JumlahDPP));
+        $("#input-scansatuan-jumlahppn").val(_addCommas(aaData.JumlahPPN));
+        $("#input-scansatuan-jumlahppnbm").val(_addCommas(aaData.JumlahPPNBM));
+        $("#input-scansatuan-statusapproval").val(aaData.StatusApproval);
+        $("#input-scansatuan-statusfaktur").val(aaData.StatusFaktur);
+        
+        $("#input-scansatuan-scanurl").focus();
+        
+    }
+
+    function resetField() {
+        $("#input-scansatuan-scanurl").val('');
+        $("#input-scansatuan-nofaktur").val('');
+        $("#input-scansatuan-npwppenjual").val('');
+        $("#input-scansatuan-namapenjual").val('');
+        $("#input-scansatuan-tanggalfaktur").val('');
+        $("#input-scansatuan-alamatpenjual").val('');
+        $("#input-scansatuan-jumlahdpp").val('');
+        $("#input-scansatuan-jumlahppn").val('');
+        $("#input-scansatuan-jumlahppnbm").val('');
+        $("#input-scansatuan-statusapproval").val('');
+        $("#input-scansatuan-statusfaktur").val('');
+        $("#hdn-scansatuan-fgpengganti").val('');
+        $("#hdn-scansatuan-kdjenistransaksi").val('');
+        $("#hdn-scansatuan-npwppenjual").val('');
+        $("#hdn-scansatuan-namapenjual").val('');
+        $("#hdn-scansatuan-alamatpenjual").val('');
+        $("#hdn-scansatuan-statusapproval").val('');
+        $("#hdn-scansatuan-statusfaktur").val('');
+
+        $("#input-scansatuan-scanurl").focus();
+    }
+
+    $('#listMasaPajak').change(function () {
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+    });
+
+    function loadTahunPajak(aMonth) {
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetCloseTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+</script>

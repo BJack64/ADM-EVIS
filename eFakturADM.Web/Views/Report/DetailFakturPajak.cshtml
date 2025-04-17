@@ -1,0 +1,399 @@
+﻿@using eFakturADM.Web.Helpers
+
+@{
+    ViewBag.Title = "Report Detail Faktur Pajak";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_download = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("55", _loginResult.RoleId[0]);
+    var check_download = roleActivities_download.Count != 0 ? true : false;
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Report Detail Faktur Pajak
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-report-nofaktur1" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-report-nofaktur2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tgl. Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglawal" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglakhir" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Scan Date</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-scandate-awal" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-scandate-akhir" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak<span class="required"> *</span></label>
+                            <div class="col-md-9 form-inline">
+                                <div class="input-group w-sm">
+                                    @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun</label>
+                            <div class="col-md-9 form-inline">
+                                <div class="input-group w-sm">
+                                    <input type="text" class="form-control" id="input-search-tahunpajak" />
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">NPWP Vendor</label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="input-search-npwpvendor" />
+                                    </div>
+                                    <div class="input-group">
+                                        <button type="button" class="btn btn-success" id="btn-search-browsevendor">
+                                            ...
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Nama Vendor</label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="input-search-namavendor" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0;">
+                    <div class="table-scrollable">
+                        <table id="tbl-report-detailfp" class="tblheader table table-striped table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        No
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Nomor FP
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Nama Barang / Jasa
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Harga Satuan
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Discount
+                                    </th>
+                                    <th style="min-width:100px">
+                                        DPP <br />(Header)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPN <br />(Header)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPnBM <br />(Header)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        DPP <br />(Detail)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPN <br />(Detail)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPnBM <br />(Detail)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Tarif PPnBM <br />(Detail)
+                                    </th>
+                                    <th style="min-width:150px">
+                                        NPWP Penjual
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Nama Penjual
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Filling Index
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_download)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-download-excel">
+                                    Download Excel
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var firstLoad;
+    $(document).ready(function() {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        ReportDetailFakturPajak.init();
+
+        $('#btn-search').click(function () {
+            firstLoad = false;
+            searchClick();
+        });
+
+        $('#btn-reset').click(function () {
+            firstLoad = true;
+            resetClick();
+        });
+
+        $('#btn-download-excel').click(function() {
+            downloadExcelReportDetailFp();
+        });
+
+    });
+
+    function downloadExcelReportDetailFp() {
+        noFaktur1 = $('#input-search-report-nofaktur1').val();
+        noFaktur2 = $('#input-search-report-nofaktur2').val();
+        NPWPVendor = $("#input-search-npwpvendor").val();
+        NamaVendor = $("#input-search-namavendor").val();
+        TglFakturStart = $("#input-search-tglawal").val();
+        TglFakturEnd = $("#input-search-tglakhir").val();
+        MasaPajak = $("#listMasaPajak option:selected").val();
+        TahunPajak = $("#input-search-tahunpajak").val();
+        ScanDateAwal = $('#input-search-scandate-awal').val();
+        ScanDateAkhir = $('#input-search-scandate-akhir').val();
+
+        var search = $('.dataTables_filter input').val();
+        var strUrl = '@Url.Action("ExportReportDetailFakturPajakToExcel", "ExportDownload")' + "?noFaktur1=" + noFaktur1 + '&noFaktur2=' + noFaktur2 + '&search=' + search
+            + '&npwp=' + NPWPVendor + '&nama=' + NamaVendor + '&tglStart=' + TglFakturStart + '&tglEnd=' + TglFakturEnd + '&masaPajak=' + MasaPajak
+            + '&tahunPajak=' + TahunPajak + '&scanDateAwal=' + ScanDateAwal + '&scanDateAkhir=' + ScanDateAkhir;
+        window.open(strUrl, '_blank');
+    }
+
+    function resetClick() {
+        $('#input-search-report-nofaktur1').val('');
+        $('#input-search-report-nofaktur2').val('');
+
+        noFaktur1 = $('#input-search-report-nofaktur1').val();
+        noFaktur2 = $('#input-search-report-nofaktur2').val();
+
+        $("#input-search-tglawal").val('');
+        $("#input-search-tglakhir").val('');
+
+        $('#input-search-scandate-awal').val('');
+        $('#input-search-scandate-akhir').val('');
+
+        $("#listMasaPajak").val('');
+        $("#input-search-tahunpajak").val('');
+
+        $("#input-search-npwpvendor").val('');
+        $("#input-search-namavendor").val('');
+
+
+        var table = $('#tbl-report-detailfp').DataTable();
+        table.search('').draw();
+
+
+    }
+
+    function searchClick() {
+        noFaktur1 = $('#input-search-report-nofaktur1').val();
+        noFaktur2 = $('#input-search-report-nofaktur2').val();
+        NPWPVendor = $("#input-search-npwpvendor").val();
+        NamaVendor = $("#input-search-namavendor").val();
+        TglFakturStart = $("#input-search-tglawal").val();
+        TglFakturEnd = $("#input-search-tglakhir").val();
+        MasaPajak = $("#listMasaPajak option:selected").val();
+        TahunPajak = $("#input-search-tahunpajak").val();
+        ScanDateAwal = $('#input-search-scandate-awal').val();
+        ScanDateAkhir = $('#input-search-scandate-akhir').val();
+        var table = $('#tbl-report-detailfp').DataTable();
+        table.ajax.reload();
+
+    }
+
+
+    $("#btn-search-browsevendor").bind("click", function (e) {
+        App.DialogGet('@Url.Action("BrowseVendorDialog", "Master")', e, {
+            AccessFrom: "Search"
+        });
+    });
+
+    var noFaktur1;
+    var noFaktur2;
+    var NPWPVendor;
+    var NamaVendor;
+    var TglFakturStart;
+    var TglFakturEnd;
+    var MasaPajak;
+    var TahunPajak;
+    var ScanDateAwal;
+    var ScanDateAkhir;
+
+    var ReportDetailFakturPajak = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                var table = $('#tbl-report-detailfp');
+
+                noFaktur1 = $('#input-search-report-nofaktur1').val();
+                noFaktur2 = $('#input-search-report-nofaktur2').val();
+                NPWPVendor = $("#input-search-npwpvendor").val();
+                NamaVendor = $("#input-search-namavendor").val();
+                TglFakturStart = $("#input-search-tglawal").val();
+                TglFakturEnd = $("#input-search-tglakhir").val();
+                MasaPajak = $("#listMasaPajak option:selected").val();
+                TahunPajak = $("#input-search-tahunpajak").val();
+                ScanDateAwal = $('#input-search-scandate-awal').val();
+                ScanDateAkhir = $('#input-search-scandate-akhir').val();
+
+                table.dataTable({
+                    //"sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "sDom": "<'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100, -1], [10, 20, 50, 100, "All"]],
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetListDetailFakturPajak", "Report")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "noFaktur1", "value": noFaktur1 },
+                            { "name": "noFaktur2", "value": noFaktur2 },
+                            { "name": "NPWP", "value": NPWPVendor },
+                            { "name": "Nama", "value": NamaVendor },
+                            { "name": "TglFakturStart", "value": TglFakturStart },
+                            { "name": "TglFakturEnd", "value": TglFakturEnd },
+                            { "name": "MasaPajak", "value": MasaPajak },
+                            { "name": "TahunPajak", "value": TahunPajak },
+                            { "name": "scanDateAwal", "value": ScanDateAwal },
+                            { "name": "scanDateAkhir", "value": ScanDateAkhir }
+                        );
+                    },
+                    "columns": [
+                        { "data": "VSequenceNumber", "orderable": false, "searchable": false },
+                        { "data": "FormatedNoFaktur", "orderable": true, "searchable": true },
+                        { "data": "Nama", "orderable": true, "searchable": true },
+                        { "data": "HargaSatuanstring", "orderable": true, "searchable": true },
+                        { "data": "Diskonstring", "orderable": true, "searchable": true },
+                        { "data": "JumlahDppString", "orderable": true, "searchable": true },
+                        { "data": "JumlahPpnString", "orderable": true, "searchable": true },
+                        { "data": "JumlahPpnBmString", "orderable": true, "searchable": true },
+                        { "data": "Dppstring", "orderable": true, "searchable": true },
+                        { "data": "Ppnstring", "orderable": true, "searchable": true },
+                        { "data": "Ppnbmstring", "orderable": true, "searchable": true },
+                        { "data": "TarifPpnbmstring", "orderable": true, "searchable": true },
+                        { "data": "FormatedNpwpPenjual", "orderable": true, "searchable": true },
+                        { "data": "NamaPenjual", "orderable": true, "searchable": true },
+                        { "data": "FillingIndex", "orderable": true, "searchable": true }
+
+
+
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+
+            },
+
+            initHandlers: function () {
+                $('#tbl-report-detailfp').on('draw.dt', function () {
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+</script>

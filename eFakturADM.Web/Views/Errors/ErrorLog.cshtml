@@ -1,0 +1,73 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "Error Log";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    log4net.Appender.RollingFileAppender appender = null;
+    List<String> Files = new List<String>();
+    try
+    {
+        appender = (log4net.Appender.RollingFileAppender)log4net.LogManager.GetCurrentLoggers()[0].Logger.Repository.GetAppenders()[0];
+        String FolderPath = System.IO.Path.GetDirectoryName(appender.File);
+        List<String> AllLogFiles = Directory.GetFiles(FolderPath).ToList();
+        List<String> OldLogs = Directory.GetFiles(FolderPath).ToList();
+        OldLogs.Remove(appender.File);
+
+
+        int index = 0, deleted = 0;
+        while((OldLogs.Count - deleted) > appender.MaxSizeRollBackups)
+        {
+            try{
+                
+                System.IO.File.Delete(OldLogs[index]);
+                deleted++;
+            }
+            catch(Exception)
+            {
+                
+            }
+            index++;
+        }
+
+        AllLogFiles = Directory.GetFiles(FolderPath).ToList();
+        foreach (String file in Directory.GetFiles(FolderPath))
+        {
+            Files.Add(Path.GetFileName(file));
+        }
+    }
+    catch (Exception)
+    {
+    }
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Error Log
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="tabbable-line">
+        <div id="risk-rating-holder">
+            <div class="portlet">
+                <div class="portlet-body">
+                <ul>
+                @foreach (var item in Files)
+                    {
+                    <li>
+                       
+                            <a href="#" class="" onclick="location.href='@Url.Action("DownloadFile", "errors", new { file = @item })'">@item </a>
+                        
+                    </li>
+                    }
+                </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

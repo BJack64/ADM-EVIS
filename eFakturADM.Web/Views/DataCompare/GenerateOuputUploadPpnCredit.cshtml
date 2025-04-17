@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "[Dev-Only]Generate OuputUploadPpnCredit";
+}
+
+<h2>Generate OuputUploadPpnCredit</h2>
+<table>
+    <tr>
+        <td>Id No </td>
+        <td> : </td>
+        <td>
+            <input type="text" id="txt-id-no" />
+        </td>
+    </tr>
+    <tr>
+        <td>Is Success</td>
+        <td> : </td>
+        <td>
+            <input type="text" id="txt-is-success" />
+        </td>
+    </tr>
+    <tr>
+        <td>Message</td>
+        <td> : </td>
+        <td>
+            <input type="text" id="txt-msg-error" />
+        </td>
+    </tr>
+    <tr>
+        <td>Accounting Doc No Kredit</td>
+        <td> : </td>
+        <td>
+            <input type="text" id="txt-accounting-doc-no" />
+        </td>
+    </tr>
+    <tr>
+        <td>Fiscal Year Kredit</td>
+        <td> : </td>
+        <td>
+            <input type="text" id="txt-fiscal-year-credit" />
+        </td>
+    </tr>
+</table>
+<input type="button" value="Generate" id="btn-generate-output" />
+
+<script>
+    $(document).ready(function () {
+        $('#btn-generate-output').click(function() {
+            generatelick();
+        });
+    });
+
+    function generatelick() {
+        var idNo = $('#txt-id-no').val();
+        var isSuccess2 = $('#txt-is-success').val();
+        var msg = $('#txt-msg-error').val();
+        var accdocno = $('#txt-accounting-doc-no').val();
+        var fiscalYearDoc = $('#txt-fiscal-year-credit').val();
+        
+        var jsonData = JSON.stringify({
+            idNo: idNo,
+            isSuccess: isSuccess2,
+            message: msg,
+            accountingDocNoKredit: accdocno,
+            fiscalYearKredit: fiscalYearDoc
+        });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("PushGenerateOuputUploadPpnCredit", "DataCompare")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                switch (data.Html.InfoType) {
+                    case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                };
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+</script>

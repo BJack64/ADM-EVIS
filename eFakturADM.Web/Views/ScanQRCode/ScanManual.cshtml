@@ -1,0 +1,613 @@
+﻿@using eFakturADM.Logic.Objects
+@using eFakturADM.Web.Helpers
+
+@{
+    ViewBag.Title = "Input Faktur Pajak Khusus";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMasaPajakOpenList();
+    var yearList = new List<SelectListItem>();
+
+    var listFgPengganti = new List<SelectListItem>
+    {
+        new SelectListItem { Text = "Yes", Value = "1", Selected = true },
+        new SelectListItem { Text = "No", Value = "0" }
+    };
+
+    var lstJenisDokumenInit = new SelectList(new List<FPJenisDokumen>(), "Id", "Id");
+    var lstKdJenisTransaksiInit = new SelectList(new List<FPKdJenisTransaksi>(), "Id", "Id");
+    var lstJenisTransaksiInit = GlobalFunctionHelper.GetJenisTransaksi();
+
+}
+
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>Input Faktur Pajak Khusus</h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <div class="form-group padding-bottom-10 " style=" border-bottom:1px solid #eaeaea;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Masa Pajak</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm" })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Tahun Pajak</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control w-sm" })
+                        </div>
+                        <div class="col-md-4" style="padding-top:7px;">
+                            <input type="checkbox" id="cbx-scanmanual-setmasapajak"> Set Masa Pajak
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Jenis Transaksi</label>
+                        <div class="col-md-4">
+                            <select class="form-control w-xl" id="input-search-jenistransaksi" name="input-search-jenistransaksi" tabindex="4">
+                                @{
+                                    if (lstJenisTransaksiInit.Count > 0)
+                                    {
+                                        foreach (var item in lstJenisTransaksiInit)
+                                        {
+                                            var selectedData = @item.Id == "2";
+                                            <option value="@item.Id" selected="@selectedData">@item.Id - @item.Description</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Jenis Dokumen</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("input-search-jenisdokumen", lstJenisDokumenInit, new { @class = "form-control w-xl", @id = "input-search-jenisdokumen" })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Kode Jenis Transaksi</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("input-search-kodejenistransaksi", lstKdJenisTransaksiInit, new { @class = "form-control w-xl", @id = "input-search-kodejenistransaksi" })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Faktur Pengganti</label>
+                        <div class="col-md-8">
+                            <div class="radio-list">
+                                <div>
+                                    @foreach (SelectListItem t in listFgPengganti)
+                                    {
+                                        <label class="radios">
+                                            <span>
+                                                @Html.RadioButton("fpPengganti", t.Value, t.Selected, new { id = "rd" + t.Value })
+                                            </span>
+                                            @t.Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        <div class="col-md-4">
+                            &nbsp;
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        <div class="col-md-4">
+                            &nbsp;
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Filling Index</label>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="input-search-fillingindex" disabled="disabled" value="Auto Generate by System" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Entry Date</label>
+                        <div class="col-md-4 form-inline">
+                            <div class="input-group w-sm">
+                                <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                <input class="form-control datepicker" size="16" type="text" id="input-search-scandate" value="@DateTime.Now.ToString("dd/MM/yyyy")"
+                                       data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" disabled="disabled" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        <div class="col-md-4">
+                            &nbsp;
+                        </div>
+                    </div>
+                   
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">No FP yang diganti</label>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="input-search-nofpyangdiganti" />
+                        </div>
+                        <div class="col-md-1" style="padding-left:0">
+                            <button type="button" class="btn btn-success" id="btn-scanmanual-browsefakturpajak">
+                                ...
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" style="padding-right:0px">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">No Faktur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scanmanual-nofaktur" maxlength="255" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <input type="hidden" id="hdn-scanmanual-vendorid" />
+                    <label class="col-md-4 control-label">NPWP Penjual</label>
+                    <div class="col-md-8 form-inline">
+                        <div>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="input-scanmanual-npwplawantransaksi" disabled="disabled" />
+                            </div>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-success" id="btn-scanmanual-browsevendor">
+                                    ...
+                                </button>
+                            </div>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-success" id="btn-scanmanual-clearselectvendor">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nama Penjual</label>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="input-scanmanual-namalawantransaksi" disabled="disabled" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Alamat Penjual</label>
+                    <div class="col-md-8">
+                        <textarea class="form-control" style="resize:none;" rows="3" id="input-scanmanual-alamatlawantransaksi" disabled="disabled"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tanggal Faktur</label>
+                    <div class="col-md-8 w-md" style="display:table">
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        <input class="form-control datepicker" size="16" type="text" id="input-scanmanual-tanggalfaktur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah DPP</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scanmanual-jumlahdpp" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah PPN</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scanmanual-jumlahppn" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah PPnBM</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scanmanual-jumlahppnbm" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Keterangan</label>
+                    <div class="col-md-8">
+                        <textarea tabindex="20" class="form-control" style="resize:none;" id="input-scanmanual-pesan"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="display:table; margin:auto">
+            <div class="">
+                <div class="m-t-md">
+                    <button type="button" class="btn btn-success" id="btn-scanmanual-submit">
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-default" id="btn-scanmanual-cancel">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        $('#input-scanmanual-tahunpajak').keypress(validateNumber);
+        $('#input-scanmanual-jumlahdpp').keypress(validateNumber);
+        $('#input-scanmanual-jumlahppn').keypress(validateNumber);
+        $('#input-scanmanual-jumlahppnbm').keypress(validateNumber);
+
+        $("#btn-scanmanual-browsevendor").bind("click", function (e) {
+            App.DialogGet("/Master/BrowseVendorDialog", e, {
+                AccessFrom: "ScanManual"
+            });
+        });
+
+        $("#btn-scanmanual-browsefakturpajak").bind("click", function (e) { App.DialogGet("/ScanQRCode/BrowseFakturPajakKhususDialog", e); });
+
+        $('#btn-scanmanual-submit').click(function (e) {
+            pushData();
+        });
+
+        $('#listMasaPajak').change(function () {
+            var selectedMonth = $('#listMasaPajak option:selected').val();
+            loadTahunPajak(selectedMonth, '');
+        });
+
+        $('#cbx-scanmanual-setmasapajak').click(function () {
+            if ($(this).is(':checked')) {
+                $("#listMasaPajak").attr("disabled", "disabled");
+                $("#listTahunPajak").attr("disabled", "disabled");
+                $("#input-scanmanual-receivingdate").attr("disabled", "disabled");
+            } else {
+                $("#listMasaPajak").removeAttr("disabled");
+                $("#listTahunPajak").removeAttr("disabled");
+                $("#input-scanmanual-receivingdate").removeAttr("disabled");
+            }
+        });
+
+        $('#btn-scanmanual-clearselectvendor').click(function () {
+            clearSelectVendor();
+        });
+
+        //FirstLoad
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth, '');
+
+        $('input[type=radio][name=fpPengganti]').change(function () {
+            $("#input-search-nofpyangdiganti").val('');
+            if (this.value == 1) {
+                $("#input-search-nofpyangdiganti").removeAttr("disabled");
+                $('#btn-scanmanual-browsefakturpajak').removeAttr("disabled");
+            }
+            else if (this.value == 0) {
+                $("#input-search-nofpyangdiganti").attr("disabled", "disabled");
+                $("#btn-scanmanual-browsefakturpajak").attr("disabled", "disabled");
+            }
+        });
+
+        $('#input-search-jenistransaksi').change(function () {
+            var jnisTransaksi2 = $('#input-search-jenistransaksi option:selected').val();
+            loadJenisDokumen(jnisTransaksi2, '');
+            loadKodeJenisTransaksi(jnisTransaksi2, '');
+        });
+        //firstLoad Jenis Dokumen dan KodeJenisTransaksi berdasarkan Jenis Transaksi
+        var jnisTransaksi = $('#input-search-jenistransaksi option:selected').val();
+        loadJenisDokumen(jnisTransaksi, '');
+        loadKodeJenisTransaksi(jnisTransaksi, '');
+
+        //$("#input-scanmanual-jumlahppnbm").keydown(function (e) {
+        //    //tab or enter
+        //    var code = e.keyCode || e.which;
+        //    if (code == '9') {
+        //        console.log('harus nya focus');
+        //        $('.inputpesan').focus();
+        //        console.log('setelah focus');
+        //    }
+
+        //});
+
+        $('#input-scanmanual-jumlahdpp').focusout(function() {
+            var ppnSetting = @ViewBag.PpnSetting;
+            var dppInput = _removeCommas(this.value);
+            var ppnInput = Math.ceil(ppnSetting * dppInput);
+            $('#input-scanmanual-jumlahppn').val(_addCommas(ppnInput));
+        });
+        
+    });
+
+    function clearSelectVendor() {
+        $('#input-scanmanual-npwplawantransaksi').val('');
+        $('#input-scanmanual-namalawantransaksi').val('');
+        $('#input-scanmanual-alamatlawantransaksi').val('');
+        $('#hdn-scanmanual-vendorid').val('');
+    }
+
+    function loadJenisDokumen(jnsTransaksi, selectedVal) {
+        $('#input-search-jenisdokumen option').remove();
+        var jsonData = JSON.stringify({ jenisTransaksi: jnsTransaksi });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetJenisDokumenByJenisTransaksi", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        var selectedHtml = '';
+                        if (selectedVal != '') {
+                            if (response.aaData[i].Id == selectedVal) {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        } else {
+                            if (response.aaData[i].Id == '5') {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        }
+
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Id + '"' + selectedHtml + '>' + response.aaData[i].Id + ' - ' + response.aaData[i].Description + '</option>';
+                    }
+                    $('#input-search-jenisdokumen').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    function loadKodeJenisTransaksi(jnsTransaksi, selectedVal) {
+        $('#input-search-kodejenistransaksi option').remove();
+        var jsonData = JSON.stringify({ jenisTransaksi: jnsTransaksi });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetKdJenisTransaksiByJenisTransaksi", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        var selectedHtml = '';
+                        if (selectedVal != '') {
+                            if (response.aaData[i].Id == selectedVal) {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        } else {
+                            if (response.aaData[i].Id == '01') {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        }
+
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Id + '"' + selectedHtml + '>' + response.aaData[i].Id + ' - ' + response.aaData[i].Description + '</option>';
+                    }
+                    $('#input-search-kodejenistransaksi').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    function pushData() {
+        var dataToPush = {
+            FakturPajakId: -1,
+            NoFakturPajak: $('#input-scanmanual-nofaktur').val(),
+            NPWPPenjual: $('#input-scanmanual-npwplawantransaksi').val(),
+            NamaPenjual: $('#input-scanmanual-namalawantransaksi').val(),
+            AlamatPenjual: $('#input-scanmanual-alamatlawantransaksi').val(),
+            TglFaktur: $('#input-scanmanual-tanggalfaktur').val(),
+            JumlahDPP: $('#input-scanmanual-jumlahdpp').val(),
+            JumlahPPN: $('#input-scanmanual-jumlahppn').val(),
+            JumlahPPNBM: $('#input-scanmanual-jumlahppnbm').val(),
+            Pesan: $('#input-scanmanual-pesan').val(),
+            VendorId: $('#hdn-scanmanual-vendorid').val(),
+            MasaPajak: $('#listMasaPajak option:selected').val(),
+            TahunPajak: $('#listTahunPajak option:selected').val(),
+            JenisTransaksi: $('#input-search-jenistransaksi').val(),
+            JenisDokumen: $('#input-search-jenisdokumen option:selected').val(),
+            FgPengganti: $('input[name=fpPengganti]:checked').val(),
+            NoFakturYangDiganti: $('#input-search-nofpyangdiganti').val(),
+            KdJenisTransaksi: $('#input-search-kodejenistransaksi option:selected').val()
+        };
+
+        var jsonData = JSON.stringify({ info: dataToPush });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ValidationScanManual", "ScanQRCode")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                switch (data.Html.InfoType) {
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                };
+                console.log(data);
+                if (data.Html.InfoType == 1 || data.Html.InfoType == 5) {
+                    var msgsConfirmation = data.Html.InfoType == 1 ? 'Are you sure want to Submit this data?' : data.Html.Message;
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Submit Confirmation',
+                        message: msgsConfirmation,
+                        buttons: [{
+                            label: 'Yes',
+                            cssClass: 'btn-danger btn-delay',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "@Url.Action("PushScanManual", "ScanQRCode")",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: jsonData,
+                                    cache: false,
+                                    success: function (response) {
+                                        switch (response.Html.InfoType) {
+                                            case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break;
+                                            case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                        };
+                                        if (response.Html.InfoType == 1) {
+                                            resetForm();
+                                            dialog.close();
+                                        }
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'No',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    function loadTahunPajak(aMonth, selectedVal) {
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    var isFound = false;
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        var selectedHtml = '';
+                        if (response.aaData[i].Year == selectedVal) {
+                            selectedHtml = 'selected="selected"';
+                            isFound = true;
+                        }
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '"' + selectedHtml + '>' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                    if (!isFound) {
+                        if (selectedVal != '') {
+                            $('#listTahunPajak').val('');
+                        }
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+    function resetForm() {
+        $('#input-scanmanual-nofaktur').val('');
+        clearSelectVendor();
+        $('#input-scanmanual-tanggalfaktur').val('');
+        $('#input-scanmanual-jumlahdpp').val('');
+        $('#input-scanmanual-jumlahppn').val('');
+        $('#input-scanmanual-jumlahppnbm').val('');
+        $('#input-scanmanual-pesan').val('');
+    }
+
+    @*function loadFPbyNoFaktur(noFaktur) {
+        var jsonData = JSON.stringify({ noFaktur: noFaktur });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetFakturPajakKhususByNoFaktur", "ScanQRCode")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData != null) {
+
+                    $('#listMasaPajak').val(response.aaData.MasaPajak);
+                    $('#input-search-jenistransaksi').val(response.aaData.JenisTransaksi);
+
+                    var selectedMonth = $('#listMasaPajak option:selected').val();
+                    loadTahunPajak(selectedMonth, response.aaData.TahunPajak);
+
+                    //var jnsTransaksi = response.aaData.JenisTransaksi;
+                    var selectedJenisDoc = response.aaData.JenisDokumen;
+                    var selectedKdJenisTransaksi = response.aaData.KdJenisTransaksi;
+
+                    $('#rd0').parent().removeClass("checked");
+                    $('#rd1').parent().removeClass("checked");
+
+                    $('#rd0').removeAttr("checked");
+                    $('#rd1').removeAttr("checked");
+
+                    if (response.aaData.FgPengganti == 0) {
+                        $('#rd1').parent().addClass("checked");
+                        $('#rd1').attr("checked", "checked");
+                    } else {
+                        $('#rd0').parent().addClass("checked");
+                        $('#rd0').attr("checked", "checked");
+                    }
+
+                    $('#hdn-scanmanual-vendorid').val(response.aaData.VendorId);
+                    $('#input-scanmanual-nofaktur').val(response.aaData.FormatedNoFaktur);
+                    $('#input-scanmanual-npwplawantransaksi').val(response.aaData.FormatedNpwpPenjual);
+                    $('#input-scanmanual-namalawantransaksi').val(response.aaData.NamaPenjual);
+                    $('#input-scanmanual-alamatlawantransaksi').val(response.aaData.AlamatPenjual);
+                    $('#input-scanmanual-tanggalfaktur').val(response.aaData.TglFakturString);
+                    $('#input-scanmanual-jumlahdpp').val(_addCommas(response.aaData.JumlahDPP));
+                    $('#input-scanmanual-jumlahppn').val(_addCommas(response.aaData.JumlahPPN));
+                    $('#input-scanmanual-jumlahppnbm').val(_addCommas(response.aaData.JumlahPPNBM));
+                    $('#input-scanmanual-pesan').val(response.aaData.Pesan);
+
+                    //firstLoad Jenis Dokumen dan KodeJenisTransaksi berdasarkan Jenis Transaksi
+                    var jnisTransaksi = $('#input-search-jenistransaksi option:selected').val();
+                    loadJenisDokumen(jnisTransaksi, selectedJenisDoc);
+                    loadKodeJenisTransaksi(jnisTransaksi, selectedKdJenisTransaksi);
+
+                    //setTimeout(function () {
+                    //    $('#input-search-jenisdokumen').val(selectedJenisDoc);
+                    //    $('#input-search-kodejenistransaksi').val(selectedKdJenisTransaksi);
+
+                    //}, 200);
+
+                } else {
+                    resetForm();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }*@
+
+</script>

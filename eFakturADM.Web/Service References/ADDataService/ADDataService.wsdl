@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WL5G3N0:definitions xmlns:WL5G3N1="http://tempuri.org/" xmlns:WL5G3N3="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:WL5G3N2="http://www.w3.org/2006/05/addressing/wsdl" name="ADDataService" targetNamespace="http://tempuri.org/" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/">
+  <WL5G3N0:types>
+    <xsd:schema xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" targetNamespace="http://tempuri.org/Imports" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/AD_QueryService/Proxy_Service/ADDataServiceProxy?SCHEMA%2FAD_QueryService%2FWSDL%2FXMLSchema_-1214718676" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/AD_QueryService/Proxy_Service/ADDataServiceProxy?SCHEMA%2FAD_QueryService%2FWSDL%2FXMLSchema_510762221" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://idepbpn-uapoa01:8011/AD_QueryService/Proxy_Service/ADDataServiceProxy?SCHEMA%2FAD_QueryService%2FWSDL%2FXMLSchema_-2058724178" namespace="http://schemas.datacontract.org/2004/07/ADService" />
+    </xsd:schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="IADDataService_AuthenticateUser_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:AuthenticateUser" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IADDataService_AuthenticateUser_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:AuthenticateUserResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IADDataService_SearchPersonByName_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:SearchPersonByName" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IADDataService_SearchPersonByName_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:SearchPersonByNameResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IADDataService_SearchPersonByNameBulk_InputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:SearchPersonByNameBulk" />
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IADDataService_SearchPersonByNameBulk_OutputMessage">
+    <WL5G3N0:part name="parameters" element="WL5G3N1:SearchPersonByNameBulkResponse" />
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="IADDataService">
+    <WL5G3N0:operation name="AuthenticateUser">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IADDataService/AuthenticateUser" message="WL5G3N1:IADDataService_AuthenticateUser_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IADDataService/AuthenticateUserResponse" message="WL5G3N1:IADDataService_AuthenticateUser_OutputMessage" />
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="SearchPersonByName">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IADDataService/SearchPersonByName" message="WL5G3N1:IADDataService_SearchPersonByName_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IADDataService/SearchPersonByNameResponse" message="WL5G3N1:IADDataService_SearchPersonByName_OutputMessage" />
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="SearchPersonByNameBulk">
+      <WL5G3N0:input WL5G3N2:Action="http://tempuri.org/IADDataService/SearchPersonByNameBulk" message="WL5G3N1:IADDataService_SearchPersonByNameBulk_InputMessage" />
+      <WL5G3N0:output WL5G3N2:Action="http://tempuri.org/IADDataService/SearchPersonByNameBulkResponse" message="WL5G3N1:IADDataService_SearchPersonByNameBulk_OutputMessage" />
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="BasicHttpBinding_IADDataService" type="WL5G3N1:IADDataService">
+    <WL5G3N3:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <WL5G3N0:operation name="AuthenticateUser">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IADDataService/AuthenticateUser" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="SearchPersonByName">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IADDataService/SearchPersonByName" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="SearchPersonByNameBulk">
+      <WL5G3N3:operation soapAction="http://tempuri.org/IADDataService/SearchPersonByNameBulk" style="document" />
+      <WL5G3N0:input>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N3:body use="literal" />
+      </WL5G3N0:output>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="ADDataService">
+    <WL5G3N0:port name="BasicHttpBinding_IADDataService" binding="WL5G3N1:BasicHttpBinding_IADDataService">
+      <WL5G3N3:address location="http://idepbpn-uapoa01:8011/AD_QueryService/Proxy_Service/ADDataServiceProxy" />
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

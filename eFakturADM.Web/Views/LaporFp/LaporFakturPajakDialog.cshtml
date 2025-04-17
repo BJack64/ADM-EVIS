@@ -1,0 +1,295 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Web.Helpers
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+
+    var monthList = GlobalFunctionHelper.GetMasaPajakOpenList();
+    var yearList = new List<SelectListItem>();
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Lapor Faktur Pajak" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form" id="form-lapor-upload" enctype="multipart/form-data" method="post">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Nama Pelaporan<span class="required"> *</span></label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="lapor-faktur-nama" disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Tanggal Pelaporan</label>
+                <div class="col-md-9">
+                    <div class="input-group w-sm">
+                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                               id="lapor-faktur-tgllapor" data-toggle="tooltip" data-placement="right"
+                               data-original-title="Format Date dd/MM/yyyy" />
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Masa Pajak</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("lapor-faktur-masapajak", monthList, new { @class = "form-control w-sm" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Tahun Pajak</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("lapor-faktur-tahunpajak", yearList, new { @class = "form-control w-sm" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">File Bukti Lapor</label>
+                <div class="col-md-9">
+                    <input type="file" name="file-faktur-upload" title="Browse" accept=".pdf" class="file-input upload"
+                           id="file-faktur-upload" style="margin-top:7px" onchange="file_changed(this); return false;">
+                    <input type="hidden" id="filepath" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">&nbsp;</label>
+                <div class="col-md-9" id="err-validasi-div"></div>
+            </div>
+
+
+            <div class="form-group" style="border-top: 1px solid #e5e5e5;padding-top:20px">
+                <label class="col-md-5 control-label" id="lapor-faktur-total-label">Total Faktur Pajak</label>
+                <div class="col-md-5">
+                    <input type="text" class="form-control text-right" id="lapor-faktur-total" disabled>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-md-5 control-label" id="lapor-faktur-totalppn-label">Total PPN</label>
+                <div class="col-md-5">
+                    <input type="text" class="form-control text-right" id="lapor-faktur-totalppn" disabled>
+                </div>
+            </div>
+
+
+        </div>
+    </form>
+</script>
+<script src="~/Content/plugins/jquery-masked/jquery.masked.js"></script>
+<script type="text/javascript">
+    var uploadForm;
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        var selectedMonth = $('#lapor-faktur-masapajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+        uploadForm = $("#form-lapor-upload").ajaxForm();
+        uploadForm.submit(function () {
+            // submit the form
+            $(this).ajaxSubmit(options);
+            return false;
+        });
+    };
+
+    var options = {
+        iframe: true,
+        dataType: "json", 
+        data: { sEcho: "echo-upload-lapor" },
+        cache: false,
+        url: "@Url.Action("ProcessUpload", "LaporFp")",
+        success: function (response) {
+            if (response.Html.InfoType == 1) {
+                //success
+                $("#filepath").val(response.Html.Message);
+            } else {
+                //failed
+                if (response.Html.InfoType == 4) {
+                    //Error with file download
+                    $('#err-validasi-div').html('');
+                    toastr.warning("Error Validation, please see attachment.", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    $('#err-validasi-div').append(response.Html.Message);
+                } else {
+                    toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                }
+            }
+        },
+        error: function () {
+            toastr.warning("Upload failed, please try again", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+    };
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 600, "auto", true,
+            {
+                Save: function () {
+                    var LaporFpInfo = {
+                        FakturPajakTerlaporID: -1,
+                        Nama: $("#lapor-faktur-nama").val(),
+                        sTanggalLapor: $("#lapor-faktur-tgllapor").val(),
+                        MasaPajak: $("#lapor-faktur-masapajak  option:selected").val(),
+                        TahunPajak: $('#lapor-faktur-tahunpajak option:selected').val(),
+                        AttachmentPath: $('#filepath').val(),
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ValidationLaporFp", "LaporFp")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(LaporFpInfo),
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 2:
+                                    toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                            }
+                            if (data.Html.InfoType == 1) {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    title: 'Submit Confirmation',
+                                    message: 'Are you sure want to submit this data?',
+                                    buttons: [{
+                                        label: 'Yes',
+                                        cssClass: 'btn-danger btn-delay',
+                                        action: function (dialog) {
+
+
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "@Url.Action("Submit", "LaporFp")",
+                                                dataType: "json",
+                                                contentType: 'application/json; charset=utf-8',
+                                                data: JSON.stringify(LaporFpInfo),
+                                                cache: false,
+                                                success: function (data) {
+                                                    switch (data.Html.InfoType) {
+                                                        case 0:
+                                                            toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 1:
+                                                            toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 2:
+                                                            toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            break;
+                                                        case 3:
+                                                            toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                    }
+                                                    ;
+                                                    if (data.Html.InfoType == 1) {
+                                                        BootstrapDialog.closeAll();
+                                                        var table = $('#tbl-fakturpajak').DataTable();
+                                                        table.ajax.reload();
+                                                    }
+                                                },
+                                                error: function (xhr, textStatus, errorThrown) {
+                                                    App.DialogError(xhr, textStatus, errorThrown);
+                                                }
+                                            });
+                                        }
+                                    }, {
+                                        label: 'No',
+                                        cssClass: 'btn-danger',
+                                        action: function (dialog) {
+                                            dialog.close();
+                                        }
+                                    }]
+                                });
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            },
+            true, InitForm);
+
+
+   
+    });
+
+    function file_changed(e) {
+        uploadForm = $("#form-lapor-upload").ajaxForm();
+        uploadForm.submit();
+    };
+
+
+    $(document.body).on('change', "#lapor-faktur-masapajak", function (e) {
+        var selectedMonth = $('#lapor-faktur-masapajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+    });
+
+    $(document.body).on('change', "#lapor-faktur-tahunpajak", function (e) {
+        setSummary();
+    });
+
+
+    function setSummary() {
+        var masa = $('#lapor-faktur-masapajak option:selected').text();
+        var aMonth = $('#lapor-faktur-masapajak option:selected').val();
+        var tahun = $('#lapor-faktur-tahunpajak option:selected').text();
+        var aYear = $('#lapor-faktur-tahunpajak option:selected').val();
+
+        $("#lapor-faktur-total-label")[0].innerText = "Total Faktur Pajak " + masa + " " + tahun;
+        
+        $("#lapor-faktur-totalppn-label")[0].innerText = "Total PPN " + masa + " " + tahun;
+        
+        
+
+        var jsonData = JSON.stringify({ masaPajak: aMonth, tahunPajak: aYear });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetTotalPajakTerlapor", "LaporFp")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                $("#lapor-faktur-total").val(response.result.TotalRow);
+                $("#lapor-faktur-totalppn").val(response.result.TotalPPN);
+                $("#lapor-faktur-nama").val(response.result.NamaPelaporan)
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+
+    function loadTahunPajak(aMonth) {
+        $('#lapor-faktur-tahunpajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#lapor-faktur-tahunpajak').append(htmlSelect);
+                };
+                setSummary();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+</script>

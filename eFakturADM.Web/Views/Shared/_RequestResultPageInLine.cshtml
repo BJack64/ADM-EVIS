@@ -1,0 +1,23 @@
+﻿@model RequestResultModel
+
+@using eFakturADM.Web.Models
+
+@{
+    var type = "";
+    switch(Model.InfoType)
+    {
+        case RequestResultInfoType.Information: type = "alert-info"; break;
+        case RequestResultInfoType.Success: type = "alert-success"; break;
+        case RequestResultInfoType.Warning: type = ""; break;
+        case RequestResultInfoType.ErrorOrDanger: type = "alert-danger"; break;
+    }
+}
+<div class="alert @type">
+    <a class="close" data-dismiss="alert">×</a>
+    @if (@Model.Title != null && @Model.Title.Length > 0)
+    {
+    <strong>@Model.Title:</strong>
+    }
+    @Model.Message
+</div>
+<div id="general-message"></div>

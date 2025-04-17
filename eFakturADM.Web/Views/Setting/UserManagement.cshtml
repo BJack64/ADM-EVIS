@@ -1,0 +1,230 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "User Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_add = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("43", _loginResult.RoleId[0]);
+    var check_add = roleActivities_add.Count != 0 ? true : false;
+    var roleActivities_edit = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("44", _loginResult.RoleId[0]);
+    var check_edit = roleActivities_edit.Count != 0 ? true : false;
+    var roleActivities_delete = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("45", _loginResult.RoleId[0]);
+    var check_delete = roleActivities_delete.Count != 0 ? true : false;
+    var roleActivities_reset = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("46", _loginResult.RoleId[0]);
+    var check_reset = roleActivities_reset.Count != 0 ? true : false;
+}
+
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            User Management
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <table id="tbl-usermanagement" class="table table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th>
+                            UserName
+                        </th>
+                        <th>
+                            Email
+                        </th>
+                        <th>
+                            User Initial
+                        </th>
+                        <th>
+                            User Role
+                        </th>
+                        <th style="width: 250px; min-width:250px;">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        UserManagement.init();
+    });
+
+    var UserManagement = function () {
+        return {
+            initTable: function () {
+                var table = $('#tbl-usermanagement');
+
+                table.dataTable({
+                    "stateSave": false,
+                    "pageLength": 10,
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("ListUserManagement", "Setting")',
+                    "columns": [
+                        { "data": "UserName", "orderable": true, "searchable": true },
+                        { "data": "Email", "orderable": true, "searchable": true },
+                        { "data": "UserInitial", "orderable": true, "searchable": true },
+                        { "data": "UserRole", "orderable": true, "searchable": true },
+                        {
+                            "data": "UserId",
+                            "orderable": false,
+                            "searchable": false,
+                            "class": "text-center",
+                            "render": function (data, type, full, meta) {
+                                if ('@check_edit.ToString().ToLower()' == 'true' && '@check_reset.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default usermanagement-edit" data-usermanagement-id="' + data + '">Modify</button>' +
+                                    '<button type="button" class="btn btn-sm btn-warning usermanagement-resetpwd" data-usermanagement-id="' + data + '">Reset Password</button></div>' +
+                                    '<button type="button" class="btn btn-sm btn-danger usermanagement-delete" data-usermanagement-id="' + data + '">Delete</button>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'true' && '@check_reset.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'false') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default usermanagement-edit" data-usermanagement-id="' + data + '">Modify</button>' +
+                                    '<button type="button" class="btn btn-sm btn-warning usermanagement-resetpwd" data-usermanagement-id="' + data + '">Reset Password</button></div>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'true' && '@check_reset.ToString().ToLower()' == 'false' && '@check_delete.ToString().ToLower()' == 'false') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default usermanagement-edit" data-usermanagement-id="' + data + '">Modify</button>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'false' && '@check_reset.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<button type="button" class="btn btn-sm btn-warning usermanagement-resetpwd" data-usermanagement-id="' + data + '">Reset Password</button></div>' +
+                                    '<button type="button" class="btn btn-sm btn-danger usermanagement-delete" data-usermanagement-id="' + data + '">Delete</button>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'false' && '@check_reset.ToString().ToLower()' == 'false' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<button type="button" class="btn btn-sm btn-danger usermanagement-delete" data-usermanagement-id="' + data + '">Delete</button>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'false' && '@check_reset.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'false') {
+                                    return '<button type="button" class="btn btn-sm btn-warning usermanagement-resetpwd" data-usermanagement-id="' + data + '">Reset Password</button></div>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'true' && '@check_reset.ToString().ToLower()' == 'false' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default usermanagement-edit" data-usermanagement-id="' + data + '">Modify</button>' +
+                                    '<button type="button" class="btn btn-sm btn-danger usermanagement-delete" data-usermanagement-id="' + data + '">Delete</button>';
+                                }
+                                else {
+                                    return '';
+                                }
+                            }
+                        }
+                    ],
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6 btnaddUM'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-6'i><'col-sm-6'p>>",
+                    "sPaginationType": "simple_numbers"
+                });
+
+                if ('@check_add.ToString().ToLower()' == 'true') {
+                    $(".btnaddUM").html('<a class="btn green-meadow btn-sm m-t-sm usermanagement-add" id="add-usermanagement">Add New </a>');
+                }
+                
+            },
+
+            initHandlers: function () {
+                _this = this;
+                $("body").on("click", ".usermanagement-add", function (e) { App.DialogGet('@Url.Action("GetAddUserManagementDialog", "Setting")', e); });
+                $("body").on("click", ".usermanagement-edit", function (e) { App.DialogGet('@Url.Action("GetEditUserManagementDialog", "Setting")', e, { UserID: parseInt($(this).attr("data-usermanagement-id")) }); });
+                $("body").on("click", ".usermanagement-delete", function (e) {
+                    var userId = parseInt($(this).attr("data-usermanagement-id"));
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Delete Confirmation',
+                        message: 'Are you sure to delete data?',
+                        buttons: [{
+                            label: 'Delete',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("RemoveUserManagement", "Setting")',
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify({ UserId: userId }),
+                                    cache: false,
+                                    success: function (data) {
+                                        switch (data.Html.InfoType) {
+                                            case 0:
+                                                toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                            case 1:
+                                                toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                            case 2:
+                                                toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                break;
+                                            case 3:
+                                                toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                        }
+                                        App.RefreshTable("#tbl-usermanagement", '@Url.Action("ListUserManagement", "Setting")');
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'Cancel',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+
+                });
+                $("body").on("click", ".usermanagement-resetpwd", function (e) {
+                    var userId = parseInt($(this).attr("data-usermanagement-id"));
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Reset Password Confirmation',
+                        message: 'Are you sure to reset password for this user?',
+                        buttons: [{
+                            label: 'Reset Password',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ResetPassword", "Setting")',
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify({ userId: userId }),
+                                    cache: false,
+                                    success: function (data) {
+                                        switch (data.Html.InfoType) {
+                                            case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close();
+                                                break;
+                                            case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close();
+                                                break;
+                                            case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close();
+                                                break;
+                                        };
+                                        App.RefreshTable("#tbl-usermanagement", '@Url.Action("ListUserManagement", "Setting")');
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'Cancel',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+</script>

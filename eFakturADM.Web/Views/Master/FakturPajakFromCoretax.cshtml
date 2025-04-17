@@ -1,0 +1,236 @@
+﻿@{
+    ViewBag.Title = "List Faktur Pajak from Coretax";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            FakturPajakFromCoretax
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <h2>Upload File</h2>
+            <form enctype="multipart/form-data" method="post" action="/Master/UploadFileFakturPajakFromCoretax" id="uploadForm">
+                <label for="file-coretax-upload">Pilih File Excel:</label>
+                <input type="file" name="file-coretax-upload" id="file-coretax-upload" required />
+                <button type="submit" id="uploadButton">Upload</button>
+                <div id="loadingSpinner" style="display: none; margin-left: 10px;">
+                    <img src="/Content/images/spinner.gif" alt="Loading..." style="width: 20px; height: 20px;" />
+                    <span>Sedang mengupload...</span>
+                </div>
+            </form>
+            <table id="tbl-faktur-pajak-from-coretax" class="table table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th>NPWP Penjual</th>
+                        <th>Nama Penjual</th>
+                        <th>Nomor Faktur Pajak</th>
+                        <th>Tanggal Faktur Pajak</th>
+                        <th>Masa Pajak</th>
+                        <th>Tahun</th>
+                        <th>Harga Jual</th>
+                        <th>DPP Nilai Lain</th>
+                        <th>PPN</th>
+                        <th>PPnBM</th>
+                        <th>Status Faktur</th>
+                        <th>Perekam</th>
+                        <th>Nomor SP2D</th>
+                        <th>Valid</th>
+                        <th>Dilaporkan</th>
+                        <th>Dilaporkan oleh Penjual</th>
+                        <th>Created On</th>
+                        <th>Created By</th>
+                        <th>Updated On</th>
+                        <th>Updated By</th>
+                        <th style="width: 140px; min-width:140px;">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        FakturPajakFromCoretax.init();
+
+        // Handle submit form
+        $('#uploadForm').submit(function (e) {
+            e.preventDefault(); // Mencegah form submit standar
+
+            var formData = new FormData(this); // Mengambil data form
+            $('#loadingSpinner').show(); // Menampilkan spinner loading
+
+            $.ajax({
+                url: '/Master/UploadFileFakturPajakFromCoretax', // Ubah sesuai dengan URL controller untuk upload
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    $('#loadingSpinner').hide(); // Sembunyikan spinner
+
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Sukses!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(function () {
+                            // Refresh atau lakukan tindakan lain setelah sukses
+                            FakturPajakFromCoretax.initTable(); // Inisialisasi ulang tabel jika perlu
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Coba Lagi'
+                        });
+                    }
+                }
+           
+
+    });
+
+    var FakturPajakFromCoretax = function () {
+
+        return {
+            initTable: function () {
+                var table = $('#tbl-faktur-pajak-from-coretax');
+
+                table.dataTable({
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": false,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("ListFakturPajakFromCoretax","Master")',
+                    "columns": [
+                        { "data": "NPWP_Penjual", "orderable": true, "searchable": true },
+                        { "data": "Nama_Penjual", "orderable": true, "searchable": true },
+                        { "data": "Nomor_Faktur_Pajak", "orderable": true, "searchable": true },
+                        {
+                            "data": "Tanggal_Faktur_Pajak",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                var timestamp = data.match(/\/Date\((\d+)\)/); // Ambil angka dari format /Date(9723727)
+                                if (timestamp) {
+                                    var date = new Date(parseInt(timestamp[1]));
+                                    return date.toLocaleDateString('id-ID', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit'
+                                    });
+                                }
+                                return ""; // Jika data kosong
+                            }
+                        },
+                        { "data": "Masa_Pajak", "orderable": true, "searchable": true },
+                        { "data": "Tahun", "orderable": true, "searchable": true },
+                        { "data": "Harga_Jual", "orderable": true, "searchable": true },
+                        { "data": "DPP_Nilai_Lain", "orderable": true, "searchable": true },
+                        { "data": "PPN", "orderable": true, "searchable": true },
+                        { "data": "PPnBM", "orderable": true, "searchable": true },
+                        { "data": "Status_Faktur", "orderable": true, "searchable": true },
+                        { "data": "Perekam", "orderable": true, "searchable": true },
+                        { "data": "Nomor_SP2D", "orderable": true, "searchable": true },
+                        //{ "data": "Valid", "orderable": true, "searchable": true },
+                        //{ "data": "Dilaporkan", "orderable": true, "searchable": true },
+                        //{ "data": "Dilaporkan_oleh_Penjual", "orderable": true, "searchable": true },
+                        {
+                            "data": "Valid",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                return data ? "✔" : "✘";
+                            }
+                        },
+                        {
+                            "data": "Dilaporkan",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                return data ? "✔" : "✘";
+                            }
+                        },
+                        {
+                            "data": "Dilaporkan_oleh_Penjual",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                return data ? "✔" : "✘";
+                            }
+                        },
+                        //{ "data": "CreatedOn", "orderable": true, "searchable": true },
+                        {
+                            "data": "CreatedOn",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                var timestamp = data.match(/\/Date\((\d+)\)/); // Ambil angka dari format /Date(9723727)
+                                if (timestamp) {
+                                    var date = new Date(parseInt(timestamp[1]));
+                                    return date.toLocaleDateString('id-ID', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit'
+                                    });
+                                }
+                                return ""; // Jika data kosong
+                            }
+                        },
+
+                        { "data": "CreatedBy", "orderable": true, "searchable": true },
+                        //{ "data": "UpdatedOn", "orderable": true, "searchable": true },
+                        {
+                            "data": "UpdatedOn",
+                            "orderable": true,
+                            "searchable": true,
+                            "render": function (data, type, row) {
+                                var timestamp = data.match(/\/Date\((\d+)\)/); // Ambil angka dari format /Date(9723727)
+                                if (timestamp) {
+                                    var date = new Date(parseInt(timestamp[1]));
+                                    return date.toLocaleDateString('id-ID', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit'
+                                    });
+                                }
+                                return ""; // Jika data kosong
+                            }
+                        },
+                        { "data": "UpdatedBy", "orderable": true, "searchable": true },                   
+                    ],
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6 btncollection'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "sPaginationType": "simple_numbers"
+                });
+
+            },
+
+            initHandlers: function () {
+                _this = this;
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+</script>

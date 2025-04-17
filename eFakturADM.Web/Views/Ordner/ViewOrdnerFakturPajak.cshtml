@@ -1,0 +1,50 @@
+﻿@model eFakturADM.Web.Models.ViewOrdnerFakturPajakModel
+@{
+    var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Reason" data-dialog-spinner="spinner-@dialogId">    
+    <table id="table-printordner-reason" class="table table-hover">
+        <thead>
+            <tr class="bg-light">
+                <th>Sequence Number</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+    </table>
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var dialog = App.DialogBootstrap("#@templateId", 800, "auto", true,
+            {
+
+            },
+            true, InitTable);
+    });
+    function InitTable() {
+        var fakturPajakId = '@Model.FakturPajakId';
+        var oTable = $('#table-printordner-reason').dataTable({
+            "stateSave": false,
+            "pageLength": 10,
+            "autoWidth": false,
+            "sDom": "<'row bg-light dker b-b'<'col-sm-6'><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            "sPaginationType": "simple_numbers",
+            "sAjaxSource": '@Url.Action("GetListLogPrintOrdner", "Ordner")',
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "fakturPajakId", "value": fakturPajakId }
+                );
+            },
+            "columns": [
+                { "data": "VSequence", "orderable": true, "searchable": true },
+                { "data": "Reason", "orderable": true, "searchable": true }
+            ],
+            "order": [[0, "asc"]]
+        });
+    };
+
+</script>

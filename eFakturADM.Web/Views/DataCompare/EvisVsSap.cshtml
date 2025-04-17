@@ -1,0 +1,891 @@
+﻿@using eFakturADM.Web.Helpers
+@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+
+@{
+    ViewBag.Title = "Evis VS SAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+
+    var listStatus = EnumHelper.GetValues<ApplicationEnums.StatusCompareEvisVsIws>().Where(c => c != ApplicationEnums.StatusCompareEvisVsIws.OkWithNotes).Select(d => new SelectListItem()
+    {
+        Text = EnumHelper.GetDescription(d),
+        Value = ((int)d).ToString(),
+        Selected = d == ApplicationEnums.StatusCompareEvisVsIws.All
+    }).ToList();
+
+    var listStatusPosting = EnumHelper.GetValues<ApplicationEnums.StatusPostingEvisVsSAP>().Select(d => new SelectListItem()
+    {
+        Text = EnumHelper.GetDescription(d),
+        Value = ((int)d).ToString(),
+        Selected = d == ApplicationEnums.StatusPostingEvisVsSAP.All
+    }).ToList();
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_submit = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("25", _loginResult.RoleId[0]);
+    var check_submit = roleActivities_submit.Count != 0 ? true : false;
+    var roleActivities_submitforce = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("26", _loginResult.RoleId[0]);
+    var check_submitforce = roleActivities_submitforce.Count != 0 ? true : false;
+    var roleActivities_exportexcel = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("27", _loginResult.RoleId[0]);
+    var check_exportexcel = roleActivities_exportexcel.Count != 0 ? true : false;
+    var roleActivities_submitall = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("66", _loginResult.RoleId[0]);
+    var check_submitall = roleActivities_submitall.Count != 0 ? true : false;
+    var roleActivities_forcesubmitall = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("67", _loginResult.RoleId[0]);
+    var check_forcesubmitall = roleActivities_forcesubmitall.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Evis VS SAP
+        </h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body no-padder">
+        <div class="form-group" style="border-bottom:1px solid #eaeaea" id="div-search">
+            <div class="form-group padder row">
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend>SAP</legend>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Posting Date<span style="color:red">*</span></label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input class="form-control datepicker" size="16" type="text" id="input-compevisvssap-search-datestart" value=""
+                                               data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input class="form-control datepicker" size="16" type="text" id="input-compevisvssap-search-dateend" value=""
+                                               data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row form-group" id="PostingDateValidate" hidden="hidden">
+                                <label class="col-md-12 control-label">This field is required</label>
+                        </div>*@
+
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tanggal Faktur<span style="color:red">*</span></label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input class="form-control datepicker" size="16" type="text" id="input-compevisvssap-search-tglFakturStart" value=""
+                                               data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input class="form-control datepicker" size="16" type="text" id="input-compevisvssap-search-tglFakturEnd" value=""
+                                               data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row form-group" id="FakturDateValidate" hidden="hidden">
+                                <label class="col-md-12 control-label">This field is required</label>
+                            </div>*@
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur<span style="color:red">*</span></label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-compevisvssap-search-nofakturstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-compevisvssap-search-nofakturend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-12 control-label" style="color:red">*Salah satu dari tiga filter harus terisi</label>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend>EVIS</legend>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Scan Date</label>
+                            <div class="col-md-8 form-inline">
+                                <div class="input-group w-sm">
+                                    <input class="form-control datepicker" size="16" type="text" id="input-compevisvssap-search-scandate" value=""
+                                           data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Masa Pajak<span style="color:red">*</span></label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm ", @id = "input-compevisvssap-search-masapajak" })
+                                    </div>
+                                    <label class="col-md-12 control-label" id="EVISMonthValidate" hidden="hidden" style="color:red; padding-left:0">Pilih bulan masa pajak</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Tahun<span style="color:red">*</span></label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-compevisvssap-search-tahun" maxlength="4" />
+                                    </div>
+                                    <label class="col-md-12 control-label" id="EVISYearValidate" hidden="hidden" style="color:red;padding-left:0">Isi tahun masa pajak</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Username</label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-compevisvssap-search-username" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-4 control-label">Status Posting<span style="color:red">*</span></label>
+                            <div class="col-md-8 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listPosting", listStatusPosting, new { @class = "form-control w-sm ", @id = "input-compevisvssap-search-posting" })
+                                    </div>
+                                    <label class="col-md-12 control-label" id="EVISPostingValidate" hidden="hidden" style="color:red; padding-left:0">Pilih Status Posting</label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group row">
+                    <div class="form-group row">
+                        <label class="col-md-1 control-label">Status</label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("input-compare-evisvssap-search-status", listStatus, new { @class = "form-control w-sm" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="" style="text-align:right">
+                    <div class="m-t-xs">
+                        <button type="button" class="btn btn-success" id="btn-search">
+                            Search
+                        </button>
+                        <button type="button" class="btn btn-default" id="btn-reset">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                <legend class="title-legend">List Data</legend>
+            </fieldset>
+            <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                <div></div>
+                <table id="tbl-compare-evis-sap" class="table table-hover table-blue" style="margin-bottom:0px">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="min-width:50px;padding-left:12px">
+                                <input id="selectall" name="select_all" type="checkbox" />
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Posting Date
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Acc Doc No
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Item No
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Tgl Faktur
+                            </th>
+                            <th rowspan="2" style="min-width:300px">
+                                Nama Vendor
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Scan Date
+                            </th>
+                            <th rowspan="2" style="min-width:150px">
+                                Tax Invoice Number EVIS
+                            </th>
+                            <th rowspan="2" style="min-width:150px">
+                                Tax Invoice Number SAP
+                            </th>
+                            <th rowspan="2" style="min-width:150px">
+                                Document Header Text
+                            </th>
+                            <th rowspan="2" style="min-width:150px">
+                                NPWP
+                            </th>
+                            <th colspan="3" class="text-center" style="min-width:100px">
+                                Amount
+                            </th>
+                            <th rowspan="2" style="min-width:75px">
+                                Masa Pajak
+                            </th>
+                            <th rowspan="2" style="min-width:75px">
+                                Status Compare
+                            </th>
+                            <th rowspan="2" style="min-width:150px">
+                                Status Faktur
+                            </th>
+                            <th rowspan="2" style="min-width:100px">
+                                Username
+                            </th>
+                            @*<th rowspan="2" style="min-width:150px">
+                                    Notes
+                                </th>*@
+                        </tr>
+                        <tr>
+                            <th>EVIS</th>
+                            <th>SAP</th>
+                            <th>Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </div>
+        <div class="form-group row" style="display:table; margin:auto">
+            <div class="">
+                @if (check_exportexcel)
+                {
+                    <button type="button" class="btn btn-success" id="btn-download-excel">
+                        Download Excel
+                    </button>
+                }
+                @if (check_submit)
+                {
+                    <button type="button" class="btn btn-success" id="btn-submit-to-sap">
+                        Post to VAT Centralized
+                    </button>
+                }
+                @if (check_submitall)
+                {
+                    <button type="button" class="btn btn-success" id="btn-submitall-to-sap">
+                        Post to VAT Centralized All
+                    </button>
+                }
+                @if (check_submitforce)
+                {
+                    <button type="button" class="btn btn-success" id="btn-forcesubmit-to-sap">
+                        Force Post to VAT Centralized
+                    </button>
+                }
+                @if (check_forcesubmitall)
+                {
+                    <button type="button" class="btn btn-success" id="btn-forcesubmitall-to-sap">
+                        Force Post to VAT Centralized All
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var dtStart;
+    var dtEnd;
+    var tglFakturStart;
+    var tglFakturEnd;
+    var noFakturStart;
+    var noFakturEnd;
+    var scanDate;
+    var masaPajak;
+    var username;
+    var tahunPajak;
+    var firstLoad;
+    var statusId;
+    var dataSelectedCrew;
+    var statusPosting;
+
+    //const $bSearch = $("#btn-search");
+    //var tblData = $("#tbl-compare-evis-sap");
+
+  
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+
+        $('#input-compevisvssap-search-tahun').keypress(validateNumber);
+
+        CompEvisVsSap.init();
+
+        $("#btn-search").bind("click", function (e) {
+            dtStart = $("#input-compevisvssap-search-datestart").val();
+            noFakturStart = $('#input-compevisvssap-search-nofakturstart').val();
+            tglFakturStart = $('#input-compevisvssap-search-tglFakturStart').val();
+            masaPajak = $('#input-compevisvssap-search-masapajak').val();
+            tahunPajak = $('#input-compevisvssap-search-tahun').val();
+            statusPosting = $('#input-compevisvssap-search-posting').val();
+
+            if ((dtStart == '' && noFakturStart == '' && tglFakturStart == '') || (masaPajak == 0 || tahunPajak == '')) {
+
+                if (masaPajak == 0)
+                    $('#EVISMonthValidate').show();
+                else
+                    $('#EVISMonthValidate').hide();
+
+                if (tahunPajak == '')
+                    $('#EVISYearValidate').show();
+                else
+                    $('#EVISYearValidate').hide();
+
+                toastr.warning("Category filter SAP Harus diisi salah satu dan Category filter Evis Masa Pajak ( Bulan & Tahun ) harus diisi", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                return;
+            }
+            $('#EVISMonthValidate').hide();
+            $('#EVISYearValidate').hide();
+
+            firstLoad = false;
+            ReloadTable();
+        });
+        $('#btn-submit-to-sap').bind('click', function () {
+            SubmitDataCompare("Submit");
+        });
+        $('#btn-forcesubmit-to-sap').bind('click', function () {
+            SubmitDataCompare("ForceSubmit");
+        });
+        $('#btn-submitall-to-sap').bind('click', function () {
+            SubmitDataCompareAll("Submit");
+        });
+        $('#btn-forcesubmitall-to-sap').bind('click', function () {
+            SubmitDataCompareAll("ForceSubmit");
+        });
+        $("#btn-reset").bind("click", function (e) {
+            $('#input-compevisvssap-search-datestart').val('');
+            $('#input-compevisvssap-search-dateend').val('');
+            $('#input-compevisvssap-search-nofakturstart').val('');
+            $('#input-compevisvssap-search-nofakturend').val('');
+            $('#input-compevisvssap-search-tglFakturStart').val('');
+            $('#input-compevisvssap-search-tglFakturEnd').val('');
+            $('#input-compevisvssap-search-scandate').val('');
+            $("#input-compevisvssap-search-masapajak").val('0');
+            $('#input-compevisvssap-search-username').val('');
+            $('#input-compevisvssap-search-tahun').val('');
+            $('#input-compare-evisvssap-search-status').val('');
+            $('#EVISMonthValidate').hide();
+            $('#EVISYearValidate').hide();
+            $('#input-compevisvssap-search-posting').val('0');
+
+            firstLoad = true;
+            ReloadTable();
+        });
+
+        $('#btn-download-excel').click(function() {
+            downloadExcelCompEvisSap();
+        });
+
+    });
+
+    var CompEvisVsSap = function () {
+        return {
+            initTable: function () {
+
+                firstLoad = true;
+
+                dtStart = $("#input-compevisvssap-search-datestart").val();
+                dtEnd = $("#input-compevisvssap-search-dateend").val();
+                noFakturStart = $('#input-compevisvssap-search-nofakturstart').val();
+                noFakturEnd = $('#input-compevisvssap-search-nofakturend').val();
+                tglFakturStart = $('#input-compevisvssap-search-tglFakturStart').val();
+                tglFakturEnd = $('#input-compevisvssap-search-tglFakturEnd').val();
+                scanDate = $('#input-compevisvssap-search-scandate').val();
+                masaPajak = $('#input-compevisvssap-search-masapajak').val();
+                username = $('#input-compevisvssap-search-username').val();
+                tahunPajak = $('#input-compevisvssap-search-tahun').val();
+                statusId = $('#input-compare-evisvssap-search-status').val();
+                statusPosting = $('#input-compevisvssap-search-posting').val();
+
+                var table = $('#tbl-compare-evis-sap');
+
+                table.dataTable({
+                    "sDom": "<'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+
+                    "bLengthChange": true,
+                    "scrollY": '550px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "autoWidth": false,
+                    //fixedColumns: {
+                    //    leftColumns: 1,
+                    //    rightColumns: 1
+                    //},
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "sAjaxSource": '@Url.Action("GetDataEvisVsSapDataTable", "DataCompare")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "tglPostingStart", "value": dtStart },
+                            { "name": "tglPostingEnd", "value": dtEnd },
+                            { "name": "tglFakturStart", "value": tglFakturStart },
+                            { "name": "tglFakturEnd", "value": tglFakturEnd },
+                            { "name": "noFakturStart", "value": noFakturStart },
+                            { "name": "noFakturEnd", "value": noFakturEnd },
+                            { "name": "scanDate", "value": scanDate },
+                            { "name": "masaPajak", "value": masaPajak },
+                            { "name": "username", "value": username },
+                            { "name": "tahunPajak", "value": tahunPajak },
+                            { "name": "statusId", "value": statusId },
+                            { "name": "statusPosting", "value": statusPosting }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "VSequence",
+                            "orderable": false,
+                            "className": "text-center clickcheckbox",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input type="hidden" id="hdn-evissap-oherinfo" data-pembetulan="' + row.Pembetulan + '" data-npwp-penjual="' + row.NPWPPenjual + '" data-masapajak="' + row.MasaPajak + '" data-tahunpajak="' + row.TahunPajak + '" ' +
+                                    'data-itemtext="' + row.ItemText + '" data-fiscalyeardebet="' + row.FiscalYearDebet + '" data-glaccount="' + row.GLAccount + '"data-docstatus="' + row.DocumentStatus + '" data-fp-type="' + row.FPType + '"></input> ' +
+                                    '<input type="checkbox" name="checkbox" class="checkbox" value="' + row.VSequence + '">';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-postingdate">' + row.PostingDateString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-accountingdocno">' + row.AccountingDocNo + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-itemno">' + row.ItemNo + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-tglfaktur">' + row.TglFakturString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-namavendor">' + row.NamaVendor + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-scandate">' + row.ScanDateString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-taxinvoicenumberevis">' + row.TaxInvoiceNumberEvis + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-taxinvoicenumbersap">' + row.TaxInvoiceNumberSap + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-documentheadertext">' + row.DocumentHeaderText + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-npwp">' + row.Npwp + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-ammountevis">' + row.AmountEvisString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-amountsap">' + row.AmountSapString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-ammountdiff">' + row.AmountDiffString + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                var mp = " - ";
+                                var th = " - ";
+                                if (row.MasaPajak != null) {
+                                    mp = row.MasaPajak;
+                                }
+                                if (row.TahunPajak != null) {
+                                    th = row.TahunPajak;
+                                }
+                                //return '<label id="label-evissap-masapajak">' + row.MasaPajak + '/' + row.TahunPajak + '</label>';
+                                return '<label id="label-evissap-masapajak">' + mp + '/' + th + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-statuscompare">' + row.StatusCompare + '</label>';
+                            }
+                        },
+                        {
+                            "orderable": false, "searchable": false,
+                            "render": function (data, type, row, full, meta) {
+                                return '<label id="label-evissap-statusfaktur">' + row.StatusFaktur + '</label>';
+                            }
+                        },
+                        { "data": "UserNameCreator", "orderable": false, "searchable": false },
+                    ],
+
+                    "order": [
+                        [2, "asc"]
+                    ]
+                });
+
+                $('#tbl-compare-evis-sap tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    e.stopPropagation();
+                });
+
+                $('#tbl-compare-evis-sap').on('click', '.clickcheckbox', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-compare-evis-sap').DataTable();
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-compare-evis-sap tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-compare-evis-sap tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    e.stopPropagation();
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-compare-evis-sap').on('draw.dt', function () {
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+    function SubmitDataCompareAll(submitType) {
+        var sdtStart = $("#input-compevisvssap-search-datestart").val();
+        var sdtEnd = $("#input-compevisvssap-search-dateend").val();
+        var snoFakturStart = $('#input-compevisvssap-search-nofakturstart').val();
+        var snoFakturEnd = $('#input-compevisvssap-search-nofakturend').val();
+        var stglFakturStart = $('#input-compevisvssap-search-tglFakturStart').val();
+        var stglFakturEnd = $('#input-compevisvssap-search-tglFakturEnd').val();
+        var sscanDate = $('#input-compevisvssap-search-scandate').val();
+        var smasaPajak = $('#input-compevisvssap-search-masapajak').val();
+        var susername = $('#input-compevisvssap-search-username').val();
+        var stahunPajak = $('#input-compevisvssap-search-tahun').val();
+        var sstatusId = $('#input-compare-evisvssap-search-status').val();
+        var sstatusPosting = $('#input-compevisvssap-search-posting').val();
+
+
+        if ((sdtStart == '' && snoFakturStart == '' && stglFakturStart == '') || (smasaPajak == 0 || stahunPajak == '')) {
+
+            if (masaPajak == 0)
+                $('#EVISMonthValidate').show();
+            else
+                $('#EVISMonthValidate').hide();
+
+            if (tahunPajak == '')
+                $('#EVISYearValidate').show();
+            else
+                $('#EVISYearValidate').hide();
+
+            toastr.warning("Category filter SAP Harus diisi salah satu dan Category filter Evis Masa Pajak ( Bulan & Tahun ) harus diisi", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            return;
+        }
+
+        var sdat = {
+            SubmitType: submitType,
+            TglPostingStart: sdtStart,
+            TglPostingEnd: sdtEnd,
+            TglFakturStart: stglFakturStart,
+            TglFakturEnd: stglFakturEnd,
+            NoFakturStart: snoFakturStart,
+            NoFakturEnd: snoFakturEnd,
+            ScanDate: sscanDate,
+            MasaPajak: smasaPajak,
+            TahunPajak: stahunPajak,
+            UserName: susername,
+            StatusId: sstatusId,
+            statusPosting: sstatusPosting,
+        };
+        var jsonData = JSON.stringify({ info: sdat });
+
+        var actiontext = submitType == 'Submit' ? 'Post to VAT Centralized' : 'Force Post to VAT Centralized'
+
+        BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_DANGER,
+            title: 'Submit Confirmation',
+            message: 'Are you sure want to ' + actiontext + ' this data?',
+            buttons: [{
+                label: 'Yes',
+                cssClass: 'btn-danger btn-delay',
+                action: function (dialog) {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("PushSubmitCompareEvisSapAll", "DataCompare")",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: jsonData,
+                            cache: false,
+                            success: function (data) {
+                                switch (data.Html.InfoType) {
+                                    case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                    case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                    case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                };
+                                dialog.close();
+                                if (data.Html.InfoType == 1) {
+                                    ReloadTable();
+                                }
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                App.DialogError(xhr, textStatus, errorThrown);
+                            }
+                        });
+                    }
+                },
+                {
+                label: 'No',
+                cssClass: 'btn-danger',
+                action: function (dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+
+
+    }
+
+    function SubmitDataCompare(submitType) {
+        dataSelectedCrew = [];
+        if ($(".checkbox:checked").length == 0) {
+            toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+        else {
+            var okOnly = true;
+            $('#tbl-compare-evis-sap').find('tr').each(function () {
+                var row = $(this);
+                var $tds = $(this).find('td');
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    if ($tds.find('[id*=label-evissap-statuscompare]').text() == 'NOT OK' && submitType == 'Submit') {
+                        toastr.warning("FP NOK must be force post to VAT Centralized", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        okOnly = false;
+                        return false;
+
+                    }
+                    else {
+                        var _detail = {};
+                        _detail.RowNum = $(this).find('.checkbox').val();
+                        _detail.PostingDate = $tds.find('[id*=label-evissap-postingdate]').text();
+                        _detail.AccountingDocNo = $tds.find('[id*=label-evissap-accountingdocno]').text();
+                        _detail.ItemNo = $tds.find('[id*=label-evissap-itemno]').text();
+                        _detail.TglFaktur = $tds.find('[id*=label-evissap-tglfaktur]').text();
+                        _detail.NamaVendor = $tds.find('[id*=label-evissap-namavendor]').text();
+                        _detail.ScanDate = $tds.find('[id*=label-evissap-scandate]').text();
+                        _detail.TaxInvoiceNumberEvis = $tds.find('[id*=label-evissap-taxinvoicenumberevis]').text();
+                        _detail.TaxInvoiceNumberSap = $tds.find('[id*=label-evissap-taxinvoicenumbersap]').text();
+                        _detail.DocumentHeaderText = $tds.find('[id*=label-evissap-documentheadertext]').text();
+                        _detail.Npwp = $tds.find('[id*=label-evissap-npwp]').text();
+                        _detail.AmountEvis = $tds.find('[id*=label-evissap-ammountevis]').text();
+                        _detail.AmountSap = $tds.find('[id*=label-evissap-amountsap]').text();
+                        _detail.AmountDiff = $tds.find('[id*=label-evissap-ammountdiff]').text();
+                        _detail.StatusCompare = $tds.find('[id*=label-evissap-statuscompare]').text();
+                        _detail.StatusFaktur = $tds.find('[id*=label-evissap-statusfaktur]').text();
+                        _detail.Pembetulan = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-pembetulan");
+                        _detail.MasaPajak = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-masapajak");
+                        _detail.TahunPajak = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-tahunpajak");
+                        _detail.ItemText = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-itemtext");
+                        _detail.FiscalYearDebet = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-fiscalyeardebet");
+                        _detail.GLAccount = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-glaccount");
+                        _detail.DocumentStatus = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-docstatus");
+                        _detail.NPWPPenjual = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-npwp-penjual");
+                        _detail.FPType = $tds.find('[id*=hdn-evissap-oherinfo]').attr("data-fp-type");
+
+                        _detail.Notes = '';
+
+                        dataSelectedCrew.push(_detail);
+                    }
+                }
+            });
+            if (okOnly == true) {
+                var dataToPush = {
+                    ListCompare: dataSelectedCrew,
+                    SubmitType: submitType
+                };
+                var jsonData = JSON.stringify({ info: dataToPush });
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ValidationSubmitCompareEvisSap", "DataCompare")",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: jsonData,
+                    cache: false,
+                    success: function (data) {
+                        switch (data.Html.InfoType) {
+                            case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        };
+                        if (data.Html.InfoType == 1) {
+                            BootstrapDialog.show({
+                                type: BootstrapDialog.TYPE_DANGER,
+                                title: 'Submit Confirmation',
+                                message: 'Are you sure want to Submit this data?',
+                                buttons: [{
+                                    label: 'Yes',
+                                    cssClass: 'btn-danger btn-delay',
+                                    action: function (dialog) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "@Url.Action("PushSubmitCompareEvisSap", "DataCompare")",
+                                            dataType: "json",
+                                            contentType: 'application/json; charset=utf-8',
+                                            data: jsonData,
+                                            cache: false,
+                                            success: function (response) {
+                                                switch (response.Html.InfoType) {
+                                                    case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                    case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                    case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break;
+                                                    case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                };
+                                                if (response.Html.InfoType == 1) {
+                                                    dialog.close();
+                                                    ReloadTable();
+                                                }
+                                            },
+                                            error: function (xhr, textStatus, errorThrown) {
+                                                App.DialogError(xhr, textStatus, errorThrown);
+                                            }
+                                        });
+                                    }
+                                }, {
+                                    label: 'No',
+                                    cssClass: 'btn-danger',
+                                    action: function (dialog) {
+                                        dialog.close();
+                                    }
+                                }]
+                            });
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        App.DialogError(xhr, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    }
+
+    function ReloadTable() {
+        dtStart = $("#input-compevisvssap-search-datestart").val();
+        dtEnd = $("#input-compevisvssap-search-dateend").val();
+        noFakturStart = $('#input-compevisvssap-search-nofakturstart').val();
+        noFakturEnd = $('#input-compevisvssap-search-nofakturend').val();
+        tglFakturStart = $('#input-compevisvssap-search-tglFakturStart').val();
+        tglFakturEnd = $('#input-compevisvssap-search-tglFakturEnd').val();
+        scanDate = $('#input-compevisvssap-search-scandate').val();
+        masaPajak = $('#input-compevisvssap-search-masapajak').val();
+        username = $('#input-compevisvssap-search-username').val();
+        tahunPajak = $('#input-compevisvssap-search-tahun').val();
+        statusId = $('#input-compare-evisvssap-search-status').val();
+        statusPosting = $('#input-compevisvssap-search-posting').val();
+
+        var table = $('#tbl-compare-evis-sap').DataTable();
+        table.ajax.reload();
+    }
+
+    function getCurrentDateWithFormat() {
+        var curDate = new Date();
+        var dd = curDate.getDate();
+        var mm = curDate.getMonth() + 1; //January is 0!
+
+        var yyyy = curDate.getFullYear();
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        var toReturn = dd + '/' + mm + '/' + yyyy;
+        return toReturn;
+    }
+
+    function downloadExcelCompEvisSap() {
+        dtStart = $("#input-compevisvssap-search-datestart").val();
+        dtEnd = $("#input-compevisvssap-search-dateend").val();
+        noFakturStart = $('#input-compevisvssap-search-nofakturstart').val();
+        noFakturEnd = $('#input-compevisvssap-search-nofakturend').val();
+        tglFakturStart = $('#input-compevisvssap-search-tglFakturStart').val();
+        tglFakturEnd = $('#input-compevisvssap-search-tglFakturEnd').val();
+        scanDate = $('#input-compevisvssap-search-scandate').val();
+        masaPajak = $('#input-compevisvssap-search-masapajak').val();
+        username = $('#input-compevisvssap-search-username').val();
+        tahunPajak = $('#input-compevisvssap-search-tahun').val();
+        statusId = $('#input-compare-evisvssap-search-status').val();
+        statusPosting = $('#input-compevisvssap-search-posting').val();
+
+        var search = $('.dataTables_filter input').val();
+        var strUrl = '@Url.Action("ExportCompEvisVsSapToExcel", "ExportDownload")' + "?tglPostingStart=" + dtStart + '&tglPostingEnd=' + dtEnd + '&tglFakturStart=' + tglFakturStart
+            + '&tglFakturEnd=' + tglFakturEnd + '&noFakturStart=' + noFakturStart + '&noFakturEnd=' + noFakturEnd + '&scanDate=' + scanDate
+            + '&masaPajak=' + masaPajak + '&tahunPajak=' + tahunPajak + '&username=' + username + '&statusId=' + statusId + '&statusPosting=' + statusPosting;
+        window.open(strUrl, '_blank');
+    }
+
+</script>
+<style>
+    div.dataTables_wrapper {
+        width: auto;
+        margin: 0 auto;
+    }
+</style>

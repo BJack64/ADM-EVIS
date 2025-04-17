@@ -1,0 +1,671 @@
+﻿@{
+    ViewBag.Title = "Scan QR Code Satuan Faktur Pajak Coretax";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<SelectListItem> listKreditPajak = new List<SelectListItem>();
+    listKreditPajak.Add(new SelectListItem { Text = "Ya", Value = "Ya", Selected = true });
+    listKreditPajak.Add(new SelectListItem { Text = "Tidak", Value = "Tidak" });
+}
+
+<div class="page-head">
+    <div class="page-title">
+        <h1>Scan QR Code Satuan Non IWS (Coretax)</h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <!-- Spinner Loading -->
+        <!--<div id="loadingSpinner" style="display:none;" class="text-center">
+            <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i> Please wait...
+        </div>-->
+        <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Filling Index</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="input-scansatuan-ordner" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row form-group">
+                        <label class="col-md-3 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                        <div class="col-md-9">
+                            <div class="radio-list">
+                                <div>
+                                    @for (int i = 0; i < listKreditPajak.Count; i++)
+                                    {
+                                        <label class="radios">
+                                            <span>
+                                                @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                            </span>
+                                            @listKreditPajak[i].Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            @*<ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab-scan-qr" onclick="confirmTabChange(event, 'qr')">Scan QR Code</a></li>
+                    <li><a href="#tab-scan-pdf" onclick="confirmTabChange(event, 'pdf')">Upload PDF</a></li>
+                </ul>*@
+
+            <div class="tab-content">
+                <div id="tab-scan-qr" class="tab-pane fade in active">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <label class="col-md-2 control-label">Scan QR Code<span class="required"> *</span></label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="input-scansatuan-qrcode" onkeypress="processQRCode(event)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-scan-pdf" class="tab-pane fade">
+                    <div class="col-md-12">
+
+                        <form enctype="multipart/form-data" id="uploadForm" style="display: block;">
+                            <div class="form-group row" id="fileGroup">
+                                <label for="file" class="col-form-label col-md-2">Pilih File PDF:</label>
+                                <div class="col-md-6">
+                                    <input type="file" name="file" id="file" class="form-control" required accept="application/pdf" onchange="enableSubmit()" />
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" id="uploadButton" class="btn btn-primary" disabled>Upload</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">No Faktur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-nofaktur" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">NPWP Penjual</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-npwppenjual" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nama Penjual</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-namapenjual" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">NPWP Pembeli</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-npwppembeli" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nama Pembeli</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-namapembeli" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Masa Pajak</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control w-sm" id="input-scansatuan-masapajak" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tahun Pajak</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control w-sm" id="input-scansatuan-tahunpajak" readonly="readonly" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah Harga Jual</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scansatuan-jumlahhargajual" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah DPP</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scansatuan-jumlahdpp" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah PPN</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scansatuan-jumlahppn" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Jumlah PPnBM</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-scansatuan-jumlahppnbm" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Status Faktur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-scansatuan-statusfaktur" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tanggal Faktur</label>
+                    <div class="col-md-8" style="display:table">
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        <input class="form-control datepicker" size="16" type="text" id="input-scansatuan-tanggalfaktur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" disabled="disabled" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Spinner untuk menunjukkan loading -->
+<div id="spinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+    <div class="spinner-border text-white" role="status">
+        <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i> Please wait...
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        // Handle file upload
+        $('#uploadForm').on('submit', function (e) {
+            showSpinner();
+            e.preventDefault(); // Prevent form from submitting normally
+
+            var fileInput = $('#file')[0];
+            if (!fileInput.files.length) {
+                alert('Harap pilih file sebelum mengupload!');
+                return;
+            }
+
+            var file = fileInput.files[0];
+            var allowedExtensions = /(\.pdf)$/i;
+            if (!allowedExtensions.exec(file.name)) {
+                alert('Hanya file PDF (.pdf) yang diperbolehkan!');
+                return;
+            }
+            var formData = new FormData();
+            //var Dikreditkan = ($('input[name="kreditpajak"]:checked').val() || "Ya") === "Ya";
+            var Dikreditkan = (document.querySelector('input[name="kreditpajak"]:checked')?.value || "Ya") === "Ya";
+            formData.append('file', file);
+            formData.append('Dikreditkan', Dikreditkan);
+
+
+            // Show loading spinner
+            //$('#loadingSpinner').show();
+            showSpinner();
+            $('#uploadButton').prop('disabled', true);
+            $('#fileGroup').prop('disabled', true);
+            clearAllInputs();
+
+            // Call backend to process the file
+            $.ajax({
+                url: '/Coretax/ScanSatuanPDF',  // Backend method to process the file
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // Hide the loading spinner and reset button
+                    //$('#loadingSpinner').hide();
+                    hideSpinner();
+
+                    if (response.success) {
+                        clearAllInputs();
+
+                        document.getElementById("input-scansatuan-namapenjual").value = response.data.NamaPenjual; // Nama Penjual
+                        document.getElementById("input-scansatuan-npwppenjual").value = response.data.NPWPPenjual; // NPWP Penjual
+                        document.getElementById("input-scansatuan-namapembeli").value = response.data.NamaLawanTransaksi; // Nama Pembeli
+                        document.getElementById("input-scansatuan-npwppembeli").value = response.data.NPWPLawanTransaksi; // NPWP Pembeli
+                        document.getElementById("input-scansatuan-nofaktur").value = response.data.NoFakturPajak; // Nomor Faktur Pajak
+                        document.getElementById("input-scansatuan-tanggalfaktur").value = response.data.TglFakturString; // Tanggal Faktur Pajak
+                        document.getElementById("input-scansatuan-jumlahdpp").value = _addCommas(response.data.JumlahDPP); // DPP
+                        document.getElementById("input-scansatuan-jumlahppn").value = _addCommas(response.data.JumlahPPN); // PPN
+                        document.getElementById("input-scansatuan-jumlahppnbm").value = _addCommas(response.data.JumlahPPNBM); // PPNBM
+                        document.getElementById("input-scansatuan-jumlahhargajual").value = _addCommas(response.data.JumlahHargaJual); // Harga Jual
+                        document.getElementById("input-scansatuan-statusfaktur").value = response.data.StatusFaktur; // Status Faktur
+                        document.getElementById("input-scansatuan-ordner").value = response.data.FillingIndex; //FillingIndex
+
+                        var dateStr = response.data.TglFakturString;
+                        // Split string ke dalam array [day, month, year]
+                        const [day, month, year] = dateStr.split("/");
+
+                        // Konversi bulan dari angka ke nama bulan dalam bahasa Indonesia
+                        const months = [
+                            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+                        ];
+
+                        // Ambil nama bulan berdasarkan indeks (kurangi 1 karena indeks array mulai dari 0)
+                        const monthName = months[parseInt(month, 10) - 1];
+
+                        document.getElementById("input-scansatuan-masapajak").value = monthName; // Tanggal Faktur Pajak
+                        document.getElementById("input-scansatuan-tahunpajak").value = year; // Tanggal Faktur Pajak
+
+
+                        // Show success message using BootstrapDialog
+                        //BootstrapDialog.alert({
+                        //    title: 'Success',
+                        //    message: response.message,
+                        //    type: BootstrapDialog.TYPE_SUCCESS,
+                        //    buttonLabel: 'OK',
+                        //});
+                        //toastr.success(response.messages, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        toastr.success(response.messages, "", {
+                            "positionClass": "toast-top-center",
+                            "showDuration": "30000",
+                            "timeOut": "30000",            // Notifikasi akan otomatis hilang setelah 30 detik
+                            "extendedTimeOut": "1000"      // Memberi tambahan waktu 1 detik jika kursor diarahkan ke toastr
+                        });
+
+                    } else {
+                        //alert('Gagal menganalisa file PDF!');
+                        //toastr.warning(response.messages, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        // Memeriksa apakah messages adalah array
+                        if (Array.isArray(response.messages) && response.messages.length > 0) {
+                            // Inisialisasi array untuk menyimpan pesan yang telah diberi nomor
+                            let numberedMessages = [];
+
+                            // Menambahkan penomoran ke setiap pesan
+                            for (let i = 0; i < response.messages.length; i++) {
+                                numberedMessages.push((i + 1) + ". " + response.messages[i]);
+                            }
+
+                            // Menggabungkan pesan dengan <br /> sebagai pemisah
+                            let finalMessage = numberedMessages.join('<br />');
+
+                            // Menampilkan pesan dengan toastr
+                            //toastr.warning(finalMessage, "", {
+                            //    "positionClass": "toast-top-center",
+                            //    "showDuration": "30000"
+                            //});
+                            toastr.warning(finalMessage, "", {
+                                "positionClass": "toast-top-center",
+                                "showDuration": "30000",
+                                "timeOut": "30000",            // Sama dengan success
+                                "extendedTimeOut": "1000"
+                            });
+                        } else {
+                            // Jika tidak ada pesan, tampilkan pesan default
+                            //toastr.warning(response.messages, "", {
+                            //    "positionClass": "toast-top-center",
+                            //    "showDuration": "30000"
+                            //});
+                            toastr.warning(response.messages, "", {
+                                "positionClass": "toast-top-center",
+                                "showDuration": "30000",
+                                "timeOut": "30000",            // Sama dengan success
+                                "extendedTimeOut": "1000"
+                            });
+                        }
+                    }
+
+                },
+                error: function () {
+                    hideSpinner();
+                    // Handle failure response
+                    BootstrapDialog.alert({
+                        title: 'Error',
+                        message: 'Terjadi kesalahan saat mengirim data. <br />' + response.messages.join('<br />'),
+                        type: BootstrapDialog.TYPE_DANGER,
+                        buttonLabel: 'OK',
+                    });
+                }
+            });
+        });
+    });
+
+    function processQRCode(event) {
+        // Check if the Enter key is pressed
+        if (event.key === 'Enter') {
+            showSpinner();
+            const qrCode = document.getElementById("input-scansatuan-qrcode").value;
+
+            // Regex to validate the QR Code format
+            //const regex = /^[A-Za-z0-9]+#[A-Za-z0-9]+#[A-Za-z0-9]+#[A-Za-z0-9]+#[A-Za-z0-9]+#[0-9]{2}-[0-9]{2}-[0-9]{4}#[\d.,]+#[\d.,]+#[\d.,]+#[A-Za-z]+$/;
+            const regex = /^[A-Za-z0-9\s]+#[0-9]+#[A-Za-z0-9\s]+#[A-Za-z0-9]+#[A-Za-z0-9]+#[0-9]{2}-[0-9]{2}-[0-9]{4}#[\d.,]+#[\d.,]+#[\d.,]+#[A-Za-z]+$/;
+
+            if (regex.test(qrCode)) {
+                // Split the QR code string by '#'
+                const data = qrCode.split("#");
+                console.log(data);
+                // Clear other input fields after splitting the QR code data
+                document.getElementById("input-scansatuan-namapenjual").value = "";
+                document.getElementById("input-scansatuan-npwppenjual").value = "";
+                document.getElementById("input-scansatuan-namapembeli").value = "";
+                document.getElementById("input-scansatuan-npwppembeli").value = "";
+                document.getElementById("input-scansatuan-nofaktur").value = "";
+                document.getElementById("input-scansatuan-tanggalfaktur").value = "";
+                document.getElementById("input-scansatuan-jumlahdpp").value = "";
+                document.getElementById("input-scansatuan-jumlahppn").value = "";
+                document.getElementById("input-scansatuan-jumlahppnbm").value = "";
+                document.getElementById("input-scansatuan-statusfaktur").value = "";
+                document.getElementById("input-scansatuan-ordner").value = "";
+
+                //// Validate NPWP Penjual: hanya angka dan panjang 15, 16, 20, 22
+                //if (!/^\d+$/.test(data[1]) || ![15, 16, 20, 22].includes(data[1].length)) {
+                //    // Show error message using BootstrapDialog
+                //    BootstrapDialog.alert({
+                //        title: 'Error',
+                //        message: 'NPWP Penjual tidak valid. Harus angka dengan panjang 15, 16, 20, atau 22 karakter.',
+                //        type: BootstrapDialog.TYPE_DANGER,
+                //        buttonLabel: 'OK',
+                //    });
+                //    return; // Stop processing
+                //}
+
+                //// Validate Nomor Faktur Pajak: hanya angka dan panjang 16
+                //if (!/^\d+$/.test(data[4]) || data[4].length !== 17) {
+                //    // Show error message using BootstrapDialog
+                //    BootstrapDialog.alert({
+                //        title: 'Error',
+                //        message: 'Nomor Faktur Pajak tidak valid. Harus angka dengan panjang 17 karakter.',
+                //        type: BootstrapDialog.TYPE_DANGER,
+                //        buttonLabel: 'OK',
+                //    });
+                //    return; // Stop processing
+                //}
+
+                var dateStr = data[5];
+                // Split string ke dalam array [day, month, year]
+                const [day, month, year] = dateStr.split("-");
+
+                //console.log(month);
+                //const selectedValue = document.querySelector('input[name="kreditpajak"]:checked')?.value;
+
+                //console.log(selectedValue);
+
+
+                // Prepare data to be sent in POST request
+                const formData = {
+                    NPWP_Penjual: data[1],
+                    Nama_Penjual: data[0],
+                    NPWP_Pembeli: data[3],
+                    Nama_Pembeli: data[2],
+                    Nomor_Faktur_Pajak: data[4],
+                    Tanggal_Faktur_Pajak: data[5],
+                    Dikreditkan: (document.querySelector('input[name="kreditpajak"]:checked')?.value || "Ya") === "Ya",
+                    Harga_Jual: convertToNumber(data[6]),
+                    PPN: convertToNumber(data[7]),
+                    PPnBM: convertToNumber(data[8]),
+                    Status_Faktur: data[9],
+                    Masa_Pajak: parseInt(month, 10),
+                    Tahun: year,
+                };
+
+                // Clear the QR Code input field before processing
+                document.getElementById("input-scansatuan-qrcode").value = "";  // Clear QR Code input
+
+                // Show the spinner
+                //document.getElementById("loadingSpinner").style.display = "block";
+
+                // Send data via POST request using AJAX
+                $.ajax({
+                    url: '/Coretax/SaveScanSatuan', // Adjust the URL according to your endpoint
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        // Hide the spinner
+                        //document.getElementById("loadingSpinner").style.display = "none";
+                        hideSpinner();
+                        // Handle response (success or failure)
+                        if (response.success) {
+                            //// Assign values to form fields after successful POST
+                            //document.getElementById("input-scansatuan-namapenjual").value = data[0]; // Nama Penjual
+                            //document.getElementById("input-scansatuan-npwppenjual").value = data[1]; // NPWP Penjual
+                            document.getElementById("input-scansatuan-namapembeli").value = data[2]; // Nama Pembeli
+                            document.getElementById("input-scansatuan-npwppembeli").value = data[3]; // NPWP Pembeli
+                            //document.getElementById("input-scansatuan-nofaktur").value = data[4]; // Nomor Faktur Pajak
+                            //document.getElementById("input-scansatuan-tanggalfaktur").value = data[5]; // Tanggal Faktur Pajak
+                            //document.getElementById("input-scansatuan-jumlahdpp").value = data[6]; // DPP
+                            //document.getElementById("input-scansatuan-jumlahppn").value = data[7]; // PPN
+                            //document.getElementById("input-scansatuan-jumlahppnbm").value = data[8]; // PPNBM
+                            //document.getElementById("input-scansatuan-statusfaktur").value = data[9]; // Status Approval
+                            console.log(response);
+                            console.log(response.data);
+
+                            document.getElementById("input-scansatuan-namapenjual").value = response.data.NamaPenjual; // Nama Penjual
+                            document.getElementById("input-scansatuan-npwppenjual").value = response.data.NPWPPenjual; // NPWP Penjual
+                            //document.getElementById("input-scansatuan-namapembeli").value = response.data.NamaPembeli; // Nama Pembeli
+                            //document.getElementById("input-scansatuan-npwppembeli").value = response.data.NPWPPembeli; // NPWP Pembeli
+                            document.getElementById("input-scansatuan-nofaktur").value = response.data.FormatedNoFaktur; // Nomor Faktur Pajak
+                            //document.getElementById("input-scansatuan-tanggalfaktur").value = response.data.TanggalFaktur; // Tanggal Faktur Pajak
+                            document.getElementById("input-scansatuan-jumlahdpp").value = _addCommas(response.data.JumlahDPP); // DPP
+                            document.getElementById("input-scansatuan-jumlahppn").value = _addCommas(response.data.JumlahPPN); // PPN
+                            document.getElementById("input-scansatuan-jumlahppnbm").value = _addCommas(response.data.JumlahPPNBM); // PPNBM
+                            document.getElementById("input-scansatuan-jumlahhargajual").value = _addCommas(response.data.JumlahHargaJual);
+                            document.getElementById("input-scansatuan-statusfaktur").value = response.data.StatusFaktur; // Status Faktur
+                            document.getElementById("input-scansatuan-ordner").value = response.data.FillingIndex; //FillingIndex
+
+                            var dateStr = response.data.TglFaktur; //"/Date(1741036956647)/"
+                            // Split string ke dalam array [day, month, year]
+                            //const [day, month, year] = dateStr.split("-");
+                            // Ambil angka timestamp dari string
+                            const timestamp = parseInt(dateStr.replace(/\/Date\((\d+)\)\//, "$1"), 10);
+
+                            // Konversi ke objek Date
+                            const fakturDate = new Date(timestamp);
+
+                            // Ambil hari, bulan, tahun dengan destructuring
+                            const [day, month, year] = [
+                                fakturDate.getDate().toString().padStart(2, "0"),
+                                (fakturDate.getMonth() + 1).toString().padStart(2, "0"),
+                                fakturDate.getFullYear().toString()
+                            ];
+
+                            document.getElementById("input-scansatuan-tanggalfaktur").value = `${day}-${month}-${year}`;// Tanggal Faktur Pajak
+
+
+                            // Konversi bulan dari angka ke nama bulan dalam bahasa Indonesia
+                            const months = [
+                                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+                            ];
+
+                            // Ambil nama bulan berdasarkan indeks (kurangi 1 karena indeks array mulai dari 0)
+                            const monthName = months[parseInt(month, 10) - 1];
+
+                            document.getElementById("input-scansatuan-masapajak").value = monthName; // Tanggal Faktur Pajak
+                            document.getElementById("input-scansatuan-tahunpajak").value = year; // Tanggal Faktur Pajak
+
+
+                            //    // Show success message using BootstrapDialog
+                            //    BootstrapDialog.alert({
+                            //        title: 'Success',
+                            //        message: response.message,
+                            //        type: BootstrapDialog.TYPE_SUCCESS,
+                            //        buttonLabel: 'OK',
+                            //    });
+                            //} else {
+                            //    hideSpinner();
+                            //    // Handle failure response
+                            //    BootstrapDialog.alert({
+                            //        title: 'Error',
+                            //        message: 'Terjadi kesalahan saat mengirim data. <br />' + response.messages.join('<br />'),
+                            //        type: BootstrapDialog.TYPE_DANGER,
+                            //        buttonLabel: 'OK',
+                            //    });
+                            //}
+                            toastr.success(response.messages, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        } else {
+                            console.log(response);
+                            //alert('Gagal menganalisa file PDF!');
+                            //toastr.warning(response.messages, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                            // Memeriksa apakah messages adalah array
+                            if (Array.isArray(response.messages) && response.messages.length > 0) {
+                                // Inisialisasi array untuk menyimpan pesan yang telah diberi nomor
+                                let numberedMessages = [];
+
+                                // Menambahkan penomoran ke setiap pesan
+                                for (let i = 0; i < response.messages.length; i++) {
+                                    numberedMessages.push((i + 1) + ". " + response.messages[i]);
+                                }
+
+                                // Menggabungkan pesan dengan <br /> sebagai pemisah
+                                let finalMessage = numberedMessages.join('<br />');
+
+                                // Menampilkan pesan dengan toastr
+                                //toastr.warning(finalMessage, "", {
+                                //    "positionClass": "toast-top-center",
+                                //    "showDuration": "30000"
+                                //});
+                                toastr.warning(finalMessage, "", {
+                                    "positionClass": "toast-top-center",
+                                    "showDuration": "30000",
+                                    "timeOut": "30000",            // Sama dengan success
+                                    "extendedTimeOut": "1000"
+                                });
+                            } else {
+                                // Jika tidak ada pesan, tampilkan pesan default
+                                //toastr.warning(response.messages, "", {
+                                //    "positionClass": "toast-top-center",
+                                //    "showDuration": "30000"
+                                //});
+                                toastr.warning(response.messages, "", {
+                                    "positionClass": "toast-top-center",
+                                    "showDuration": "30000",
+                                    "timeOut": "30000",            // Sama dengan success
+                                    "extendedTimeOut": "1000"
+                                });
+                            }
+
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Hide the spinner
+                        //document.getElementById("loadingSpinner").style.display = "none";
+                        var errors = "";
+                        let response;
+                        try {
+                            response = JSON.parse(xhr.responseText);
+                            console.log(response);
+                            if (response.messages) {
+                                errors = response.messages.join('<br />');
+                            }
+                        } catch (e) {
+                            alert('Parsing error: ' + error);
+                        }
+
+                        // Handle AJAX error
+                        BootstrapDialog.alert({
+                            title: 'Error',
+                            message: 'Terjadi kesalahan: ' + errors,
+                            type: BootstrapDialog.TYPE_DANGER,
+                            buttonLabel: 'OK',
+                        });
+                    }
+                });
+            } else {
+                // Show error message if QR code format is invalid
+                hideSpinner();
+                BootstrapDialog.alert({
+                    title: 'Error',
+                    message: 'QR Code format tidak valid.',
+                    type: BootstrapDialog.TYPE_DANGER,
+                    buttonLabel: 'OK',
+                });
+            }
+        }
+    }
+
+    function convertToNumber(value) {
+        if (typeof value === "string") {
+            return parseFloat(value.replace(/\./g, '').replace(',', '.'));
+        }
+        return value;
+    }
+
+    function confirmTabChange(event, tabType) {
+        event.preventDefault(); // Mencegah aksi default link
+
+        const targetTab = $(event.target).attr('href'); // Ambil href sebagai target tab
+
+        BootstrapDialog.show({
+            title: 'Konfirmasi Perubahan Tab',
+            message: 'Data pada tab akan dihapus. Apakah Anda yakin ingin melanjutkan?',
+            type: BootstrapDialog.TYPE_WARNING,
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) {
+                        dialogRef.close(); // Tutup dialog
+                    }
+                },
+                {
+                    label: 'Lanjutkan',
+                    cssClass: 'btn-primary',
+                    action: function (dialogRef) {
+                        clearAllInputs(); // Hapus semua input
+                        $('.nav-tabs a[href="' + targetTab + '"]').tab('show'); // Pindah ke tab target
+                        dialogRef.close(); // Tutup dialog
+                    }
+                }
+            ]
+        });
+    }
+
+    function clearAllInputs() {
+        //$('input').val(''); // Reset semua input
+        document.getElementById('file').value = ""; // Clear the input value
+        // Clear other input fields after splitting the QR code data
+        document.getElementById("input-scansatuan-namapenjual").value = "";
+        document.getElementById("input-scansatuan-npwppenjual").value = "";
+        document.getElementById("input-scansatuan-namapembeli").value = "";
+        document.getElementById("input-scansatuan-npwppembeli").value = "";
+        document.getElementById("input-scansatuan-nofaktur").value = "";
+        document.getElementById("input-scansatuan-tanggalfaktur").value = "";
+        document.getElementById("input-scansatuan-jumlahdpp").value = "";
+        document.getElementById("input-scansatuan-jumlahppn").value = "";
+        document.getElementById("input-scansatuan-jumlahppnbm").value = "";
+        document.getElementById("input-scansatuan-jumlahhargajual").value = "";
+        document.getElementById("input-scansatuan-masapajak").value = "";
+        document.getElementById("input-scansatuan-tahunpajak").value = "";
+        document.getElementById("input-scansatuan-statusfaktur").value = "";
+        document.getElementById("input-scansatuan-ordner").value = "";
+    }
+
+    // Fungsi untuk menampilkan spinner loading
+    function showSpinner() {
+        $('#spinner').show();
+    }
+
+    // Fungsi untuk menyembunyikan spinner loading
+    function hideSpinner() {
+        $('#spinner').hide();
+    }
+
+    hideSpinner();
+
+    function enableSubmit() {
+        var fileInput = document.getElementById('file');
+        var submitButton = document.getElementById('uploadButton');
+
+        // Jika ada file yang dipilih, tombol submit di-enable
+        if (fileInput.files.length > 0) {
+            submitButton.disabled = false;
+        } else {
+            submitButton.disabled = true;
+        }
+    }
+</script>

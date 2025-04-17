@@ -1,0 +1,436 @@
+﻿@using eFakturADM.Logic.Objects
+@using eFakturADM.Web.Helpers
+
+@{
+    ViewBag.Title = "Input Retur Faktur Pajak";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMonthList(false, "");
+
+    var lstKdJenisTransaksiInit = new SelectList(new List<FPKdJenisTransaksi>(), "Id", "Id");
+
+    List<SelectListItem> listKreditPajak = new List<SelectListItem>();
+    listKreditPajak.Add(new SelectListItem { Text = "Ya", Value = "Ya", Selected = true });
+    listKreditPajak.Add(new SelectListItem { Text = "Tidak", Value = "Tidak" });
+
+    List<SelectListItem> listManualLookup = new List<SelectListItem>();
+    listManualLookup.Add(new SelectListItem { Text = "Manual", Value = "manual", Selected = true });
+    listManualLookup.Add(new SelectListItem { Text = "Lookup", Value = "lookup" });
+}
+
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>Input Retur Faktur Pajak</h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label bold">Faktur Pajak</label>
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-md-4">
+
+                </div>
+                <div class="col-md-8">
+                    <div class="radio-list">
+                        <div>
+                            @for (int i = 0; i < listManualLookup.Count; i++)
+                            {
+                                <label class="radios">
+                                    <span>
+                                        @Html.RadioButton("manuallookup", @listManualLookup[i].Value, @listManualLookup[i].Selected, new { id = @listManualLookup[i].Value })
+                                    </span>
+                                    @listManualLookup[i].Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row form-group">
+                <label class="col-md-4 control-label">No Faktur Retur</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="input-fpr-nofaktur" />
+                </div>
+                <div class="col-md-4" style="padding-left:0">
+                    <button type="button" class="btn btn-success" id="btn-fpr-browsefakturpajak" disabled="disabled">
+                        ...
+                    </button>
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <label class="col-md-4 control-label">Nama Penjual</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="input-fpr-namalawantransaksi" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-4 control-label">NPWP Penjual</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="input-fpr-npwplawantransaksi" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-4 control-label">Tgl. Faktur</label>
+                <div class="col-md-4 w-md" style="display:table">
+                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                    <input class="form-control datepicker" size="16" type="text" id="input-fpr-tanggalfaktur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                </div>
+            </div>
+
+
+            <div class="row form-group">
+                <label class="col-md-4 control-label">Kode Jenis Transaksi</label>
+                <div class="col-md-4">
+                    @Html.DropDownList("input-fpr-kodejenistransaksi", lstKdJenisTransaksiInit, new { @class = "form-control w-xl", @id = "input-fpr-kodejenistransaksi" })
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-4 control-label">FG Pengganti</label>
+                <div class="col-md-1">
+                    <input type="text" class="form-control" id="input-fpr-fgpengganti" maxlength="2" />
+                </div>
+                <div class="col-md-3">
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-4 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                <div class="col-md-8">
+                    <div class="radio-list">
+                        <div>
+                            @for (int i = 0; i < listKreditPajak.Count; i++)
+                            {
+                                <label class="radios">
+                                    <span>
+                                        @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                    </span>
+                                    @listKreditPajak[i].Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-6">
+                <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label bold">Document Retur</label>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">No.Dok Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-fpr-nomordokumenretur" value="Auto Generate" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tgl. Retur</label>
+                    <div class="col-md-4 w-md" style="display:table">
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        <input class="form-control datepicker" size="16" type="text" id="input-fpr-tanggalretur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Masa Pajak Retur</label>
+                    <div class="col-md-4 w-sm">
+                        @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control" })
+                    </div>
+                 
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tahun Pajak Retur</label>
+                    <div class="col-md-4 w-sm">
+                        <input type="text" class="form-control" id="input-tahunpajak-pelaporan" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label bold">Nilai Retur</label>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai DPP Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaidpp" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai PPN Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaippn" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai PPnBM Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaippnbm" onfocusin="this.value = _removeCommas(this.value);" onfocusout="this.value = _addCommas(this.value);" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Pesan</label>
+                    <div class="col-md-8">
+                        <textarea tabindex="20" class="form-control" style="resize:none;" id="input-fpr-pesan"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="display:table; margin:auto">
+            <div class="">
+                <div class="m-t-md">
+                    <input type="hidden" id="hdn-fpr-fakturpajakid" />
+                    <input type="hidden" id="hdn-fpr-alamatpenjual" />
+                    <button type="button" class="btn btn-success" id="btn-fpr-save">
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-default" id="btn-fpr-reset">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="~/Content/plugins/jquery-masked/jquery.masked.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        loadKodeJenisTransaksi('');
+        $('#input-fpr-nilaidpp').keypress(validateNumber);
+        $('#input-fpr-nilaippn').keypress(validateNumber);
+        $('#input-fpr-nilaippnbm').keypress(validateNumber);
+        $('#input-tahunpajak-pelaporan').keypress(isNumber);
+
+        $('#input-fpr-fgpengganti').keypress(validateNumber);
+
+        $('#input-fpr-npwplawantransaksi').keypress(validateNumber);
+        $('#input-fpr-nofaktur').keypress(validateNumber);
+        $('#input-fpr-npwplawantransaksi').mask('99.999.999.9-999.999');
+        $('#input-fpr-nofaktur').mask('999.999-99.99999999');
+
+        $("#btn-fpr-browsefakturpajak").bind("click", function (e) { App.DialogGet("/Retur/BrowseFakturPajakDialog", e); });
+
+        $('#btn-fpr-save').click(function (e) {
+            pushData();
+        });
+
+        $('#btn-fpr-reset').click(function (e) {
+            resetField();
+        });
+
+        $('input[type=radio][name=manuallookup]').change(function () {
+            if (this.value == "manual") {
+                $("#btn-fpr-browsefakturpajak").attr("disabled", "disabled");
+
+                $("#input-fpr-nofaktur").removeAttr("disabled");
+                $("#input-fpr-namalawantransaksi").removeAttr("disabled");
+                $("#input-fpr-npwplawantransaksi").removeAttr("disabled");
+                $("#input-fpr-tanggalfaktur").removeAttr("disabled");
+                $("#input-fpr-kodejenistransaksi").removeAttr("disabled");
+                $("#input-fpr-fgpengganti").removeAttr("disabled");
+                $('input[type=radio][name=kreditpajak]').removeAttr("disabled");
+            }
+            else if (this.value == "lookup") {
+                $("#btn-fpr-browsefakturpajak").removeAttr("disabled");
+
+                $("#input-search-nofpyangdiganti").attr("disabled", "disabled");
+                $("#input-fpr-nofaktur").attr("disabled", "disabled");
+                $("#input-fpr-namalawantransaksi").attr("disabled", "disabled");
+                $("#input-fpr-npwplawantransaksi").attr("disabled", "disabled");
+                $("#input-fpr-tanggalfaktur").attr("disabled", "disabled");
+                $("#input-fpr-kodejenistransaksi").attr("disabled", "disabled");
+                $("#input-fpr-fgpengganti").attr("disabled", "disabled");
+                $('input[type=radio][name=kreditpajak]').attr('disabled', 'disabled');
+            }
+
+            $("#input-fpr-nofaktur").val('');
+            $("#input-fpr-namalawantransaksi").val('');
+            $("#input-fpr-npwplawantransaksi").val('');
+            $("#input-fpr-tanggalfaktur").val('');
+            $("#input-fpr-kodejenistransaksi").val('01');
+            $("#input-fpr-fgpengganti").val('');
+
+            $('#Tidak').parent().removeClass("checked");
+            $('#Tidak').removeAttr("checked");
+            $('#Ya').parent().addClass("checked");
+            $('#Ya').attr("checked", "checked");
+
+            $("#hdn-fpr-fakturpajakid").val('');
+        });
+
+        $('#input-fpr-nilaidpp').focusout(function () {
+            var ppnSetting = @ViewBag.PpnSetting;
+            var dppInput = _removeCommas(this.value);
+            var ppnInput = Math.ceil(ppnSetting * dppInput);
+            $('#input-fpr-nilaippn').val(_addCommas(ppnInput));
+        });
+
+    });
+
+    function loadKodeJenisTransaksi(selectedVal) {
+        $('#input-fpr-kodejenistransaksi option').remove();
+        var jsonData = JSON.stringify({});
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetKdJenisTransaksiByFCode", "Retur")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        var selectedHtml = '';
+                        if (selectedVal != '') {
+                            if (response.aaData[i].Id == selectedVal) {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        } else {
+                            if (response.aaData[i].Id == '01') {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        }
+
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Id + '"' + selectedHtml + '>' + response.aaData[i].Id + ' - ' + response.aaData[i].Description + '</option>';
+                    }
+                    $('#input-fpr-kodejenistransaksi').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    function pushData() {
+        var dataToPush = {
+            FakturPajakReturId: -1,
+            FakturPajakId: $('#hdn-fpr-fakturpajakid').val(),
+
+            AlamatVendor: $('#hdn-fpr-alamatpenjual').val(),
+
+            NoFaktur: $("#input-fpr-nofaktur").val(),
+            NamaVendor: $("#input-fpr-namalawantransaksi").val(),
+            NPWPVendor: $("#input-fpr-npwplawantransaksi").val(),
+            TanggalFaktur: $("#input-fpr-tanggalfaktur").val(),
+            KdJenisTransaksi: $('#input-fpr-kodejenistransaksi option:selected').val(),
+            FgPengganti: $("#input-fpr-fgpengganti").val(),
+            Dikreditkan: $('input[name=kreditpajak]:checked').val(),
+
+            NoDocRetur: $('#input-fpr-nomordokumenretur').val(),
+            TglRetur: $('#input-fpr-tanggalretur').val(),
+            MasaPajakLapor: $('#listMasaPajak option:selected').val(),
+            TahunPajakLapor: $('#input-tahunpajak-pelaporan').val(),
+            JumlahDPP: $('#input-fpr-nilaidpp').val(),
+            JumlahPPN: $('#input-fpr-nilaippn').val(),
+            JumlahPPNBM: $('#input-fpr-nilaippnbm').val(),
+            Pesan: $('#input-fpr-pesan').val()
+        };
+
+        var jsonData = JSON.stringify({ info: dataToPush });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ValidationFakturPajakRetur", "Retur")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                switch (data.Html.InfoType) {
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                };
+                if (data.Html.InfoType == 1) {
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Submit Confirmation',
+                        message: 'Are you sure want to Submit this data?',
+                        buttons: [{
+                            label: 'Yes',
+                            cssClass: 'btn-danger btn-delay',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "@Url.Action("SaveRetur", "Retur")",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: jsonData,
+                                    cache: false,
+                                    success: function (response) {
+                                        switch (response.Html.InfoType) {
+                                            case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break;
+                                            case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                        };
+                                        if (response.Html.InfoType == 1) {
+                                            resetField();
+                                        }
+                                        dialog.close();
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'No',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    function resetField() {
+        $("#input-fpr-nofaktur").val('');
+        $("#input-fpr-npwplawantransaksi").val('');
+        $("#input-fpr-namalawantransaksi").val('');
+        $("#input-fpr-tanggalfaktur").val('');
+        $("#input-fpr-tanggalretur").val('');
+        $("#listMasaPajak").val('');
+        $("#input-tahunpajak-pelaporan").val('');
+        $("#input-fpr-nilaidpp").val('');
+        $("#input-fpr-nilaippn").val('');
+        $("#input-fpr-nilaippnbm").val('');
+        $("#input-fpr-pesan").val('');
+        
+        $("#input-fpr-nofaktur").val('');
+        $("#input-fpr-namalawantransaksi").val('');
+        $("#input-fpr-npwplawantransaksi").val('');
+        $("#input-fpr-tanggalfaktur").val('');
+        $("#input-fpr-kodejenistransaksi").val('01');
+        $("#input-fpr-fgpengganti").val('');
+
+        $('#Tidak').parent().removeClass("checked");
+        $('#Tidak').removeAttr("checked");
+        $('#Ya').parent().addClass("checked");
+        $('#Ya').attr("checked", "checked");
+
+        $("#hdn-fpr-fakturpajakid").val('');
+        
+    }
+
+</script>

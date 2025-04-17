@@ -1,0 +1,281 @@
+﻿@{
+    ViewBag.Title = "Report Faktur Pajak Outstanding";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_download = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("59", _loginResult.RoleId[0]);
+    var check_download = roleActivities_download.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Report Faktur Pajak Outstanding
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Posting Date</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-postingdatestartreport" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-postingdateendreport" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Doc SAP</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control w-sm" id="input-search-sapdocstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control w-sm" id="input-search-sapdocend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0;">
+                    <div class="table-scrollable">
+                        <table id="tbl-report-fpoutstanding" class="tblheader table table-striped table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width:50px">
+                                        No
+                                    </th>
+                                    @*<th colspan="5" class="text-center">
+                                        GL
+                                    </th>
+                                    <th colspan="4" class="text-center">
+                                        Keterangan
+                                    </th>*@
+                                    <th colspan="4" class="text-center">
+                                        GL
+                                    </th>
+                                    <th colspan="3" class="text-center">
+                                        Keterangan
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th style="min-width:100px">
+                                        GL Account
+                                    </th>
+                                    @*<th style="min-width:100px">
+                                        Doc. Header Text
+                                    </th>*@
+                                    <th style="min-width:100px">
+                                        Doc. No
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Posting Date
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Amount in GL
+                                    </th>
+                                    <th style="min-width:150px">
+                                        FP No.
+                                    </th>
+                                    <th style="min-width:100px">
+                                        FP Date
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Assignment
+                                    </th>
+                                    @*<th style="min-width:100px">
+                                        Username
+                                    </th>*@
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_download)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-download-excel">
+                                    Download Excel
+                                </button>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var firstLoad;
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        ReportFakturPajakOutstanding.init();
+
+        $('#btn-search').click(function () {
+            firstLoad = false;
+            searchClick();
+        });
+
+        $('#btn-reset').click(function () {
+            firstLoad = true;
+            resetClick();
+        });
+
+        $('#btn-download-excel').click(function () {
+            downloadExcelReport();
+        });
+
+    });
+
+    var postingDateStart;
+    var postingDateEnd;
+    var docSapStart;
+    var docSapEnd;
+
+    function downloadExcelReport() {
+        postingDateStart = $('#input-search-postingdatestartreport').val();
+        postingDateEnd = $('#input-search-postingdateendreport').val();
+        docSapStart = $('#input-search-sapdocstart').val();
+        docSapEnd = $('#input-search-sapdocend').val();
+
+        var search = $('.dataTables_filter input').val();
+        var strUrl = '@Url.Action("ExportReportFakturPajakOutstandingToExcel", "ExportDownload")' + "?sPostingDateStrart=" + postingDateStart + '&sPostingDateEnd=' + postingDateEnd
+            + '&docSapStart=' + docSapStart + '&docSapEnd=' + docSapEnd + '&search=' + search;
+        window.open(strUrl, '_blank');
+    }
+
+    function resetClick() {
+        $('#input-search-postingdatestartreport').val('');
+        $('#input-search-postingdateendreport').val('');
+        $('#input-search-sapdocstart').val('');
+        $('#input-search-sapdocend').val('');
+
+        postingDateStart = $('#input-search-postingdatestartreport').val();
+        postingDateEnd = $('#input-search-postingdateendreport').val();
+        docSapStart = $('#input-search-sapdocstart').val();
+        docSapStart = $('#input-search-sapdocend').val();
+
+        var table = $('#tbl-report-fpoutstanding').DataTable();
+        table.search('').draw();
+
+    }
+
+    function searchClick() {
+        postingDateStart = $('#input-search-postingdatestartreport').val();
+        postingDateEnd = $('#input-search-postingdateendreport').val();
+        docSapStart = $('#input-search-sapdocstart').val();
+        docSapStart = $('#input-search-sapdocend').val();
+
+        var table = $('#tbl-report-fpoutstanding').DataTable();
+        table.ajax.reload();
+
+    }
+
+    var ReportFakturPajakOutstanding = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                var table = $('#tbl-report-fpoutstanding');
+
+                postingDateStart = $('#input-search-postingdatestartreport').val();
+                postingDateEnd = $('#input-search-postingdateendreport').val();
+                docSapStart = $('#input-search-sapdocstart').val();
+                docSapStart = $('#input-search-sapdocend').val();
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetListFakturPajakOutstanding", "Report")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "sPostingDateStart", "value": postingDateStart },
+                            { "name": "sPostingDateEnd", "value": postingDateEnd },
+                            { "name": "docSapStart", "value": docSapStart },
+                            { "name": "docSapEnd", "value": docSapEnd }
+                        );
+                    },
+                    "columns": [
+                        { "data": "VSequenceNumber", "orderable": false, "searchable": false },
+                        { "data": "GLAccount", "orderable": true, "searchable": true },
+                        //{ "data": "DocumentHeaderText", "orderable": true, "searchable": true },
+                        { "data": "AccountingDocNo", "orderable": true, "searchable": true },
+                        { "data": "PostingDateString", "orderable": true, "searchable": true },
+                        { "data": "AmountLocalString", "orderable": true, "searchable": true },
+                        { "data": "TaxInvoiceNumber", "orderable": true, "searchable": true },
+                        { "data": "TglFakturString", "orderable": true, "searchable": true },
+                        { "data": "AssignmentNo", "orderable": true, "searchable": true }
+                        //{ "data": "UserName", "orderable": true, "searchable": true }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+
+            },
+
+            initHandlers: function () {
+                $('#tbl-report-fpoutstanding').on('draw.dt', function () {
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+</script>

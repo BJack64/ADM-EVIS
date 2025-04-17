@@ -1,0 +1,143 @@
+﻿@model eFakturADM.Web.Models.IdPajakModel
+@using eFakturADM.Web.Helpers
+@using System.Linq
+
+@{
+    var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+    var monthList = GlobalFunctionHelper.GetMasaPajakOpenList();
+    var yearList = new List<SelectListItem>();
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Ganti Masa Pajak" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" id="form-masa-pajak" role="form">
+        <input type="hidden" id="FakturPajakId" value="@Model.FakturPajakId" />
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 control-label">
+                    Masa Pajak
+                </div>
+                <div class="col-md-9">
+                    @Html.DropDownList("input-masa-pajak-edit", monthList, new { @class = "form-control", @onchange="loadTahunPajak(this)" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 control-label">
+                    Tahun
+                </div>
+                <div class="col-md-9">
+					@Html.DropDownList("input-tahun-edit", yearList, new { @class = "form-control w-sm" })
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script type="text/javascript">
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        var selectedMonth = $('#input-masa-pajak-edit option:selected');
+        loadTahunPajak(selectedMonth);
+        
+
+    };
+
+    $(function () {
+			var dialog = App.DialogBootstrap("#@templateId", 500, "auto", true,
+            {
+                OK: function () {
+                    var _reason = $('#input-tahun-edit').val();
+                    if (_reason == '' || _reason == null) {
+                        var errorMsg = 'Tahun is required';
+                        toastr.error(errorMsg, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    }
+                    else {
+                        var ids = $('#FakturPajakId').val();
+                        var tahun = $('#input-tahun-edit').val();
+                        var masapajak = $('#input-masa-pajak-edit').val();
+                        var jsonData = { FakturPajakId: ids, TahunPajak: tahun, MasaPajak: masapajak };
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("SetMasaPajakMultiple", "ScanQRCode")",
+                            data: jsonData,
+                            cache: false,
+                            success: function (data) {
+                                switch (data.Html.InfoType) {
+                                    case 2:
+                                        toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                        break;
+                                    case 3:
+                                        toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                        dialog.close();
+                                        break;
+                                };
+                                if (data.Html.InfoType == 1) {
+                                    BootstrapDialog.show({
+                                        type: BootstrapDialog.TYPE_FORM,
+                                        title: 'Informasi Faktur Pajak Expire',
+                                        message: data.Html.Message,
+                                        buttons: [{
+                                            label: 'Oke',
+                                            cssClass: 'btn-submit btn-delay',
+                                            action: function (dialog) {
+                                                BootstrapDialog.closeAll();
+                                                var table = $('#tbl-fakturpajak').DataTable();
+                                                table.ajax.reload();
+                                                
+                                            }
+                                        },
+
+                                        ]
+                                    });
+                                }
+                                TempIDs = [];
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                App.DialogError(xhr, textStatus, errorThrown);
+                                TempIDs = [];
+                            }
+                        });
+                    }
+                }
+            },
+                true, InitForm);
+
+    });
+
+
+	 function loadTahunPajak(e) {
+        var aMonthVal = $(e).val();;
+
+		if (!aMonthVal){
+			aMonthVal = @monthList.FirstOrDefault().Value;
+		}
+        $('#input-tahun-edit option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonthVal });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#input-tahun-edit').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+</script>

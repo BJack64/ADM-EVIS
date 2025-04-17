@@ -1,0 +1,48 @@
+.pagination-custom {
+   font-size: 90%;
+   font-weight:bold;
+}
+        
+.pagination-custom a {
+    text-decoration: none;
+	border: solid 1px #ccc;
+	color: #555;
+	
+	background: -webkit-linear-gradient(top, #f9f9f9 0%, #e8e8e8 100%);
+	background: -moz-linear-gradient(top, #f9f9f9 0%, #e8e8e8 100%);
+	background: -o-linear-gradient(top, #f9f9f9 0%, #e8e8e8 100%);
+	background: -ms-linear-gradient(top, #f9f9f9 0%, #e8e8e8 100%);
+	background: linear-gradient(top, #f9f9f9 0%, #e8e8e8 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9f9f9', endColorstr='#e8e8e8',GradientType=0 );
+	text-decoration: none !important;
+}
+
+.pagination-custom a, .pagination-custom span {
+    display: block;
+    float: left;
+    padding: 0.3em 0.7em;
+    margin-right: 5px;
+	margin-bottom: 5px;
+	text-align:center;
+    border-radius: 3px !important;
+    font-size: 0.9em !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.pagination-custom .current {
+    background: #555;
+    color: #fff;
+	border: solid 1px #888;
+    box-shadow: none !important;
+}
+
+.pagination-custom .current.prev, .pagination-custom .current.next{
+	color:#ccc;
+	border-color:#ccc;
+	background:#fff;
+}
+
+
+.none{
+    border:none !important;    
+}

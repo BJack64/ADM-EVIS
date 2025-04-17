@@ -1,0 +1,276 @@
+﻿using System;
+using System.Data;
+using System.Data.SqlTypes;
+using System.Reflection;
+using eFakturADM.Logic.Core;
+using eFakturADM.Logic.Objects;
+using System.Collections.Generic;
+using eFakturADM.Logic.Utilities;
+using eFakturADM.Shared.Utility;
+
+namespace eFakturADM.Logic.Collections
+{
+    public class Vendors : ApplicationCollection<Vendor, SpBase>
+    {
+        public static List<Vendor> Get()
+        {
+            var sp = new SpBase(@"SELECT [VendorId]
+      ,[NPWP]
+      ,[JenisNPWP]
+      ,[Nama]
+      ,[Alamat]
+      ,[IsDeleted]
+      ,[Created]
+      ,[Modified]
+      ,[CreatedBy]
+      ,[ModifiedBy]
+      ,COUNT([VendorId]) OVER() AS TotalItems
+	  ,CAST(CASE WHEN [PkpDicabut] IS NULL THEN 0 ELSE [PkpDicabut] END AS bit) AS PkpDicabut
+	  ,[TglPkpDicabut]
+	  ,[KeteranganTambahan]
+,[FormatedNpwp]
+  FROM [dbo].[Vendor]
+WHERE [IsDeleted] = 0");
+            var dbData = GetApplicationCollection(sp);
+            return dbData;
+        }
+
+        public static Vendor GetById(int vendorId)
+        {
+            var sp = new SpBase(@"SELECT [VendorId]
+      ,[NPWP]
+      ,[JenisNPWP]
+      ,[Nama]
+      ,[Alamat]
+      ,[IsDeleted]
+      ,[Created]
+      ,[Modified]
+      ,[CreatedBy]
+      ,[ModifiedBy]
+      ,COUNT([VendorId]) OVER() AS TotalItems
+      ,CAST(CASE WHEN [PkpDicabut] IS NULL THEN 0 ELSE [PkpDicabut] END AS bit) AS PkpDicabut
+	  ,[TglPkpDicabut]
+	  ,[KeteranganTambahan]
+,[FormatedNpwp]
+  FROM [dbo].[Vendor]
+  WHERE VendorId = @VendorId");
+            sp.AddParameter("VendorId", vendorId);
+            var dbData = GetApplicationObject(sp);
+            return (dbData == null || dbData.VendorId == 0) ? null : dbData;
+        }
+
+        public static Vendor GetByNpwp(string npwp)
+        {
+            var sp = new SpBase(@"SELECT [VendorId]
+      ,[NPWP]
+      ,[JenisNPWP]
+      ,[Nama]
+      ,[Alamat]
+      ,[IsDeleted]
+      ,[Created]
+      ,[Modified]
+      ,[CreatedBy]
+      ,[ModifiedBy]
+      ,COUNT([VendorId]) OVER() AS TotalItems
+      ,CAST(CASE WHEN [PkpDicabut] IS NULL THEN 0 ELSE [PkpDicabut] END AS bit) AS PkpDicabut
+	  ,[TglPkpDicabut]
+	  ,[KeteranganTambahan]
+,[FormatedNpwp]
+  FROM [dbo].[Vendor]
+  WHERE NPWP = @NPWP AND IsDeleted = 0");
+            sp.AddParameter("NPWP", npwp);
+            var dbData = GetApplicationObject(sp);
+            return (dbData == null || dbData.VendorId == 0) ? null : dbData;
+        }
+
+        public static Vendor GetByFormatedNpwp(string npwp)
+        {
+            var sp = new SpBase(@"SELECT [VendorId]
+      ,[NPWP]
+      ,[JenisNPWP]
+      ,[Nama]
+      ,[Alamat]
+      ,[IsDeleted]
+      ,[Created]
+      ,[Modified]
+      ,[CreatedBy]
+      ,[ModifiedBy]
+      ,COUNT([VendorId]) OVER() AS TotalItems
+      ,CAST(CASE WHEN [PkpDicabut] IS NULL THEN 0 ELSE [PkpDicabut] END AS bit) AS PkpDicabut
+	  ,[TglPkpDicabut]
+	  ,[KeteranganTambahan]
+,[FormatedNpwp]
+  FROM [dbo].[Vendor]
+  WHERE [FormatedNpwp] = @NPWP AND IsDeleted = 0");
+            sp.AddParameter("NPWP", npwp);
+            var dbData = GetApplicationObject(sp);
+            return (dbData == null || dbData.VendorId == 0) ? null : dbData;
+        }
+
+        public static List<Vendor> GetList(Filter filter, out int totalItems, string npwp, string nama)
+        {
+            if (filter.Search != null)
+                filter.Search = filter.Search.Trim();
+            var sortOrder = filter.SortOrderAsc ? "ASC" : "DESC";
+            totalItems = 0;
+
+            var sp = new SpBase(string.Format(@"SELECT  [VendorId]
+  ,[NPWP]
+  ,[JenisNPWP]
+  ,[Nama]
+  ,[Alamat]
+  ,[IsDeleted]
+  ,[Created]
+  ,[Modified]
+  ,[CreatedBy]
+  ,[ModifiedBy]
+  ,COUNT([VendorId]) OVER() AS TotalItems
+  ,CAST(CASE WHEN [PkpDicabut] IS NULL THEN 0 ELSE [PkpDicabut] END AS bit) AS PkpDicabut
+  ,[TglPkpDicabut]
+  ,[KeteranganTambahan]
+,[FormatedNpwp]
+FROM Vendor
+ORDER BY {0} {1}
+OFFSET (@CurrentPage-1)*@ItemPerPage ROWS
+FETCH NEXT @ItemPerPage ROWS ONLY", filter.SortColumnName, sortOrder));
+
+            sp.AddParameter("CurrentPage", filter.CurrentPage);
+            sp.AddParameter("ItemPerPage", filter.ItemsPerPage);
+            sp.AddParameter("NPWP", npwp);
+            sp.AddParameter("Nama", nama);
+            sp.AddParameter("Search", filter.Search);
+
+            List<Vendor> data = GetApplicationCollection(sp);
+
+            if (data.Count > 0)
+                totalItems = data[0].TotalItems;
+
+            if (totalItems == 0 && filter.CurrentPage > 1)
+            {
+                filter.CurrentPage--;
+                data = GetList(filter, out totalItems, npwp, nama);
+            }
+            else if (totalItems > 0 && totalItems < (filter.CurrentPage - 1) * filter.ItemsPerPage)
+            {
+                filter.CurrentPage = (totalItems <= filter.ItemsPerPage) ? 1 : (totalItems / filter.ItemsPerPage);
+                data = GetList(filter, out totalItems, npwp, nama);
+            }
+            else if (totalItems > 0 && totalItems == (filter.CurrentPage - 1) * filter.ItemsPerPage)
+            {
+                filter.CurrentPage = 1;
+                data = GetList(filter, out totalItems, npwp, nama);
+            }
+
+            return data;
+        }
+
+        public static Vendor Save(Vendor data)
+        {
+            data.WasSaved = false;
+            SpBase sp;
+
+            if (data.VendorId > 0)
+            {
+                sp = new SpBase(@"UPDATE [dbo].[Vendor]
+   SET [NPWP] = @NPWP
+      ,[JenisNPWP] = @JenisNPWP
+      ,[Nama] = @Nama
+      ,[Alamat] = @Alamat
+      ,[Modified] = GETDATE()
+      ,[ModifiedBy] = @ModifiedBy
+      ,[PkpDicabut] = @PkpDicabut
+      ,[TglPkpDicabut] = @TglPkpDicabut
+      ,[KeteranganTambahan] = @KeteranganTambahan
+      ,[FormatedNpwp] = @FormatedNpwp
+WHERE [VendorId] = @VendorId");
+
+                sp.AddParameter("VendorId", data.VendorId);
+                sp.AddParameter("ModifiedBy", data.ModifiedBy);
+            }
+            else
+            {
+                sp = new SpBase(@"INSERT INTO [dbo].[Vendor]
+           ([NPWP]
+           ,[JenisNPWP]
+           ,[Nama]
+           ,[Alamat]
+           ,[CreatedBy]
+           ,[PkpDicabut]
+           ,[TglPkpDicabut]
+           ,[KeteranganTambahan]
+           ,[FormatedNpwp])
+     VALUES
+           (@NPWP
+           ,@JenisNPWP
+           ,@Nama
+           ,@Alamat
+           ,@CreatedBy
+           ,@PkpDicabut
+           ,@TglPkpDicabut
+           ,@KeteranganTambahan
+           ,@FormatedNpwp); SELECT @VendorId = @@IDENTITY");
+
+                sp.AddParameter("VendorId", data.VendorId, ParameterDirection.Output);
+                sp.AddParameter("CreatedBy", data.CreatedBy);
+
+            }
+
+            sp.AddParameter("NPWP", data.NPWP);
+            sp.AddParameter("JenisNPWP", data.JenisNPWP);
+            sp.AddParameter("Nama", data.Nama);
+            sp.AddParameter("Alamat", string.IsNullOrEmpty(data.Alamat) ? SqlString.Null : data.Alamat);
+            sp.AddParameter("PkpDicabut", data.PkpDicabut);
+            sp.AddParameter("TglPkpDicabut", data.TglPkpDicabut.HasValue ? data.TglPkpDicabut.Value : SqlDateTime.Null);
+            sp.AddParameter("KeteranganTambahan", string.IsNullOrEmpty(data.KeteranganTambahan) ? SqlString.Null : data.KeteranganTambahan);
+            sp.AddParameter("FormatedNpwp", data.FormatedNpwp);
+
+            if (sp.ExecuteNonQuery() == 0)
+                data.WasSaved = true;
+
+            if (data.VendorId <= 0)
+            {
+                data.VendorId = (int)sp.GetParameter("VendorId");
+            }
+
+            return data;
+        }
+
+        public static bool Delete(int vendorId, string modifiedBy)
+        {
+            var sp = new SpBase(string.Format(@"UPDATE [dbo].[Vendor]
+   SET [IsDeleted] = 1
+      ,[Modified] = GETDATE()
+      ,[ModifiedBy] = @ModifiedBy
+WHERE VendorId = @VendorId"));
+            sp.AddParameter("VendorId", vendorId);
+            sp.AddParameter("ModifiedBy", modifiedBy);
+            return sp.ExecuteNonQuery() == 0;
+        }
+
+        public static bool SaveUpload(DataTable paramTable, out string logkey)
+        {
+            sqlsrv sql = null;
+            logkey = string.Empty;
+            try
+            {
+                sql = new sqlsrv();
+
+                const string spname = "sp_VendorProcessUpload";
+                const string tabletypename = "@paramTable";
+                sql.InsertTable_cmd(spname, tabletypename, paramTable);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog(out logkey, LogLevel.Error, ex.Message, MethodBase.GetCurrentMethod(), ex);
+                return false;
+            }
+            finally
+            {
+                if(sql != null)
+                    sql.close_con();
+            }
+        }
+
+    }
+}

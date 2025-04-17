@@ -1,0 +1,359 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+@{
+    ViewBag.Title = "Evis VS IWS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var listStatus = EnumHelper.GetValues<ApplicationEnums.StatusCompareEvisVsIws>().Select(d => new SelectListItem()
+    {
+        Text = EnumHelper.GetDescription(d),
+        Value = ((int)d).ToString(),
+        Selected = d == ApplicationEnums.StatusCompareEvisVsIws.All
+    }).ToList();
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_submit = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("22", _loginResult.RoleId[0]);
+    var check_submit = roleActivities_submit.Count != 0 ? true : false;
+    var roleActivities_exportexcel = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("23", _loginResult.RoleId[0]);
+    var check_exportexcel = roleActivities_exportexcel.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Evis VS IWS
+        </h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+            <div class="form-group padder row">
+                <div class="col-md-8">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Receiving Date<span class="required"> *</span></label>
+                        <div class="col-md-8 form-inline">
+                            <div>
+                                <label>From &nbsp;</label>
+                                <div class="input-group w-sm">
+                                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    <input class="form-control datepicker" size="16" type="text" id="input-compevisvsiws-search-receivingdate-start"
+                                           value="@DateTime.Now.ToString("dd/MM/yyyy")" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                </div>
+                                <label>&nbsp; To &nbsp;</label>
+                                <div class="input-group w-sm">
+                                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    <input class="form-control datepicker" size="16" type="text" id="input-compevisvsiws-search-receivingdate-end"
+                                           value="@DateTime.Now.ToString("dd/MM/yyyy")" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Scan Date</label>
+                        <div class="col-md-8 form-inline">
+                            <div>
+                                <div class="input-group w-sm">
+                                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    <input class="form-control datepicker" size="16" type="text" id="input-compevisvsiws-search-scandate"
+                                           value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="form-group padder row">
+                <div class="col-md-8">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Username</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="input-search-username" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">&nbsp;</label>
+                        <div class="col-md-8">
+                            @if (check_submit)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-submit">
+                                    Compare
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        
+        <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+            <div class="form-group padder row">
+                <div class="form-group row">
+                    <label class="col-md-2 control-label">Status</label>
+                    <div class="col-md-4">
+                        @Html.DropDownList("input-compevisvsiws-search-status", listStatus, new { @class = "form-control w-sm" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                    <legend class="title-legend">List Data</legend>
+                </fieldset>
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                    <div class="table-scrollable" >
+                        <table id="tbl-compare-evis-iws" class="table table-hover table-blue" style="margin-bottom:0px">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">
+                                        Received Date (IWS)
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Vendor Code
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        Vendor Name
+                                    </th>
+                                    <th rowspan="2">
+                                        Scan Date
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        FP Number EVIS
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        FP Number IWS
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Invoice Number
+                                    </th>
+                                    <th colspan="3">
+                                        VAT Amount
+                                    </th>
+                                    <th rowspan="2" style="min-width:275px">
+                                        Status DJP
+                                    </th>
+                                    <th rowspan="2">
+                                        Status Compare
+                                    </th>
+                                    <th rowspan="2" style="min-width:200px">
+                                        Notes
+                                    </th>
+                                    <th rowspan="2">
+                                        UserName
+                                    </th>
+                                    <th rowspan="2">
+
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>EVIS</th>
+                                    <th>IWS</th>
+                                    <th>Diff</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_exportexcel)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-re-export-excel">
+                                    Export to Excel
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        CompEvisVsIws.init();
+        $("#btn-submit").bind("click", function () {
+            SubmitDataCompare();
+        });
+
+        //$('#input-compevisvsiws-search-receivingdate-start').on('change', function () {
+        //    ReloadTable();
+        //});
+
+        //$('#input-compevisvsiws-search-receivingdate-end').on('change', function () {
+        //    ReloadTable();
+        //});
+
+        $('#input-compevisvsiws-search-status').on('change', function () {
+            ReloadTable();
+        });
+
+        $('#btn-re-export-excel').on('click', function () {
+            var receivedDateStart = $('#input-compevisvsiws-search-receivingdate-start').val();
+            var receivedDateEnd = $('#input-compevisvsiws-search-receivingdate-end').val();
+            var statusId = $('#input-compevisvsiws-search-status option:selected').val();
+            var scanDate = $('#input-compevisvsiws-search-scandate').val();
+            var scanUserName = $('#input-search-username').val();
+
+            if (receivedDateStart == '' || receivedDateEnd == '') {
+                toastr.warning("Please input Receiving Date", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            } else {
+                var strUrl = '@Url.Action("ExportCompareEvisVsIwsToExcel", "ExportDownload")' + "?receivedDateStart=" + receivedDateStart + '&receivedDateEnd=' + receivedDateEnd + '&statusId=' + statusId + '&scanUserName=' + scanUserName + '&scanDateString=' + scanDate;
+                window.open(strUrl, '_blank');
+            }
+        });
+
+    });
+
+    function SubmitDataCompare() {
+        
+        var strDate = $('#input-compevisvsiws-search-receivingdate-start').val();
+        var endDate = $('#input-compevisvsiws-search-receivingdate-end').val();
+        var scanDate = $('#input-compevisvsiws-search-scandate').val();
+        var scanUserName = $('#input-search-username').val();
+        
+        if (strDate == '') {
+            toastr.warning("Please input Receiving Date", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        } else {
+            var oData = JSON.stringify({ receivingStartDate: strDate, receivingEndDate: endDate, scanUserName: scanUserName, scanDateString: scanDate });
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GenerateCompareEvisVsIws", "DataCompare")",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: oData,
+                cache: false,
+                success: function (response) {
+                    switch (response.Html.InfoType) {
+                        case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    };
+                    if (response.Html.InfoType == 1) {
+                        ReloadTable();
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    App.DialogError(xhr, textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function ReloadTable() {
+        var strStartDate = $('#input-compevisvsiws-search-receivingdate-start').val();
+        var strEndDate = $('#input-compevisvsiws-search-receivingdate-end').val();
+        if (strStartDate == '' || strEndDate == '') {
+            toastr.warning("Please input Receiving Date", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        } else {
+            receivingDateStart = $("#input-compevisvsiws-search-receivingdate-start").val();
+            receivingDateEnd = $("#input-compevisvsiws-search-receivingdate-end").val();
+            statusId = $('#input-compevisvsiws-search-status option:selected').val();
+            scanDateF = $('#input-compevisvsiws-search-scandate').val();
+            scanUserNameF = $('#input-search-username').val();
+            var table = $('#tbl-compare-evis-iws').DataTable();
+            table.ajax.reload();
+        }
+    }
+
+    var receivingDateStart;
+    var receivingDateEnd;
+    var statusId;
+    var scanDateF;
+    var scanUserNameF;
+    var CompEvisVsIws = function () {
+        return {
+            initTable: function () {
+
+                receivingDateStart = $("#input-compevisvsiws-search-receivingdate-start").val();
+                receivingDateEnd = $("#input-compevisvsiws-search-receivingdate-end").val();
+                statusId = $('#input-compevisvsiws-search-status option:selected').val();
+                scanDateF = $('#input-compevisvsiws-search-scandate').val();
+                scanUserNameF = $('#input-search-username').val();
+                
+                var table = $('#tbl-compare-evis-iws');
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetDataEvisVsIwsDataTable", "DataCompare")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "receivingDateStart", "value": receivingDateStart },
+                            { "name": "receivingDateEnd", "value": receivingDateEnd },
+                            { "name": "statusId", "value": statusId },
+                            { "name": "scanUserName", "value": scanUserNameF },
+                            { "name": "scanDateString", "value": scanDateF }
+                        );
+                    },
+                    "columns": [
+                        { "data": "ReceivedDateString", "orderable": true, "searchable": false },
+                        { "data": "VendorCode", "orderable": true, "searchable": true },
+                        { "data": "VendorName", "orderable": true, "searchable": true },
+                        { "data": "ScanDateString", "orderable": true, "searchable": false },
+                        { "data": "TaxInvoiceNumberEvis", "width": 150, "orderable": true, "searchable": true },
+                        { "data": "TaxInvoiceNumberIws", "width": 150, "orderable": true, "searchable": true },
+                        { "data": "InvoiceNumber", "orderable": true, "searchable": true },
+                        { "data": "VatAmountScannedString", "orderable": true, "searchable": false },
+                        { "data": "VatAmountIwsString", "orderable": true, "searchable": false },
+                        { "data": "VatAmountDiffString", "orderable": true, "searchable": false },
+                        { "data": "StatusDjp", "orderable": true,"searchable": true },
+                        { "data": "StatusCompare", "orderable": true, "searchable": true },
+                        { "data": "Notes", "orderable": true, "searchable": true },
+                        { "data": "ScanUserName", "orderable": true, "searchable": false },
+                        {
+                            "data": "Id",
+                            "orderable": false,
+                            "searchable": false,
+                            "class": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default compevisvsiws-add-notes" data-compevisvsiws-id="' + row.Id + '">Edit Notes</button></div>';
+                            }
+                        }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-compare-evis-iws').on('draw.dt', function () {
+                    App.InitExpander(50);
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+                $("body").on("click", ".compevisvsiws-add-notes", function (e) {
+                    App.DialogGet('@Url.Action("EvisVsIwsInputNotesDialog", "DataCompare")', e, {
+                        id: parseInt($(this).attr("data-compevisvsiws-id"))
+                    });
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+</script>

@@ -1,0 +1,211 @@
+﻿@model FakturPajakReturInfoModel
+@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+
+ var lstKdJenisTransaksiInit = new SelectList(new List<FPKdJenisTransaksi>(), "Id", "Id");
+
+ List<SelectListItem> listKreditPajak = new List<SelectListItem>();
+ listKreditPajak.Add(new SelectListItem { Text = "Ya", Value = "Ya" });
+ listKreditPajak.Add(new SelectListItem { Text = "Tidak", Value = "Tidak" });
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Detail Retur Faktur Pajak" data-dialog-spinner="spinner-@dialogId">
+    <form class="form-horizontal" id="form-coc" role="form" enctype="multipart/form-data" method="post">
+        <div class="form-body">
+            <div class="padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+                <div class="form-group">
+                    <label class="col-md-4 control-label">No Faktur Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-fpr-nofaktur" readonly="readonly" value="@Model.NoFaktur" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Nama Penjual</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-fpr-namalawantransaksi" readonly="readonly" value="@Model.NamaVendor" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">NPWP Penjual</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-fpr-npwplawantransaksi" readonly="readonly" value="@Model.NPWPVendor" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Tgl. Faktur</label>
+                    <div class="col-md-8 w-md" style="display:table">
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        <input class="form-control datepicker" size="16" type="text" id="input-fpr-tanggalfaktur" readonly="readonly" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" value="@Model.TanggalFaktur" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Kode Jenis Transaksi</label>
+                    <div class="col-md-8">
+                        @Html.DropDownList("input-fpr-kodejenistransaksi", lstKdJenisTransaksiInit, new { @class = "form-control w-xl", @id = "input-fpr-kodejenistransaksi", disabled = "disabled" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">FG Pengganti</label>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" id="input-fpr-fgpengganti" maxlength="2" readonly="readonly" value="@Model.FgPengganti" />
+                    </div>
+                    <div class="col-md-6">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                    <div class="col-md-8">
+                        <div class="radio-list">
+                            <div>
+                                @for (int i = 0; i < listKreditPajak.Count; i++)
+                                    {
+                                    <label class="radios">
+                                        <span>
+                                            @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value, disabled = "disabled" })
+                                        </span>
+                                        @listKreditPajak[i].Text
+                                    </label>
+                                    }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="padder-v-sm" style="border-bottom:1px solid #eaeaea">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">No.Dok Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="input-fpr-nomordokumenretur" readonly="readonly" value="@Model.NoDocRetur" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Tgl. Retur</label>
+                    <div class="col-md-8 w-md" style="display:table">
+                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        <input class="form-control datepicker" size="16" type="text" id="input-fpr-tanggalretur" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" readonly="readonly" value="@Model.TglRetur" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Masa Pajak Retur</label>
+                    <div class="col-md-4 w-sm">
+                        <input type="text" class="form-control text-right" id="input-fpr-masapajak" readonly="readonly" value="@Model.MasaPajakLapor" />
+                    </div>
+                    <div class="col-md-4 w-sm">
+                        <input type="text" class="form-control text-right" id="input-fpr-tahunpajak" readonly="readonly" value="@Model.TahunPajakLapor" />
+                    </div>
+                </div>
+            </div>
+            <div class="padder-v-sm" style="border-bottom:1px solid #eaeaea">
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai DPP Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaidpp" readonly="readonly" value="@Model.JumlahDPP" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai PPN Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaippn" readonly="readonly" value="@Model.JumlahPPN" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Nilai PPnBM Retur</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control text-right" id="input-fpr-nilaippnbm" readonly="readonly" value="@Model.JumlahPPNBM" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4 control-label">Pesan</label>
+                    <div class="col-md-8">
+                        <textarea class="form-control" style="resize:none;" id="input-fpr-pesan" readonly="readonly">@Model.Pesan</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script type="text/javascript">
+    function InitForm() {
+        App.PreventDoubleSubmit();
+
+        loadKodeJenisTransaksi('@Model.KdJenisTransaksi');
+
+        @*if ('@Model.Dikreditkan.ToString().ToLower()' == "true") {
+            $('#Tidak').parent().removeClass("checked");
+            $('#Tidak').removeAttr("checked");
+            $('#Ya').parent().addClass("checked");
+            $('#Ya').attr("checked", "checked");
+        }
+        else {
+            $('#Ya').parent().removeClass("checked");
+            $('#Ya').removeAttr("checked");
+            $('#Tidak').parent().addClass("checked");
+            $('#Tidak').attr("checked", "checked");
+        }*@
+        $('#Ya').parent().removeClass("checked");
+        $('#Tidak').parent().removeClass("checked");
+
+        $('#Ya').removeAttr("checked");
+        $('#Tidak').removeAttr("checked");
+
+        if ('@Model.Dikreditkan.ToString().ToLower()' == "true") {
+            $('#Ya').parent().addClass("checked");
+            $('#Ya').attr("checked", "checked");
+        } else {
+            $('#Tidak').parent().addClass("checked");
+            $('#Tidak').attr("checked", "checked");
+        }
+
+    }
+
+    function loadKodeJenisTransaksi(selectedVal) {
+        $('#input-fpr-kodejenistransaksi option').remove();
+        var jsonData = JSON.stringify({});
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetKdJenisTransaksiByFCode", "Retur")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        var selectedHtml = '';
+                        if (selectedVal != '') {
+                            if (response.aaData[i].Id == selectedVal) {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        } else {
+                            if (response.aaData[i].Id == '01') {
+                                selectedHtml = 'selected="selected"';
+                            }
+                        }
+
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Id + '"' + selectedHtml + '>' + response.aaData[i].Id + ' - ' + response.aaData[i].Description + '</option>';
+                    }
+                    $('#input-fpr-kodejenistransaksi').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 900, 600, true,
+        {
+        },
+        true, InitForm)
+    });
+</script>

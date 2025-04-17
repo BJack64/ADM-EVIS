@@ -1,0 +1,420 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Core
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+@using EnumHelper = eFakturADM.Shared.Utility.EnumHelper
+
+@{
+    ViewBag.Title = "Open Close Period";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_addopen = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("32", _loginResult.RoleId[0]);
+    var check_addopen = roleActivities_addopen.Count != 0 ? true : false;
+    var roleActivities_closesp2 = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("33", _loginResult.RoleId[0]);
+    var check_closesp2 = roleActivities_closesp2.Count != 0 ? true : false;
+    var roleActivities_openregular = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("34", _loginResult.RoleId[0]);
+    var check_openregular = roleActivities_openregular.Count != 0 ? true : false;
+    var roleActivities_closeregular = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("35", _loginResult.RoleId[0]);
+    var check_closeregular = roleActivities_closeregular.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Open Close Period
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm ", @id = "input-search-masapajakstart" })
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm ", @id = "input-search-masapajakend" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control form-control-inline" maxlength="4" id="input-search-tahunpajakstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control form-control-inline" maxlength="4" id="input-search-tahunpajakend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="" style="text-align:right">
+                                <div class="m-t-md">
+                                    <button type="button" class="btn btn-success" id="btn-search">
+                                        Search
+                                    </button>
+                                    <button type="button" class="btn btn-default" id="btn-reset">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" style="padding:5px">
+                <div class="">
+                    @if (check_addopen)
+                    {
+                        <button type="button" class="btn btn-success" id="btn-openperiod">
+                            Open Period
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="form-group row">
+                <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                    <legend class="title-legend">List Data</legend>
+                </fieldset>
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                    <div class="table-scrollable">
+                        <table id="tbl-opencloseperiod" class="table table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th width="10px" style="padding-left:12px"><input id="selectall" name="select_all" type="checkbox" /></th>
+                                    <th>
+                                        Masa Pajak
+                                    </th>
+                                    <th>
+                                        Tahun
+                                    </th>
+                                    <th>
+                                        Status Regular
+                                    </th>
+                                    <th>
+                                        Status SP2
+                                    </th>
+                                    <th>
+                                        Attachment
+                                    </th>
+                                    <th>
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_openregular)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-openregular">
+                                    Open Regular
+                                </button>
+                            }
+                            @if (check_closeregular)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" id="btn-closeregular">
+                                    Close Regular
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var masaPajakStart;
+    var masaPajakEnd;
+    var tahunPajakStart;
+    var tahunPajakEnd;
+
+    var dataSelectedCrew = [];
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        InitOpenClosePeriod.init();
+
+        $('#input-search-tahunpajakstart').keypress(validateNumber);
+        $('#input-search-tahunpajakend').keypress(validateNumber);
+
+        $("body").on("click", "#downloadfile", function (e) {
+            var downloadurl = "@Url.Action("Download", "Setting")";
+            var _filepath = $(this).attr("data-filepath");
+            var url = downloadurl + "?filePath=" + _filepath;
+            location.href = url;
+        });
+    });
+
+    //$("#div-search input, #div-search select").keypress(function (e) {
+    //    if (e.keyCode == 13) {
+    //        ReloadTable();
+    //    }
+    //});
+
+    $("#btn-search").bind("click", function (e) {
+        ReloadTable();
+    });
+
+    $("#btn-reset").bind("click", function (e) {
+        //reset
+        var dtnow = new Date();
+        var monthNow = dtnow.getMonth() + 1;
+        var yearNow = dtnow.getFullYear();
+
+        $("#input-search-masapajakstart").val('');
+        $("#input-search-masapajakend").val('');
+        $("#input-search-tahunpajakstart").val('');
+        $("#input-search-tahunpajakend").val('');
+
+        $('#selectall').parent().removeClass("checked");
+        $('#selectall').removeAttr("checked");
+
+        ReloadTable();
+    });
+
+    $("#btn-openperiod").bind("click", function (e) {
+        App.DialogGet("@Url.Action("GetOpenPeriodDialog", "OpenClosePeriod")", e);
+    });
+
+    $("#btn-openregular").bind("click", function (e) {
+        OpenCloseRegular(true);
+    });
+
+    $("#btn-closeregular").bind("click", function (e) {
+        OpenCloseRegular(false);
+    });
+
+    var InitOpenClosePeriod = function () {
+        return {
+            initTable: function () {
+                masaPajakStart = $("#input-search-masapajakstart").val();
+                masaPajakEnd = $("#input-search-masapajakend").val();
+                tahunPajakStart = $("#input-search-tahunpajakstart").val();
+                tahunPajakEnd = $("#input-search-tahunpajakend").val();
+
+                var table = $('#tbl-opencloseperiod');
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("GetListOpenClosePeriodDataTable", "OpenClosePeriod")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "MasaPajakStart", "value": masaPajakStart },
+                            { "name": "MasaPajakEnd", "value": masaPajakEnd },
+                            { "name": "TahunPajakStart", "value": tahunPajakStart },
+                            { "name": "TahunPajakEnd", "value": tahunPajakEnd }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "OpenClosePeriodId",
+                            "orderable": false,
+                            "className": "text-center clickcheckbox",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input type="checkbox" name="checkbox" class="checkbox" value="' + row.OpenClosePeriodId + '">';
+                            }
+                        },
+                        { "data": "MonthName", "orderable": true, "searchable": true, "className": "clickcheckbox" },
+                        { "data": "TahunPajak", "orderable": true, "searchable": true, "className": "clickcheckbox" },
+                        { "data": "StatusRegularText", "orderable": true, "searchable": true, "className": "clickcheckbox" },
+                        { "data": "StatusSp2Text", "orderable": true, "searchable": true, "className": "clickcheckbox" },
+                        {
+                            "data": "DocumentSP2",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                if (row.DocumentSP2 != "") {
+                                    return '<a id="downloadfile" data-filepath="' + row.DocumentSP2 + '">View</a>';
+                                }
+                                else {
+                                    return '';
+                                }
+                            },
+                        },
+                        {
+                            "data": "OpenClosePeriodId",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                if (row.StatusSp2 == false) {
+                                    //return '<button type="button" class="btn btn-sm btn-danger opencloseperiod-closesp2" data-opencloseperiod-id="' + data + '" disabled="disabled">Close SP2</button></div>';
+                                    return '';
+                                }
+                                else {
+                                    if ('@check_closesp2.ToString().ToLower()' == 'true')
+	                                {
+		                                 return '<button type="button" class="btn btn-sm btn-danger opencloseperiod-closesp2" data-opencloseperiod-id="' + data + '">Close SP2</button>';
+	                                }
+                                    else
+	                                {
+                                         return '';    
+	                                }
+                                    
+                                }
+
+                            },
+                        }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+                $('#tbl-opencloseperiod tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    //Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // Handle click on table cells with checkboxes
+                $('#tbl-opencloseperiod tbody').on('click', '.clickcheckbox', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-opencloseperiod').DataTable();
+                // Handle click on "Select all" control
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-opencloseperiod tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-opencloseperiod tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-opencloseperiod').on('draw.dt', function () {
+                    App.InitExpander(50);
+                });
+
+                $("body").on("click", ".opencloseperiod-closesp2", function (e) {
+                    var OpenClosePeriodId = $(this).attr("data-opencloseperiod-id");
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ValidationOnCloseSp2", "OpenClosePeriod")",
+                        data: { openClosePeriodId: OpenClosePeriodId },
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            };
+                            if (data.Html.InfoType == 1) {
+                                App.DialogGet("@Url.Action("GetCloseSP2Dialog", "OpenClosePeriod")", e, {
+                                    openClosePeriodId: OpenClosePeriodId,
+                                });
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+
+
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+    function ReloadTable() {
+        masaPajakStart = $("#input-search-masapajakstart").val();
+        masaPajakEnd = $("#input-search-masapajakend").val();
+        tahunPajakStart = $("#input-search-tahunpajakstart").val();
+        tahunPajakEnd = $("#input-search-tahunpajakend").val();
+
+        var table = $('#tbl-opencloseperiod').DataTable();
+        table.ajax.reload();
+    }
+
+    function OpenCloseRegular(isOpen, e) {
+        dataSelectedCrew = [];
+        if ($(".checkbox:checked").length == 0) {
+            toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+        else {
+            $('#tbl-opencloseperiod').find('tr').each(function () {
+                var row = $(this);
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    var ocpId = $(this).find('.checkbox').val();
+                    if (ocpId != undefined) {
+                        dataSelectedCrew.push(parseInt(ocpId));
+                    }
+                }
+            });
+
+            if (dataSelectedCrew.length > 0) {
+                var oData = JSON.stringify({ OpenClosePeriodIds: dataSelectedCrew, IsOpen: isOpen });
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SubmitOpenCloseRegular", "OpenClosePeriod")",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: oData,
+                    cache: false,
+                    success: function (data) {
+                        switch (data.Html.InfoType) {
+                            case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        };
+                        if (data.Html.InfoType == 1) {
+                            dataSelectedCrew = [];
+
+                            $('#selectall').parent().removeClass("checked");
+                            $('#selectall').removeAttr("checked");
+
+                            ReloadTable();
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        App.DialogError(xhr, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    }
+</script>

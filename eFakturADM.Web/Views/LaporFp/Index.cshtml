@@ -1,0 +1,306 @@
+﻿@using eFakturADM.Web.Helpers
+@{
+    ViewBag.Title = "Lapor Faktur Pajak";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+    var statusDjpList = GlobalFunctionHelper.GetFpdoStatusDjpList(true, "All");
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_upload = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("64,", _loginResult.RoleId[0]);
+    var roleActivities_lapor = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("64,", _loginResult.RoleId[0]);
+    var roleActivities_downloadexcel = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("11", _loginResult.RoleId[0]);
+    var check_downloadexcel = roleActivities_downloadexcel.Count != 0 ? true : false;
+    var check_lapor = roleActivities_lapor.Count != 0 ? true : false;
+    var check_upload = roleActivities_upload.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Daftar Lapor Faktur Pajak
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("input-search-MasaPajak", monthList, new { @class = "form-control w-sm" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-TahunPajak" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @* @Html.DropDownList("lst-filling-index", fillingIndexType, new { @class = "form-control w-sm" })*@
+                    </div>
+                </div>
+                <div class="row form-group">
+                    @*<label class="col-md-4 control-label">Status</label>
+                        <div class="col-md-8">
+                            @Html.DropDownList("lst-status-approval", statusDjpList, new { @class = "form-control w-sm" })
+                    *@
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form" style="text-align:right">
+            <button type="button" class="btn btn-success" id="btn-search">
+                Search
+            </button>
+            <button type="button" class="btn btn-success" id="btn-reset">
+                Reset
+            </button>
+        </div>
+        <div class="form" style="text-align:left">
+            <button type="button" class="btn btn-success" id="btn-lapor">
+                Lapor Faktur Pajak
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="form-group row">
+    <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+        <legend class="title-legend">List Data</legend>
+    </fieldset>
+    <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+        <div class="table-scrollable">
+            <table id="tbl-fakturpajak" class="tblheader table table-striped table-hover table-blue">
+                <thead>
+                    <tr>
+                        @*<th width="10px" style="padding-left:12px"></th>*@
+                        <th>
+                            Nama
+                        </th>
+                        <th>
+                            Masa Pajak
+                        </th>
+                        <th>
+                            Tahun
+                        </th>
+                        <th>
+                            Total Faktur Pajak
+                        </th>
+                        <th>
+                            Total PPN
+                        </th>
+                        <th>
+                            Aksi
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+    </div>
+</div>
+<form class="form-horizontal" role="form" id="form-lapor-editupload" enctype="multipart/form-data" method="post">
+    <input type="hidden" id="filepath" />
+    <input type="file" name="file-faktur-editupload" title="Browse" accept=".pdf" class="file-input upload"
+           id="file-faktur-editupload" style="margin-top:7px;display:none" onchange="file_changed(this); return false;">
+</form>
+<script>
+    var firstLoad;
+    var MasaPajak;
+    var TahunPajak;
+    var uploadForm;
+    var options = {};
+
+    function searchFunction() {
+        MasaPajak = $("#input-search-MasaPajak").val();
+        TahunPajak = $("#input-search-TahunPajak").val();
+
+        var table = $('#tbl-fakturpajak').DataTable();
+        table.ajax.reload();
+    }
+
+     $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        //App.InitDatePicker();
+         FakturPajakTerlapor.init();
+
+         var selectedMonth = $('#input-search-MasaPajak option:selected').val();
+         loadTahunPajak(selectedMonth);
+
+         $("#btn-search").bind("click", function (e) {
+             MasaPajak = $("#input-search-MasaPajak option:selected").val();
+             TahunPajak = $("#input-search-TahunPajak").val();
+             var table = $('#tbl-fakturpajak').DataTable();
+             firstLoad = false;
+             table.ajax.reload();
+         });
+
+         $("#btn-reset").bind("click", function (e) {
+             var selectedMonth = $('#input-search-MasaPajak option:selected').val();
+             loadTahunPajak(selectedMonth);
+
+             var table = $('#tbl-fakturpajak').DataTable();
+             firstLoad = false;
+             table.ajax.reload();
+         });
+         MasaPajak = $("#input-search-MasaPajak option:selected").val();
+         TahunPajak = $("#input-search-TahunPajak").val();
+         var table = $('#tbl-fakturpajak').DataTable();
+         firstLoad = false;
+         table.ajax.reload();
+
+         uploadForm = $("#form-lapor-editupload").ajaxForm();
+         uploadForm.submit(function () {
+             // submit the form
+             $(this).ajaxSubmit(options);
+             return false;
+         });
+
+     });
+    
+    function showDialog(Id) {
+        options = {
+            iframe: true,
+            dataType: "json",
+            data: { sEcho: "echo-editupload-lapor", ID: Id },
+            cache: false,
+            url: "@Url.Action("ProcessEditUpload", "LaporFp")",
+            success: function (response) {
+                if (response.Html.InfoType == 1) {
+                    //success
+                    $("#filepath").val(response.Html.Message);
+
+                    toastr.info("Update file successfully !", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+
+                } else {
+                    //failed
+                    if (response.Html.InfoType == 4) {
+                        //Error with file download
+                        $('#err-validasi-div').html('');
+                        toastr.warning("Error Validation, please see attachment.", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                        $('#err-validasi-div').append(response.Html.Message);
+                    } else {
+                        toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    }
+                }
+            },
+            error: function () {
+                toastr.warning("Upload failed, please try again", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            }
+        };
+        $("#file-faktur-editupload").click();
+    }
+
+    var FakturPajakTerlapor = function () {
+            return {
+                initTable: function () {
+                    var table = $('#tbl-fakturpajak');
+                    firstLoad = true;
+                    MasaPajak = $("#input-search-MasaPajak option:selected").val();
+                    TahunPajak = $("#input-search-TahunPajak").val();
+
+                    table.dataTable({
+                        "bFilter": false,
+                        "bLengthChange": true,
+                        "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                        "serverSide": true,
+                        "iDisplayLength": 10,
+                        "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                        "autoWidth": false,
+                        "sAjaxSource": '@Url.Action("GetListFakturPajakTerlaporDataTable", "LaporFp")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push(
+                                { "name": "firstLoad", "value": firstLoad },
+                                { "name": "MasaPajak", "value": MasaPajak },
+                                { "name": "TahunPajak", "value": TahunPajak },
+                            );
+                        },
+                        "columns": [
+                            { "data": "Nama", "orderable": true, "searchable": true },
+                            { "data": "MasaPajakName", "orderable": true, "searchable": true },
+                            { "data": "TahunPajak", "orderable": true, "searchable": true },
+                            { "data": "TotalFakturPajak", "orderable": true, "searchable": true },
+                            { "data": "sTotalPPN", "orderable": true, "searchable": true },
+                            {
+                                "data": "FakturPajakTerlaporID",
+                                "orderable": false,
+                                "searchable": false,
+                                "class": "text-center",
+                                "render": function (data, type, row, full, meta) {
+                                    return `<a class="btn btn-primary" href="/ExportDownload/DownloadLaporFakturPajak?ID=${row.FakturPajakTerlaporID}" style="margin-bottom:5px">Download Bukti Lapor</a>` +
+                                        `<a class="btn btn-primary" id="Edit-Attachment" style="margin-bottom:5px;margin-left:5px" onclick="showDialog(${row.FakturPajakTerlaporID})">Edit Attachment</a>`
+
+                                }
+                            }
+                        ],
+                        "sDom": "<'row bg-light dker b-b'<'col-sm-6 btncollection'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                        "sPaginationType": "simple_numbers"
+                    });
+
+
+                },
+
+                initHandlers: function () {
+                    _this = this;
+                    $("body").on("click", "#btn-lapor", function (e) { App.DialogGet("../LaporFp/GetLaporFakturPajakDialog", e); });
+                },
+
+                init: function () {
+                    this.initTable();
+                    this.initHandlers();
+                }
+            };
+    }();
+
+    $('#input-search-MasaPajak').change(function () {
+        var selectedMonth = $('#input-search-MasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+    });
+
+    function loadTahunPajak(aMonth) {
+        $('#input-search-TahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#input-search-TahunPajak').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+    function file_changed(e) {
+        uploadForm = $("#form-lapor-editupload").ajaxForm();
+        uploadForm.submit();
+    };
+
+
+</script>

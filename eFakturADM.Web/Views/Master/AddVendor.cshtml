@@ -1,0 +1,228 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+    var pkpDicabutDatEnum = EnumHelper.GetValues<ApplicationEnums.VendorPkpDicabut>();
+
+
+    var itemSelects = pkpDicabutDatEnum.Select(item => EnumHelper.GetDescription(item)).Select(descEnums => new SelectListItem()
+    {
+        Value = descEnums,
+        Text = descEnums
+    }).ToList();
+
+    var jenisNpwp = EnumHelper.GetValues<ApplicationEnums.VendorJenisNPWP>();
+    var itemJenisNPWPSelects = jenisNpwp.Select(item => EnumHelper.GetDescription(item)).Select(descEnums => new SelectListItem()
+    {
+        Value = descEnums,
+        Text = descEnums
+    }).ToList();
+    }
+    <script type="text/template" id="@templateId" data-dialog-tittle="Add Vendor" data-dialog-spinner="spinner-@dialogId">
+        <div id="notify-message"></div>
+        <form class="form-horizontal" role="form">
+            <div class="form-body">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">NPWP<span class="required"> *</span></label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="input-vendor-npwp">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Jenis NPWP</label>
+                    <div class="col-md-9">
+                        @Html.DropDownList("input-vendor-jenisnpwp", itemJenisNPWPSelects, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Nama<span class="required"> *</span></label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="input-vendor-nama">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Alamat</label>
+                    <div class="col-md-9">
+                        <textarea class="form-control" style="resize:none;" rows="3" id="input-vendor-alamat"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">PKP Dicabut</label>
+                    <div class="col-md-9">
+                        @Html.DropDownList("input-vendor-pkpdicabut", itemSelects, new { @class = "form-control w-sm" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Tanggal Dicabut</label>
+                    <div class="col-md-9">
+                        <div class="input-group w-sm">
+                            <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                   id="input-vendor-tgldicabut" data-toggle="tooltip" data-placement="right"
+                                   data-original-title="Format Date dd/MM/yyyy" />
+                            <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Keterangan Tambahan</label>
+                    <div class="col-md-9">
+                        <textarea class="form-control" style="resize:none;" rows="3" id="input-vendor-keterangan"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </script>
+    <script src="~/Content/plugins/jquery-masked/jquery.masked.js"></script>
+    <script type="text/javascript">
+        // Definisikan setDynamicNpwpLimit di luar $(document).ready agar dapat diakses dari mana saja
+        function setDynamicNpwpLimit() {
+            var npwpInput = $('#input-vendor-npwp');
+            var selectedJenisNpwp = $('#input-vendor-jenisnpwp').val();
+
+            //// Pastikan elemen ditemukan
+            //if (npwpInput.length === 0) return;
+
+            //var currentLength = npwpInput.val().length;
+
+            // Tentukan limit berdasarkan panjang input saat ini
+            if (selectedJenisNpwp === "Badan Usaha Cabang") {
+                npwpInput.attr('maxlength', 22); // Limit untuk NPWP Badan Usaha Cabang
+                //    npwpInput.unmask().mask('999999999999999999999'); // Masker untuk 22 digit
+            } else {
+                npwpInput.attr('maxlength', 16); // Limit untuk NPWP Individu
+                //    npwpInput.unmask().mask('9999999999999999'); // Masker untuk 16 digit
+            }
+        }
+
+        $(document).ready(function () {
+            // Set limit dinamis ketika pengguna mengetik
+            $('#input-vendor-npwp').on('input', function () {
+                // Hapus karakter non-angka dan potong sesuai maxlength
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, $(this).attr('maxlength'));
+                setDynamicNpwpLimit();
+            });
+
+            // Panggil fungsi hanya jika elemen #input-vendor-npwp ada
+            if ($('#input-vendor-npwp').length) {
+                setDynamicNpwpLimit();
+            }
+        });
+
+
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        setDynamicNpwpLimit();
+
+        // Set limit dinamis ketika pengguna mengubah pilihan dropdown
+        $('#input-vendor-jenisnpwp').change(function () {
+            $('#input-vendor-npwp').val('');
+            setDynamicNpwpLimit();
+        });
+        //$('#input-vendor-npwp').mask('99.999.999.9-999.999');
+        //$('#input-vendor-npwp').on('input', function () {
+        //    var value = $(this).val().replace(/\D/g, ''); // Hapus karakter non-digit
+
+        //    if (value.length <= 16) {
+        //        $(this).mask('99.999.999.9-999.999'); // Format 16 digit
+        //    } else if (value.length === 22) {
+        //        $(this).mask('99.999.999.9-999.999.999.999'); // Format 22 digit
+        //    }
+        //});
+    };
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 600, "auto", true,
+            {
+                Save: function () {
+                    var VendorInfo = {
+                        VendorId: -1,
+                        NPWP: $("#input-vendor-npwp").val(),
+                        JenisNPWP: $("#input-vendor-jenisnpwp").val(),
+                        Nama: $("#input-vendor-nama").val(),
+                        Alamat: $("#input-vendor-alamat").val(),
+                        PkpDicabut: $('#input-vendor-pkpdicabut option:selected').val(),
+                        TglPkpDicabut: $('#input-vendor-tgldicabut').val(),
+                        KeteranganTambahan: $('#input-vendor-keterangan').val()
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ValidationVendor", "Master")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(VendorInfo),
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 2:
+                                    toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                            }
+                            if (data.Html.InfoType == 1) {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    title: 'Save Confirmation',
+                                    message: 'Are you sure want to Save this data?',
+                                    buttons: [{
+                                        label: 'Yes',
+                                        cssClass: 'btn-danger btn-delay',
+                                        action: function (dialog) {
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "@Url.Action("SaveVendor", "Master")",
+                                                dataType: "json",
+                                                contentType: 'application/json; charset=utf-8',
+                                                data: JSON.stringify(VendorInfo),
+                                                cache: false,
+                                                success: function (data) {
+                                                    switch (data.Html.InfoType) {
+                                                        case 0:
+                                                            toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 1:
+                                                            toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 2:
+                                                            toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            break;
+                                                        case 3:
+                                                            toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                    }
+                                                    ;
+                                                    if (data.Html.InfoType == 1) {
+                                                        BootstrapDialog.closeAll();
+                                                        App.RefreshTable("#tbl-vendor", "/Master/ListVendor");
+                                                    }
+                                                },
+                                                error: function (xhr, textStatus, errorThrown) {
+                                                    App.DialogError(xhr, textStatus, errorThrown);
+                                                }
+                                            });
+                                        }
+                                    }, {
+                                        label: 'No',
+                                        cssClass: 'btn-danger',
+                                        action: function (dialog) {
+                                            dialog.close();
+                                        }
+                                    }]
+                                });
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            },
+            true, InitForm);
+    });
+
+    </script>

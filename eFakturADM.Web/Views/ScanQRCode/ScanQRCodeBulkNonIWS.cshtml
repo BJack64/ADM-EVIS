@@ -1,0 +1,449 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+
+@{
+    ViewBag.Title = "Scan QR Code Bulk Non IWS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMasaPajakOpenList();
+    var yearList = new List<SelectListItem>();
+
+    var listKreditPajak = new List<SelectListItem>
+    {
+        new SelectListItem {Text = "Ya", Value = "Ya", Selected = true},
+        new SelectListItem {Text = "Tidak", Value = "Tidak"}
+    };
+}
+
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>Scan QR Code Bulk Non IWS</h1>
+    </div>
+</div>
+<div class="portlet light">
+    <div class="portlet-body">
+        <!-- Filtering Header -->
+        <div class="form-group" style="border-bottom:1px solid #eaeaea">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Masa Pajak<span class="required"> *</span></label>
+                        <div class="col-md-8">
+                            @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm" })
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-md-4 control-label">Tahun Pajak<span class="required"> *</span></label>
+                        <div class="col-md-4">
+                            @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control w-sm" })
+                        </div>
+                        <div class="col-md-4 " style="padding-top:7px;">
+                            <input type="checkbox" id="cbx-scanbulk-setmasapajak"> Set Masa Pajak
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-12 row">
+                <div class="row form-group">
+                    <label class="col-md-3 control-label">Apakah Faktur Pajak ini Dikreditkan</label>
+                    <div class="col-md-5">
+                        <div class="radio-list">
+                            <div>
+                                @for (int i = 0; i < listKreditPajak.Count; i++)
+                                {
+                                    <label class="radios">
+                                        <span>
+                                            @Html.RadioButton("kreditpajak", @listKreditPajak[i].Value, @listKreditPajak[i].Selected, new { id = @listKreditPajak[i].Value })
+                                        </span>
+                                        @listKreditPajak[i].Text
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-2 control-label">Scan Url<span class="required"> *</span></label>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="input-scanbulk-scanurl" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <fieldset class="fieldset">
+                        <legend class="title-legend">List Data</legend>
+                        <table id="tbl-scanbulk" class="tblheader table table-striped table-hover table-blue" style="width:100% !important">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>FakturPajakId</th>
+                                    <th>URL</th>
+                                    <th>Filling Index</th>
+                                    <th>Error Message</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="form-group" style="display:table; margin:auto">
+                <div class="">
+                    <div class="m-t-md">
+                        <button type="button" class="btn btn-success" id="btn-submit">
+                            Submit
+                        </button>
+                        @*<button type="button" class="btn btn-danger" id="btn-clear-logs">
+                            Clear Logs
+                        </button>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        //FirstLoad
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+        _InitScanBulkTable = new InitScanBulkTable();
+        _InitScanBulkTable.init();
+
+        $('#btn-submit').click(function () {
+            submitBulk();
+        });
+
+        $('#btn-clear-logs').click(function () {
+            clearLogs();
+        });
+
+        $("#input-scanbulk-scanurl").keypress(function (e) {
+            if (e.which == 13) {
+                $("#input-scanbulk-scanurl").attr("disabled", "disabled");
+                pushData($("#input-scanbulk-scanurl").val());
+            }
+        });
+
+        $('#cbx-scanbulk-setmasapajak').click(function () {
+            if ($(this).is(':checked')) {
+                $("#listMasaPajak").attr("disabled", "disabled");
+                $("#listTahunPajak").attr("disabled", "disabled");
+            } else {
+                $("#listMasaPajak").removeAttr("disabled");
+                $("#listTahunPajak").removeAttr("disabled");
+            }
+        });
+
+        $('#listMasaPajak').change(function () {
+            var selectedMonth = $('#listMasaPajak option:selected').val();
+            loadTahunPajak(selectedMonth);
+        });
+
+        $('#listTahunPajak').change(function () {
+            masaPajak = $('#listMasaPajak option:selected').val();
+            tahunPajak = $('#listTahunPajak option:selected').val();
+            var table = $('#tbl-scanbulk').DataTable();
+            table.ajax.reload();
+        });
+
+        $("#input-scanbulk-scanurl").focus();
+
+    });
+
+    var masaPajak;
+    var tahunPajak;
+
+    var InitScanBulkTable = function () {
+        return {
+            init: function () {
+
+                masaPajak = $('#listMasaPajak option:selected').val();
+                tahunPajak = $('#listTahunPajak option:selected').val();
+
+                var table = $('#tbl-scanbulk');
+                table.dataTable({
+                    "sDom": "<<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "orderCellsTop": true,
+                    "sAjaxSource": '@Url.Action("GetListFakturPajakBulkDataTableNonIws", "ScanQRCode")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "masaPajak", "value": masaPajak },
+                            { "name": "tahunPajak", "value": tahunPajak }
+                        );
+                    },
+                    "columns": [
+                        { "data": "FakturPajakId", "orderable": false, "searchable": false, "visible": false },
+                         {
+                             "data": "UrlScan",
+                             "orderable": false,
+                             "width": 400,
+                             "searchable": false,
+                             "render": function (data, type, full, meta) {
+                                 return '<div class="expander" style="display: inline-block">' + data + '</div>';
+                             }
+                         },
+                        { "data": "FillingIndex", "width": 150, "orderable": true, "searchable": false, "visible": true },
+                        {
+                            "data": "ErrorMessage",
+                            "orderable": true,
+                            "searchable": false,
+                        }
+                    ],
+                    "order": [
+                        [2, "asc"]
+                    ],
+                    "sPaginationType": "simple_numbers"
+                });
+                $('#tbl-scanbulk').on('draw.dt', function () {
+                    App.InitExpander(60);
+                });
+            }
+        };
+    };
+
+    function submitBulk() {
+
+        masaPajak = $('#listMasaPajak option:selected').val();
+        tahunPajak = $('#listTahunPajak option:selected').val();
+        var jsonData = JSON.stringify({ masaPajak: masaPajak, tahunPajak: tahunPajak });
+
+        BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_DANGER,
+            title: 'Save Confirmation',
+            message: 'Are you sure want to Save this data?',
+            buttons: [{
+                label: 'Yes',
+                cssClass: 'btn-danger btn-delay',
+                action: function (dialog) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("SubmitScanBulkNonIws", "ScanQRCode")",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: jsonData,
+                        cache: false,
+                        success: function (result) {
+                            switch (result.Html.InfoType) {
+                                case 1:
+                                    toastr.success(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                                case 2:
+                                    toastr.warning(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                                case 3:
+                                    toastr.error(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                            }
+                            //refresh grid
+                            masaPajak = $('#listMasaPajak option:selected').val();
+                            tahunPajak = $('#listTahunPajak option:selected').val();
+
+                            var table = $('#tbl-scanbulk').DataTable();
+                            table.ajax.reload();
+                            dialog.close();
+                            $("#input-scanbulk-scanurl").focus();
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            dialog.close();
+                            App.DialogError(xhr, textStatus, errorThrown);
+                            $("#input-scanbulk-scanurl").focus();
+                        }
+                    });
+                }
+            }, {
+                label: 'No',
+                cssClass: 'btn-danger',
+                action: function (dialog) {
+                    dialog.close();
+                    $("#input-scanbulk-scanurl").focus();
+                }
+            }]
+        });
+    }
+
+    function pushData(url) {
+        var dataToPush = {
+            MasaPajak: $('#listMasaPajak option:selected').val(),
+            TahunPajak: $('#listTahunPajak option:selected').val(),
+            Dikreditkan: $('input[name=kreditpajak]:checked').val(),
+            FPType: "noniws",
+            UrlScan: url
+        };
+
+        var jsonData = JSON.stringify({ info: dataToPush });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ValidationScanBulkNonIws", "ScanQRCode")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                switch (data.Html.InfoType) {
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                };
+                if (data.Html.InfoType == 1) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("PushScanBulkNonIws", "ScanQRCode")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: jsonData,
+                        cache: false,
+                        success: function(response) {
+                            switch (response.Html.InfoType) {
+                            case 0:
+                                toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            case 1:
+                                toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            case 2:
+                                toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                dialog.close();
+                                break;
+                            case 3:
+                                toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            }
+                            if (response.Html.InfoType == 1) {
+
+                                masaPajak = $('#listMasaPajak option:selected').val();
+                                tahunPajak = $('#listTahunPajak option:selected').val();
+
+                                var table = $('#tbl-scanbulk').DataTable();
+                                table.ajax.reload();
+                            }
+                            $("#input-scanbulk-scanurl").val("");
+                            
+                            $("#input-scanbulk-scanurl").removeAttr("disabled");
+                            $("#input-scanbulk-scanurl").focus();
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                            $("#input-scanbulk-scanurl").val("");
+                            $("#input-scanbulk-scanurl").removeAttr("disabled");
+                            $("#input-scanbulk-scanurl").focus();
+                        }
+                    });
+                } else {
+                    $("#input-scanbulk-scanurl").val("");
+                    $("#input-scanbulk-scanurl").removeAttr("disabled");
+                    $("#input-scanbulk-scanurl").focus();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+                $("#input-scanbulk-scanurl").val("");
+                $("#input-scanbulk-scanurl").removeAttr("disabled");
+                $("#input-scanbulk-scanurl").focus();
+            }
+        });
+    }
+
+    function loadTahunPajak(aMonth) {
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                }
+
+                masaPajak = $('#listMasaPajak option:selected').val();
+                tahunPajak = $('#listTahunPajak option:selected').val();
+                var table = $('#tbl-scanbulk').DataTable();
+                table.ajax.reload();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+    function clearLogs() {
+        masaPajak = $('#listMasaPajak option:selected').val();
+        tahunPajak = $('#listTahunPajak option:selected').val();
+        var jsonData = JSON.stringify({ masaPajak: masaPajak, tahunPajak: tahunPajak });
+
+        BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_DANGER,
+            title: 'Save Confirmation',
+            message: 'Are you sure want to Clear Logs this data?',
+            buttons: [{
+                label: 'Yes',
+                cssClass: 'btn-danger btn-delay',
+                action: function (dialog) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ClearLogsBulkNonIws", "ScanQRCode")",
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: "json",
+                        data: jsonData,
+                        cache: false,
+                        success: function (result) {
+                            switch (result.Html.InfoType) {
+                                case 1:
+                                    toastr.success(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                                case 2:
+                                    toastr.warning(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                                case 3:
+                                    toastr.error(result.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                            }
+                            //refresh grid
+                            masaPajak = $('#listMasaPajak option:selected').val();
+                            tahunPajak = $('#listTahunPajak option:selected').val();
+
+                            var table = $('#tbl-scanbulk').DataTable();
+                            table.ajax.reload();
+                            dialog.close();
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            dialog.close();
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            }, {
+                label: 'No',
+                cssClass: 'btn-danger',
+                action: function (dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+
+    }
+
+</script>

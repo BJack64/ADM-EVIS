@@ -1,0 +1,505 @@
+﻿@using eFakturADM.Web.Helpers
+
+@{
+    ViewBag.Title = "Report Surat Pemberitahuan Masa (SPM)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var monthList = GlobalFunctionHelper.GetMonthList(false, "");
+    var yearList = new List<SelectListItem>();
+    var pembetulanKeList = new List<SelectListItem>();
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_download = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("53", _loginResult.RoleId[0]);
+    var check_download = roleActivities_download.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Report Surat Pemberitahuan Masa (SPM)
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10">
+                <div class="form-group padder row">
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tax Period</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("input-search-masapajak", monthList, new { @class = "form-control w-sm", @id = "input-search-masapajak" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Pembetulan Ke</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("input-search-pembetulanke", pembetulanKeList, new { @class = "form-control w-sm", @id = "input-search-pembetulanke" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group padder row">
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun</label>
+                            <div class="col-md-9">
+                                @*<input type="text" class="form-control w-sm" id="input-search-tahunpajak" />*@
+                                @Html.DropDownList("input-search-tahunpajak", yearList, new { @class = "form-control w-sm", @id = "input-search-tahunpajak" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0;">
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="control-label bold">PT Astra Daihatsu Motor</label>
+                        </div>
+                        <div class="row form-group">
+                            <label class="control-label bold">Summart TAX VAT IN</label>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-5 control-label" style="padding-left:0">Pembetulan Ke</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control w-xss" id="input-searchresult-pembetulanke" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-5 control-label" style="padding-left:0">Tax Period</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control w-sm" id="input-searchresult-taxperiod" readonly="readonly" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-scrollable">
+                        <table id="tbl-report-spm" class="tblheader table table-striped table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">
+                                        No
+                                    </th>
+                                    <th rowspan="2">
+                                        Kode Jenis
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        Nomor FP
+                                    </th>
+                                    <th rowspan="2">
+                                        Masa Pajak
+                                    </th>
+                                    <th rowspan="2">
+                                        Tahun Pajak
+                                    </th>
+                                    <th rowspan="2" style="min-width:75px">
+                                        Tanggal FP
+                                    </th>
+                                    <th colspan="3" style="text-align:center">
+                                        Identitas Penjual
+                                    </th>
+                                    <th colspan="3" style="text-align:center">
+                                        Identitas Pembeli
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Total DPP
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Total PPN
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Total PPnBM
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        Keterangan Tambahan
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        FG Uang Muka
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Uang Muka DPP
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Uang Muka PPN
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Uang Muka PPnBM
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Referensi
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Filling Index
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th style="min-width:150px">
+                                        NPWP Penjual
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Nama Penjual
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Alamat Penjual
+                                    </th>
+                                    <th style="min-width:150px">
+                                        NPWP Pembeli
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Nama Pembeli
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Alamat Pembeli
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_download)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-download-excel">
+                                    Download to Excel
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var firstLoad;
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+
+        //FirstLoad
+        var selectedMonth = $('#input-search-masapajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+        $('#btn-search').click(function () {
+            firstLoad = false;
+            searchClick();
+        });
+
+        $('#btn-reset').click(function () {
+            firstLoad = true;
+            resetClick();
+        });
+
+        $('#btn-download-excel').click(function () {
+            //download excel disini
+            masaPajak = $('#input-search-masapajak option:selected').val();
+            tahunPajak = $('#input-search-tahunpajak option:selected').val();
+            pembetulanKe = $('#input-search-pembetulanke option:selected').val();
+            var strUrl = '@Url.Action("ReportSpmExportExcel", "ExportDownload")' + '?masaPajak=' + masaPajak + '&tahunPajak=' + tahunPajak + '&versi=' + pembetulanKe;
+            window.open(strUrl, '_blank');
+        });
+
+        dataSpmToBind = [];
+
+        var tbl = new ReportSpmTable();
+        tbl.init();
+
+    });
+
+    var masaPajak;
+    var tahunPajak;
+    var pembetulanKe;
+
+    function resetClick() {
+
+        $('#input-search-masapajak').val($('#input-search-masapajak option:first').val());
+
+        $('#input-search-tahunpajak').val($('#input-search-tahunpajak option:first').val());
+        $('#input-search-pembetulanke').val($('#input-search-pembetulanke option:first').val());
+
+        masaPajak = $('#input-search-masapajak option:selected').val();
+        tahunPajak = $('#input-search-tahunpajak option:selected').val();
+        pembetulanKe = $('#input-search-pembetulanke option:selected').val();
+
+        $('#input-searchresult-pembetulanke').val('');
+        $('#input-searchresult-taxperiod').val('');
+
+        dataSpmToBind = [];
+
+        generateSubmitSearch();
+
+
+    }
+
+    function searchClick() {
+        masaPajak = $('#input-search-masapajak option:selected').val();
+        tahunPajak = $('#input-search-tahunpajak option:selected').val();
+        pembetulanKe = $('#input-search-pembetulanke option:selected').val();
+
+        masaPajak = masaPajak == 'undefined' ? '' : masaPajak;
+        tahunPajak = tahunPajak == 'undefined' ? '' : tahunPajak;
+        pembetulanKe = pembetulanKe == 'undefined' ? '' : pembetulanKe;
+
+        var msgs = '';
+        if (masaPajak == '') {
+            msgs = 'Masa Pajak Mandatory';
+        }
+        if (tahunPajak == '') {
+            msgs = (msgs == '' ? '' : '<br />') + 'Tahun Pajak Mandatory';
+        }
+        if (pembetulanKe == '') {
+            msgs = (msgs == '' ? '' : '<br />') + 'Pembetulan Ke Mandatory';
+        }
+        if (msgs != '') {
+            toastr.warning(msgs, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        } else {
+            generateSubmitSearch();
+        }
+    }
+
+    function generateSubmitSearch() {
+
+        masaPajak = $('#input-search-masapajak option:selected').val();
+        tahunPajak = $('#input-search-tahunpajak option:selected').val();
+        pembetulanKe = $('#input-search-pembetulanke option:selected').val();
+
+        masaPajak = masaPajak == 'undefined' ? '' : masaPajak;
+        tahunPajak = tahunPajak == 'undefined' ? '' : tahunPajak;
+        pembetulanKe = pembetulanKe == 'undefined' ? '' : pembetulanKe;
+        
+        //get spm info
+        var oData = JSON.stringify({ firstLoad: firstLoad, masaPajak: masaPajak, tahunPajak: tahunPajak, versi: pembetulanKe });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSpmInfo", "Report")',
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: oData,
+            cache: false,
+            success: function (response) {
+                if (response.IsError) {
+                    toastr.error(response.MessageError, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    $('#input-searchresult-pembetulanke').val('');
+                    $('#input-searchresult-taxperiod').val('');
+                } else {
+                    $('#input-searchresult-pembetulanke').val(response.Versi);
+                    $('#input-searchresult-taxperiod').val(response.NamaMasaPajak + ' - ' + response.TahunPajak);
+                }
+                dataSpmToBind = [];
+
+                if (response.aaData.length > 0) {
+                    var dats = response.aaData;
+                    for (var i = 0; i < dats.length; i++) {
+                        var datToPush = {
+                            VSequenceNumber: dats[i].VSequenceNumber,
+                            KdJenisTransaksi: dats[i].KdJenisTransaksi,
+                            FormatedNoFaktur: dats[i].FormatedNoFaktur,
+                            MasaPajakName: dats[i].MasaPajakName,
+                            TahunPajak: dats[i].TahunPajak,
+                            TglFakturString: dats[i].TglFakturString,
+                            FormatedNpwpPenjual: dats[i].FormatedNpwpPenjual,
+                            NamaPenjual: dats[i].NamaPenjual,
+                            AlamatPenjual: dats[i].AlamatPenjual,
+                            FormatedNpwpLawanTransaksi: dats[i].FormatedNpwpLawanTransaksi,
+                            NamaLawanTransaksi: dats[i].NamaLawanTransaksi,
+                            AlamatLawanTransaksi: dats[i].AlamatLawanTransaksi,
+                            JumlahDppString: dats[i].JumlahDppString,
+                            JumlahPpnString: dats[i].JumlahPpnString,
+                            JumlahPpnBmString: dats[i].JumlahPpnBmString,
+                            KeteranganTambahan: dats[i].KeteranganTambahan,
+                            FgUangMukaString: dats[i].FgUangMukaString,
+                            UangMukaDPPString: dats[i].UangMukaDPPString,
+                            UangMukaPPNString: dats[i].UangMukaPPNString,
+                            UangMukaPPnBMString: dats[i].UangMukaPPnBMString,
+                            Referensi: dats[i].Referensi,
+                            FillingIndex: dats[i].FillingIndex,
+                            FCode: dats[i].FCode,
+                            NPWPPenjual: dats[i].NPWPPenjual,
+                            FgPengganti: dats[i].FgPengganti,
+                            NoFakturPajak: dats[i].NoFakturPajak,
+                            TglFaktur: dats[i].TglFaktur,
+                            NPWPLawanTransaksi: dats[i].NPWPLawanTransaksi,
+                            JumlahDPP: dats[i].JumlahDPP,
+                            JumlahPPN: dats[i].JumlahPPN,
+                            JumlahPPNBM: dats[i].JumlahPPNBM,
+                            FgUangMuka: dats[i].FgUangMuka,
+                            UangMukaDPP: dats[i].UangMukaDPP,
+                            UangMukaPPN: dats[i].UangMukaPPN,
+                            UangMukaPPnBM: dats[i].UangMukaPPnBM,
+                            CreatedBy: dats[i].CreatedBy,
+                            ModifiedBy: dats[i].ModifiedBy,
+                            CreatedString: dats[i].CreatedString,
+                            ModifiedString: dats[i].ModifiedString,
+                            MasaPajak: dats[i].MasaPajak
+                        };
+
+                        dataSpmToBind.push(datToPush);
+                    }
+                }
+
+                var tbl = new ReportSpmTable();
+                tbl.init();
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    var dataSpmToBind = [];
+
+    var ReportSpmTable = function () {
+        return {
+
+            initTable: function () {
+                var dataset = dataSpmToBind;
+
+                if ($.fn.DataTable.isDataTable('#tbl-report-spm')) {
+                    $('#tbl-report-spm').DataTable().destroy();
+                }
+
+                $('#tbl-report-spm').dataTable({
+                    "stateSave": false,
+                    "bLengthChange": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "data": dataset,
+                    "autoWidth": false,
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "columns": [
+                        { "data": "VSequenceNumber", "orderable": true, "searchable": false },
+                        { "data": "KdJenisTransaksi", "orderable": false, "searchable": false },
+                        { "data": "FormatedNoFaktur", "orderable": false, "searchable": false },
+                        { "data": "MasaPajakName", "orderable": false, "searchable": false },
+                        { "data": "TahunPajak", "orderable": false, "searchable": false },
+                        { "data": "TglFakturString", "orderable": false, "searchable": false },
+                        { "data": "FormatedNpwpPenjual", "orderable": false, "searchable": false },
+                        { "data": "NamaPenjual", "orderable": false, "searchable": false },
+                        { "data": "AlamatPenjual", "orderable": false, "searchable": false },
+                        { "data": "FormatedNpwpLawanTransaksi", "orderable": false, "searchable": false },
+                        { "data": "NamaLawanTransaksi", "orderable": false, "searchable": false },
+                        { "data": "AlamatLawanTransaksi", "orderable": false, "searchable": false },
+                        { "data": "JumlahDppString", "orderable": false, "searchable": false },
+                        { "data": "JumlahPpnString", "orderable": false, "searchable": false },
+                        { "data": "JumlahPpnBmString", "orderable": false, "searchable": false },
+                        { "data": "KeteranganTambahan", "orderable": false, "searchable": false },
+                        { "data": "FgUangMukaString", "orderable": false, "searchable": false },
+                        { "data": "UangMukaDPPString", "orderable": false, "searchable": false },
+                        { "data": "UangMukaPPNString", "orderable": false, "searchable": false },
+                        { "data": "UangMukaPPnBMString", "orderable": false, "searchable": false },
+                        { "data": "Referensi", "orderable": false, "searchable": false },
+                        { "data": "FillingIndex", "orderable": false, "searchable": false }
+                    ],
+                    "order": [0, "asc"],
+                    "sDom": "<<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "sPaginationType": "simple_numbers"
+                });
+
+            },
+            initHandlers: function () {
+                $('#tbl-report-spm').on('draw.dt', function () {                 
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });             
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    };
+
+    $('#input-search-masapajak').change(function () {
+        var selectedMonth = $('#input-search-masapajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+    });
+
+    $('#input-search-tahunpajak').change(function () {
+        var selectedMonth = $('#input-search-masapajak option:selected').val();
+        var selectedYear = $('#input-search-tahunpajak option:selected').val();
+        loadPembetulanKe(selectedMonth, selectedYear);
+    });
+
+    function loadTahunPajak(aMonth) {
+        $('#input-search-tahunpajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#input-search-tahunpajak').append(htmlSelect);
+
+                    var selectedMonth = $('#input-search-masapajak option:selected').val();
+                    var selectedYear = $('#input-search-tahunpajak option:selected').val();
+                    loadPembetulanKe(selectedMonth, selectedYear);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+    function loadPembetulanKe(aMonth, aTahun) {
+        $('#input-search-pembetulanke option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth, tahunPajak: aTahun });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetPembetulanSpmList", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Value + '">' + response.aaData[i].Text + '</option>';
+                    }
+                    $('#input-search-pembetulanke').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+</script>

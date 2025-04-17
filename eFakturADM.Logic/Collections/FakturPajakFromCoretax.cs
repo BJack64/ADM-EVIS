@@ -1,0 +1,312 @@
+﻿using System;
+using System.Data;
+using System.Data.SqlTypes;
+using System.Reflection;
+using eFakturADM.Logic.Core;
+using eFakturADM.Logic.Objects;
+using System.Collections.Generic;
+using eFakturADM.Logic.Utilities;
+using eFakturADM.Shared.Utility;
+using System.Linq;
+
+namespace eFakturADM.Logic.Collections
+{
+    public class FakturPajakFromCoretaxes : ApplicationCollection<FakturPajakFromCoretax, SpBase>
+    {
+        public static List<FakturPajakFromCoretax> GetFakturPajakFromCoretax()
+        {
+            var sp = new SpBase(@"SELECT 
+                Id,
+                NPWP_Penjual,
+                Nama_Penjual,
+                NPWP_Pembeli,
+                Nama_Pembeli,
+                Nomor_Faktur_Pajak,
+                Tanggal_Faktur_Pajak,
+                Masa_Pajak,
+                Tahun,
+                Masa_Pajak_Pengkreditan,
+                Tahun_Pengkreditan,
+                Harga_Jual,
+                DPP_Nilai_Lain,
+                PPN,
+                PPnBM,
+                Status_Faktur,
+                Perekam,
+                Nomor_SP2D,
+                Valid,
+                Dikreditkan,
+                Dilaporkan,
+                Dilaporkan_oleh_Penjual,
+                CreatedOn,
+                CreatedBy,
+                UpdatedOn,
+                UpdatedBy,
+                IsDeleted
+            FROM FakturPajakFromCoretax
+            WHERE IsDeleted = 0
+            ORDER BY CreatedOn;");
+            var dbData = GetApplicationCollection(sp);
+            return dbData;
+        }
+
+        public static FakturPajakFromCoretax GetByNoFaktur(FakturPajakFromCoretax fakturPajakFromCoretax)
+        {
+            var sp = new SpBase(@"SELECT 
+                        Id,
+                        NPWP_Penjual,
+                        Nama_Penjual,
+                        NPWP_Pembeli,
+                        Nama_Pembeli,
+                        Nomor_Faktur_Pajak,
+                        Tanggal_Faktur_Pajak,
+                        Masa_Pajak,
+                        Tahun,
+                        Harga_Jual,
+                        DPP_Nilai_Lain,
+                        PPN,
+                        PPnBM,
+                        Status_Faktur,
+                        Perekam,
+                        Nomor_SP2D,
+                        Valid,
+                        Dikreditkan,
+                        Dilaporkan,
+                        Dilaporkan_oleh_Penjual,
+                        CreatedOn,
+                        CreatedBy,
+                        UpdatedOn,
+                        UpdatedBy,
+                        IsDeleted
+                    FROM FakturPajakFromCoretax
+                    WHERE Nomor_Faktur_Pajak = @Nomor_Faktur_Pajak
+                    --AND NPWP_Penjual = @NPWP_Penjual
+                    --AND Nama_Penjual = @Nama_Penjual
+                    --AND Tanggal_Faktur_Pajak = @Tanggal_Faktur_Pajak
+                    --AND Masa_Pajak = @Masa_Pajak
+                    --AND Tahun = @Tahun
+                    --AND Harga_Jual = @Harga_Jual
+                    --AND DPP_Nilai_Lain = @DPP_Nilai_Lain
+                    --AND PPN = @PPN
+                    --AND PPnBM = @PPnBM
+                    --AND Status_Faktur = @Status_Faktur
+                    AND IsDeleted = 0;");
+
+            sp.AddParameter("Nomor_Faktur_Pajak", fakturPajakFromCoretax.Nomor_Faktur_Pajak);
+            sp.AddParameter("NPWP_Penjual", fakturPajakFromCoretax.NPWP_Penjual);
+            sp.AddParameter("Nama_Penjual", fakturPajakFromCoretax.Nama_Penjual);
+            sp.AddParameter("Tanggal_Faktur_Pajak", fakturPajakFromCoretax.Tanggal_Faktur_Pajak);
+            sp.AddParameter("Masa_Pajak", fakturPajakFromCoretax.Masa_Pajak);
+            sp.AddParameter("Tahun", fakturPajakFromCoretax.Tahun);
+            sp.AddParameter("Harga_Jual", fakturPajakFromCoretax.Harga_Jual);
+            sp.AddParameter("DPP_Nilai_Lain", fakturPajakFromCoretax.DPP_Nilai_Lain);
+            sp.AddParameter("PPN", fakturPajakFromCoretax.PPN);
+            sp.AddParameter("PPnBM", fakturPajakFromCoretax.PPnBM);
+            sp.AddParameter("Status_Faktur", fakturPajakFromCoretax.Status_Faktur);
+
+            var dbData = GetApplicationObject(sp);
+
+            return dbData == null || dbData.Id == Guid.Empty ? null : dbData;
+        }
+
+
+      public static List<FakturPajakFromCoretax> SaveList(List<FakturPajakFromCoretax> data)
+{
+    if (data == null || data.Count == 0)
+    {
+        throw new ArgumentException("Data tidak boleh kosong", nameof(data));
+    }
+
+    string mergeSql = @"
+        MERGE [dbo].[FakturPajakFromCoretax] AS target
+        USING (VALUES 
+            (@NPWP_Penjual, @Nama_Penjual, @Nomor_Faktur_Pajak, @Tanggal_Faktur_Pajak, 
+             @Masa_Pajak, @Tahun, @Masa_Pajak_Pengkreditan, @Tahun_Pengkreditan, 
+             @Harga_Jual, @DPP_Nilai_Lain, @PPN, @PPnBM, @Status_Faktur, @Perekam, 
+             @Nomor_SP2D, @Valid, @Dilaporkan, @Dilaporkan_oleh_Penjual, @CreatedBy, GETDATE())
+        ) AS source (
+            NPWP_Penjual, Nama_Penjual, Nomor_Faktur_Pajak, Tanggal_Faktur_Pajak, 
+            Masa_Pajak, Tahun, Masa_Pajak_Pengkreditan, Tahun_Pengkreditan, Harga_Jual, 
+            DPP_Nilai_Lain, PPN, PPnBM, Status_Faktur, Perekam, Nomor_SP2D, Valid, 
+            Dilaporkan, Dilaporkan_oleh_Penjual, CreatedBy, CreatedOn
+        )
+        ON target.Nomor_Faktur_Pajak = source.Nomor_Faktur_Pajak
+        WHEN MATCHED THEN
+            UPDATE SET 
+                target.NPWP_Penjual = source.NPWP_Penjual,
+                target.Nama_Penjual = source.Nama_Penjual,
+                target.Tanggal_Faktur_Pajak = source.Tanggal_Faktur_Pajak,
+                target.Masa_Pajak = source.Masa_Pajak,
+                target.Tahun = source.Tahun,
+                target.Masa_Pajak_Pengkreditan = source.Masa_Pajak_Pengkreditan,
+                target.Tahun_Pengkreditan = source.Tahun_Pengkreditan,
+                target.Harga_Jual = source.Harga_Jual,
+                target.DPP_Nilai_Lain = source.DPP_Nilai_Lain,
+                target.PPN = source.PPN,
+                target.PPnBM = source.PPnBM,
+                target.Status_Faktur = source.Status_Faktur,
+                target.Perekam = source.Perekam,
+                target.Nomor_SP2D = source.Nomor_SP2D,
+                target.Valid = source.Valid,
+                target.Dilaporkan = source.Dilaporkan,
+                target.Dilaporkan_oleh_Penjual = source.Dilaporkan_oleh_Penjual,
+                target.UpdatedBy = source.CreatedBy,
+                target.UpdatedOn = GETDATE()
+        WHEN NOT MATCHED THEN 
+            INSERT (
+                NPWP_Penjual, Nama_Penjual, Nomor_Faktur_Pajak, Tanggal_Faktur_Pajak, 
+                Masa_Pajak, Tahun, Masa_Pajak_Pengkreditan, Tahun_Pengkreditan, Harga_Jual, 
+                DPP_Nilai_Lain, PPN, PPnBM, Status_Faktur, Perekam, Nomor_SP2D, Valid, 
+                Dilaporkan, Dilaporkan_oleh_Penjual, CreatedBy, CreatedOn
+            )
+            VALUES (
+                source.NPWP_Penjual, source.Nama_Penjual, source.Nomor_Faktur_Pajak, source.Tanggal_Faktur_Pajak, 
+                source.Masa_Pajak, source.Tahun, source.Masa_Pajak_Pengkreditan, source.Tahun_Pengkreditan, 
+                source.Harga_Jual, source.DPP_Nilai_Lain, source.PPN, source.PPnBM, source.Status_Faktur, 
+                source.Perekam, source.Nomor_SP2D, source.Valid, source.Dilaporkan, 
+                source.Dilaporkan_oleh_Penjual, source.CreatedBy, source.CreatedOn
+            );
+    ";
+
+    foreach (var faktur in data)
+    {
+        SpBase sp = new SpBase(mergeSql);
+        sp.AddParameter("Nomor_Faktur_Pajak", faktur.Nomor_Faktur_Pajak);
+        sp.AddParameter("NPWP_Penjual", faktur.NPWP_Penjual);
+        sp.AddParameter("Nama_Penjual", faktur.Nama_Penjual);
+        sp.AddParameter("Tanggal_Faktur_Pajak", faktur.Tanggal_Faktur_Pajak);
+        sp.AddParameter("Masa_Pajak", faktur.Masa_Pajak);
+        sp.AddParameter("Tahun", faktur.Tahun);
+        sp.AddParameter("Masa_Pajak_Pengkreditan", faktur.Masa_Pajak_Pengkreditan);
+        sp.AddParameter("Tahun_Pengkreditan", faktur.Tahun_Pengkreditan);
+        sp.AddParameter("Harga_Jual", faktur.Harga_Jual);
+        sp.AddParameter("DPP_Nilai_Lain", faktur.DPP_Nilai_Lain);
+        sp.AddParameter("PPN", faktur.PPN);
+        sp.AddParameter("PPnBM", faktur.PPnBM);
+        sp.AddParameter("Status_Faktur", faktur.Status_Faktur);
+        sp.AddParameter("Perekam", faktur.Perekam);
+        sp.AddParameter("Nomor_SP2D", faktur.Nomor_SP2D);
+        sp.AddParameter("Valid", faktur.Valid);
+        sp.AddParameter("Dilaporkan", faktur.Dilaporkan);
+        sp.AddParameter("Dilaporkan_oleh_Penjual", faktur.Dilaporkan_oleh_Penjual);
+        sp.AddParameter("CreatedBy", faktur.CreatedBy);
+        
+        if (sp.ExecuteNonQuery() == 0)
+        {
+            faktur.WasSaved = true;
+        }
+    }
+    
+    return data;
+}
+
+        public static bool CheckIsExists(string nomorFakturPajak)
+        {
+            string checkSql = @"
+        SELECT COUNT(*)
+        FROM [dbo].[FakturPajakFromCoretax]
+        WHERE Nomor_Faktur_Pajak = @Nomor_Faktur_Pajak AND IsDeleted = 0;";
+
+            var checkSp = new SpBase(checkSql);
+            checkSp.AddParameter("Nomor_Faktur_Pajak", nomorFakturPajak);
+            int recordCount = (int)checkSp.ExecuteScalar();
+
+            if (recordCount > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static void Save(FakturPajakFromCoretax faktur)
+        {
+            if (faktur == null)
+            {
+                throw new ArgumentNullException(nameof(faktur), "Data tidak boleh kosong");
+            }
+
+            // Check if the record exists
+            bool existenceCheckResult = CheckIsExists(faktur.Nomor_Faktur_Pajak);
+
+            if (existenceCheckResult)
+            {
+
+
+        //        // If the record does not exist, proceed with the insertion into FakturPajak
+        //        string insertSql = @"
+        //INSERT INTO [dbo].[FakturPajak] 
+        //(NoFakturPajak, NPWPPenjual, NamaPenjual, TglFaktur, MasaPajak, TahunPajak, JumlahDPP, JumlahPPN, JumlahPPNBM, StatusFaktur, CreatedBy, Created, Modified, ModifiedBy)
+        //VALUES 
+        //(@Nomor_Faktur_Pajak, @NPWP_Penjual, @Nama_Penjual, @Tanggal_Faktur_Pajak, @Masa_Pajak, @Tahun, @Harga_Jual, @PPN, @PPnBM, @Status_Faktur, @CreatedBy, GETDATE(), GETDATE(), @CreatedBy);";
+
+        //        var insertSp = new SpBase(insertSql);
+        //        insertSp.AddParameter("Nomor_Faktur_Pajak", faktur.Nomor_Faktur_Pajak);
+        //        insertSp.AddParameter("NPWP_Penjual", faktur.NPWP_Penjual);
+        //        insertSp.AddParameter("Nama_Penjual", faktur.Nama_Penjual);
+        //        insertSp.AddParameter("Tanggal_Faktur_Pajak", faktur.Tanggal_Faktur_Pajak.Date);
+        //        insertSp.AddParameter("Masa_Pajak", faktur.Masa_Pajak);
+        //        insertSp.AddParameter("Tahun", faktur.Tahun);
+        //        insertSp.AddParameter("Harga_Jual", faktur.Harga_Jual);
+        //        insertSp.AddParameter("PPN", faktur.PPN);
+        //        insertSp.AddParameter("PPnBM", faktur.PPnBM);
+        //        insertSp.AddParameter("Status_Faktur", faktur.Status_Faktur ?? "");
+        //        insertSp.AddParameter("CreatedBy", faktur.CreatedBy);
+
+        //        // Execute the insert query
+        //        insertSp.ExecuteNonQuery();
+
+                // Proceed with the MERGE operation for FakturPajak
+                string mergeSql = @"
+        MERGE [dbo].[FakturPajak] AS target
+        USING (VALUES
+            (@Nomor_Faktur_Pajak, @NPWP_Penjual, @Nama_Penjual, @Tanggal_Faktur_Pajak, @Masa_Pajak, @Tahun, @Harga_Jual, 
+            @PPN, @PPnBM, @Status_Faktur, @CreatedBy, GETDATE(), @NPWP_Penjual)  -- Assuming NPWPLawan is the same as NPWPPembeli
+        ) AS source
+        (
+            NoFakturPajak, NPWPPenjual, NamaPenjual, TglFaktur, MasaPajak, TahunPajak, JumlahDPP, JumlahPPN, JumlahPPNBM, StatusFaktur, CreatedBy, Created, NPWPLawan
+        )
+        ON target.NoFakturPajak = source.NoFakturPajak
+        WHEN MATCHED THEN
+            UPDATE SET 
+                target.NPWPPenjual = source.NPWPPenjual,
+                target.NamaPenjual = source.NamaPenjual,
+                target.TglFaktur = source.TglFaktur,
+                target.MasaPajak = source.MasaPajak,
+                target.TahunPajak = source.TahunPajak,
+                target.JumlahDPP = source.JumlahDPP,
+                target.JumlahPPN = source.JumlahPPN,
+                target.JumlahPPNBM = source.JumlahPPNBM,
+                target.StatusFaktur = source.StatusFaktur,
+                target.ModifiedBy = source.CreatedBy,
+                target.Modified = GETDATE(),
+                target.NPWPLawan = source.NPWPLawan  -- Update NPWPLawan
+        WHEN NOT MATCHED THEN
+            INSERT (NoFakturPajak, NPWPPenjual, NamaPenjual, TglFaktur, MasaPajak, TahunPajak, JumlahDPP, JumlahPPN, JumlahPPNBM, StatusFaktur, CreatedBy, Created, NPWPLawan)
+            VALUES (source.NoFakturPajak, source.NPWPPenjual, source.NamaPenjual, source.TglFaktur, source.MasaPajak, source.TahunPajak, 
+                    source.JumlahDPP, source.JumlahPPN, source.JumlahPPNBM, source.StatusFaktur, source.CreatedBy, source.Created, source.NPWPLawan);";
+
+                // Ensure all parameters are added for the MERGE operation
+                var sp = new SpBase(mergeSql);
+                sp.AddParameter("Nomor_Faktur_Pajak", faktur.Nomor_Faktur_Pajak);
+                sp.AddParameter("NPWP_Penjual", faktur.NPWP_Penjual);
+                sp.AddParameter("Nama_Penjual", faktur.Nama_Penjual);
+                sp.AddParameter("Tanggal_Faktur_Pajak", faktur.Tanggal_Faktur_Pajak.Date);
+                sp.AddParameter("Masa_Pajak", faktur.Masa_Pajak);
+                sp.AddParameter("Tahun", faktur.Tahun);
+                sp.AddParameter("Harga_Jual", faktur.Harga_Jual);
+                sp.AddParameter("PPN", faktur.PPN);
+                sp.AddParameter("PPnBM", faktur.PPnBM);
+                sp.AddParameter("Status_Faktur", faktur.Status_Faktur ?? "");
+                sp.AddParameter("CreatedBy", faktur.CreatedBy);
+                sp.AddParameter("NPWPLawan", faktur.NPWP_Penjual); // Assuming NPWPLawan is the same as NPWPPembeli
+
+                // Execute the MERGE query
+                sp.ExecuteNonQuery();
+            }
+        }
+
+    }
+}

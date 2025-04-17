@@ -1,0 +1,66 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    LoginResult _loginResult = new LoginResult();
+    if (HttpContext.Current.Session["Login"] != null)
+    {
+        _loginResult = (LoginResult)HttpContext.Current.Session["Login"];
+    }
+}
+
+<div class="page-header navbar navbar-fixed-top">
+    <!-- BEGIN HEADER INNER -->
+    <div class="page-header-inner">
+        <!-- BEGIN LOGO -->
+
+        <div class="page-logo">
+            <a href="~/Home">
+                <img src="~/Content/images/Logo-Daihatsu.png" alt="logo" class="logo-default" style="width:300px" />
+            </a>
+        </div>
+        <!-- END LOGO -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+        </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
+        <!-- BEGIN PAGE ACTIONS -->
+        <!-- DOC: Remove "hide" class to enable the page header actions -->
+        <div class="page-actions">
+
+        </div>
+        <!-- END PAGE ACTIONS -->
+        <!-- BEGIN PAGE TOP -->
+        <div class="page-top">
+            <!-- BEGIN TOP NAVIGATION MENU -->
+            <div class="top-menu" style="padding-top:25px;padding-right:15px">
+                @if (_loginResult.IsAuthenticated == LoginAuthentication.Authenticated)
+                {
+                    <span class="username username-hide-on-mobile grey-cararra bold">
+                        Welcome, @_loginResult.UserName &nbsp; &nbsp;
+                    </span>
+                    @Html.ActionLink("Change Password", "ChangePassword", "User", null, new { @class = "chpass" })
+                    @Html.ActionLink("Sign Out", "Logout", "User", null, new { @class = "logout" })
+                }
+                else
+                {
+                    Response.Redirect(Url.RouteUrl(new { controller = "User", action = "Login" }));
+                }
+            </div>
+
+            <!-- END TOP NAVIGATION MENU -->
+        </div>
+        <!-- END PAGE TOP -->
+    </div>
+    <!-- END HEADER INNER -->
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+</script>

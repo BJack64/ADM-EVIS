@@ -1,0 +1,561 @@
+﻿@using eFakturADM.Web.Helpers
+@{
+    ViewBag.Title = "List Ordner";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_print = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("29", _loginResult.RoleId[0]);
+    var check_print = roleActivities_print.Count != 0 ? true : false;
+    var roleActivities_reprint = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("30", _loginResult.RoleId[0]);
+    var check_reprint = roleActivities_reprint.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            List Ordner
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-noreturstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-noreturend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tgl. Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglfakturstart" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglfakturend" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control w-sm" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-tahunpajak-pelaporan" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">PIC Entry</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" style="padding:0" id="input-search-picentry" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                    <legend class="title-legend">List Data</legend>
+                </fieldset>
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                    <div class="table-scrollable">
+                        <table id="tbl-ordner" class="table table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th width="10px" style="padding-left:12px"><input id="selectall" name="select_all" type="checkbox" /></th>
+                                    <th style="min-width:150px">
+                                        NPWP Vendor
+                                    </th>
+                                    <th style="min-width:300px">
+                                        Nama Vendor
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Nomor Faktur
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Tanggal Faktur
+                                    </th>
+                                    <th>
+                                        Masa Pajak (Bulan)
+                                    </th>
+                                    <th>
+                                        Masa Pajak (Tahun)
+                                    </th>
+                                    <th style="min-width:100px">
+                                        DPP
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPN
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPnBM
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Filling Index
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Print Count
+                                    </th>
+                                    <th style="width: 60px; min-width:60px;">
+                                        Reason
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_print)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-print">
+                                    Print
+                                </button>
+                            }
+                            @if (check_reprint)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-re-print">
+                                    Re-Print
+                                </button>
+                            }
+                            <button type="button" class="btn btn-success btn-sm" id="btn-download-to-excel">
+                                Download to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var noFakturStart;
+    var noFakturEnd;
+    var tglFakturStart;
+    var tglFakturEnd;
+    var bulanPajak;
+    var tahunPajak;
+    var pic;
+    var firstLoad;
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        Ordner.init();
+
+        $('#input-tahunpajak-pelaporan').keypress(isNumber);
+        $("#btn-print").bind("click", function (e) {
+            printRePrintClick(false, e);
+        });
+
+        $("#btn-re-print").bind("click", function (e) {
+            printRePrintClick(true, e);
+        });
+
+        //$("#div-search input, #div-search select").keypress(function (e) {
+        //    if (e.keyCode == 13) {
+        //        firstLoad = false;
+        //        searchTableData();
+        //    }
+        //});
+
+        $("#btn-search").bind("click", function (e) {
+            firstLoad = false;
+            searchTableData();
+        });
+
+        $("#btn-reset").bind("click", function (e) {
+            firstLoad = true;
+            resetTableData();
+        });
+
+        var initSelect2Pic = new InitSelect2PicEntry();
+        initSelect2Pic.init();
+
+        $('#btn-download-to-excel').click(function () {
+            downloadExcel();
+        });
+
+    });
+
+    function downloadExcel() {
+        noFakturStart = $("#input-search-noreturstart").val();
+        noFakturEnd = $("#input-search-noreturend").val();
+        tglFakturStart = $("#input-search-tglfakturstart").val();
+        tglFakturEnd = $("#input-search-tglfakturend").val();
+        bulanPajak = $("#listMasaPajak option:selected").val();
+        tahunPajak = $("#input-tahunpajak-pelaporan").val();
+        pic = $("#input-search-picentry").val();
+
+        var search = $('.dataTables_filter input').val();
+
+        var strUrl = '@Url.Action("ExportListOrdnerToExcel", "ExportDownload")' + "?noFakturStart=" + noFakturStart + '&noFakturEnd=' + noFakturEnd
+            + '&tglFakturStart=' + tglFakturStart + '&tglFakturEnd=' + tglFakturEnd + '&bulanPajak=' + bulanPajak + '&tahunPajak=' + tahunPajak
+            + '&picEntry=' + pic + '&search=' + search;
+        window.open(strUrl, '_blank');
+
+    }
+
+    var InitSelect2PicEntry = function () {
+        return {
+            init: function () {
+                //select 2 PicEntry
+                $("#input-search-picentry").select2({
+                    placeholder: "Type to find a PIC Entry",
+                    allowClear: true,
+                    minimumInputLength: 1,
+                    ajax: {
+                        cache: false,
+                        dataType: "json",
+                        type: "GET",
+                        quietMillis: 100,
+                        url: "@Url.Action("FecthListUser", "Master")",
+                        data: function (searchTerm) {
+                            return {
+                                query: searchTerm
+                            };
+                        },
+                        results: function (data) {
+                            return { results: data };
+                        }
+                    },
+                    id: function (data) {
+                        return data.UserName;
+                    },
+                    multiple: false,
+                    formatResult: contractFormatResultUser,
+                    formatSelection: contractFormatSelectiontUser,
+                    initSelection: function (element, callback) {
+                        callback(null);
+                    },
+                    escapeMarkup: function (m) { return m; }
+                }).select2('val', []);
+
+                function contractFormatResultUser(data) {
+                    var markup = data.UserName;
+                    return markup;
+                }
+
+                function contractFormatSelectiontUser(data) {
+                    var result = data.UserName;
+                    return result;
+                }
+            }
+        };
+    };
+
+    function searchTableData() {
+        noFakturStart = $("#input-search-noreturstart").val();
+        noFakturEnd = $("#input-search-noreturend").val();
+        tglFakturStart = $("#input-search-tglfakturstart").val();
+        tglFakturEnd = $("#input-search-tglfakturend").val();
+        bulanPajak = $("#listMasaPajak option:selected").val();
+        tahunPajak = $("#input-tahunpajak-pelaporan").val();
+        pic = $("#input-search-picentry").val();
+
+        var table = $('#tbl-ordner').DataTable();
+        table.ajax.reload();
+    }
+
+    function resetTableData() {
+        $("#input-search-noreturstart").val('');
+        $("#input-search-noreturend").val('');
+        $("#input-search-tglfakturstart").val('');
+        $("#input-search-tglfakturend").val('');
+
+        $("#listMasaPajak option:selected").val('');
+        $("#input-tahunpajak-pelaporan").val('');
+        $("#input-search-picentry").val('');
+
+        noFakturStart = $("#input-search-noreturstart").val();
+        noFakturEnd = $("#input-search-noreturend").val();
+        tglFakturStart = $("#input-search-tglfakturstart").val();
+        tglFakturEnd = $("#input-search-tglfakturend").val();
+        bulanPajak = $("#listMasaPajak option:selected").val();
+        tahunPajak = $("#input-tahunpajak-pelaporan").val();
+        pic = $("#input-search-picentry").val();
+
+        var table = $('#tbl-ordner').DataTable();
+        table.ajax.reload();
+    }
+
+    var dataSelectedCrew = [];
+    var fiList = [];
+
+    function printRePrintClick(isReprint, e) {
+        dataSelectedCrew = [];
+        fiList = [];
+        if ($(".checkbox:checked").length == 0) {
+            toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+        else {
+            $('#tbl-ordner').find('tr').each(function () {
+                var row = $(this);
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    var $tds = $(this).find('td');
+                    var fpId = $(this).find('.checkbox').val();
+                    var number = $tds.find('[id*=label-checklist-number]').attr("data-fillingindex");
+                    if (fpId != undefined) {
+                        dataSelectedCrew.push(parseInt(fpId));
+                    }
+                    if (number != undefined) {
+                        fiList.push(number);
+                    }
+                }
+            });
+
+            if (dataSelectedCrew.length > 0) {
+                var oData = JSON.stringify({ fakturPajakIds: dataSelectedCrew, isReprint: isReprint });
+                var jsonPrintData = JSON.stringify({ fakturPajakIds: dataSelectedCrew, fillingIndexs: fiList });
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ValidationOnPrint", "Ordner")",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: oData,
+                    cache: false,
+                    success: function (response) {
+                        switch (response.Html.InfoType) {
+                            case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        };
+                        if (response.Html.InfoType == 1) {
+                            if (isReprint) {
+                                //Input Reason
+                                $('#input-reason-fp-id').val('');
+                                App.DialogGet("@Url.Action("GetReasonDialog", "Ordner")", e, {
+                                    fakturPajakIds: dataSelectedCrew,
+                                    isReprint: isReprint,
+                                    fillingIndexs: fiList
+                                });
+                            } else {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    title: 'Print Confirmation',
+                                    message: 'Apakah Anda yakin untuk mencetak No Faktur Pajak yang dipilih ?',
+                                    buttons: [{
+                                        label: 'Ya',
+                                        cssClass: 'btn-danger btn-delay',
+                                        action: function (dialog) {
+
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "@Url.Action("PrintOrdner", "Ordner")",
+                                                dataType: "json",
+                                                contentType: 'application/json; charset=utf-8',
+                                                data: jsonPrintData,
+                                                cache: false,
+                                                success: function (data) {
+                                                    switch (data.Html.InfoType) {
+                                                        //case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                        case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                        case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                                    };
+                                                    if (data.Html.InfoType == 1) {
+                                                        dialog.close();
+                                                        dataSelectedCrew = [];
+                                                        fiList = [];
+                                                        $('#selectall').parent().removeClass("checked");
+                                                        $('#selectall').removeAttr("checked");
+                                                        @*var strUrl = '@Url.Action("GetPrintOut", "Ordner")' + '?idprint=' + data.Id;
+                                                        window.open(strUrl, '_blank');*@
+
+                                                        var strUrl = '@Url.Action("PrintOrdnerList", "Print")' + '?idprint=' + data.Id;
+                                                        window.open(strUrl, '_blank');
+
+                                                        searchTableData();
+
+                                                    }
+                                                },
+                                                error: function (xhr, textStatus, errorThrown) {
+                                                    App.DialogError(xhr, textStatus, errorThrown);
+                                                }
+                                            });
+                                        }
+                                    }, {
+                                        label: 'Tidak',
+                                        cssClass: 'btn-danger',
+                                        action: function (dialog) {
+                                            dialog.close();
+                                        }
+                                    }]
+                                });
+                            }
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        App.DialogError(xhr, textStatus, errorThrown);
+                    }
+                });
+            }
+
+        }
+    }
+
+    var Ordner = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                noFakturStart = $("#input-search-noreturstart").val();
+                noFakturEnd = $("#input-search-noreturend").val();
+                tglFakturStart = $("#input-search-tglfakturstart").val();
+                tglFakturEnd = $("#input-search-tglfakturend").val();
+                bulanPajak = $("#listMasaPajak option:selected").val();
+                tahunPajak = $("#input-tahunpajak-pelaporan").val();
+                pic = $("#input-search-picentry").val();
+
+                var table = $('#tbl-ordner');
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetListOrdnerPrintDataTable", "Ordner")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "NoFakturStart", "value": noFakturStart },
+                            { "name": "NoFakturEnd", "value": noFakturEnd },
+                            { "name": "TglFakturStart", "value": tglFakturStart },
+                            { "name": "TglFakturEnd", "value": tglFakturEnd },
+                            { "name": "BulanPajak", "value": bulanPajak },
+                            { "name": "TahunPajak", "value": tahunPajak },
+                            { "name": "PIC", "value": pic }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "FakturPajakId",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input id="label-checklist-number" type="checkbox" name="checkbox" class="checkbox" data-fillingindex="' + row.FillingIndex + '" value="' + row.FakturPajakId + '">';
+                            }
+                        },
+                        { "data": "FormatedNpwpPenjual", "orderable": true, "searchable": true },
+                        { "data": "NamaPenjual", "orderable": true, "searchable": true },
+                        { "data": "FormatedNoFaktur", "orderable": true, "searchable": true },
+                        { "data": "TglFakturString", "orderable": true, "searchable": true },
+                        { "data": "MasaPajak", "orderable": true, "searchable": true },
+                        { "data": "TahunPajak", "orderable": true, "searchable": true },
+                        { "data": "DPPString", "orderable": true, "searchable": true },
+                        { "data": "PPNString", "orderable": true, "searchable": true },
+                        { "data": "PPNBMString", "orderable": true, "searchable": true },
+                        { "data": "FillingIndex", "orderable": true, "searchable": true },
+                        { "data": "PrintCount", "orderable": true, "searchable": true },
+                        {
+                            "data": "FakturPajakReturId",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<button type="button" class="btn btn-sm btn-default ordner-view" data-fakturpajak-id="' + row.FakturPajakId + '">View</button></div>';
+                            },
+                            "width": 60
+                        }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+                $('#tbl-ordner tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    //Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // Handle click on table cells with checkboxes
+                $('#tbl-ordner tbody').on('click', 'tbody td, thead th:first-child', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-ordner').DataTable();
+                // Handle click on "Select all" control
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-ordner tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-ordner tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-ordner').on('draw.dt', function () {
+                    App.InitExpander(50);
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+
+                $("body").on("click", ".ordner-view", function (e) {
+                    var fakturPajakId = parseInt($(this).attr("data-fakturpajak-id"));
+                    App.DialogGet('@Url.Action("ViewOrdnerFakturPajak", "Ordner")', e, {
+                        fakturPajakId: fakturPajakId
+                    });
+                });
+
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+</script>

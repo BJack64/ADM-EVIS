@@ -1,0 +1,134 @@
+﻿@using System.Configuration
+@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@{
+    var userId = Session["UserId"] as string;
+    List<Module> listParentModule = Modules.GetSideBarMenuParent(Convert.ToInt32(userId));
+    List<Module> listChildModule = Modules.GetSideBarMenuChilds(Convert.ToInt32(userId));
+
+    string expandcollapse = Session["SideBarSession"] != null ? Session["SideBarSession"].ToString() : "expand";
+
+    var isDevShow = ConfigurationManager.AppSettings["showHiddenFunction"];
+
+}
+<div class="page-sidebar-wrapper">
+    <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+    <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+    <div class="page-sidebar navbar-collapse collapse">
+        <!-- BEGIN SIDEBAR MENU -->
+        <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+        <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+        <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+        <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+        <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+        <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+        <div style="background-color:#fff">
+            <ul style="list-style:none">
+                <li class="sidebar-toggler-wrapper" style="height:30px">
+                    <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+                    <div class="sidebar-toggler" data-toggler="@expandcollapse">
+                    </div>
+                    <!-- END SIDEBAR TOGGLER BUTTON -->
+                </li>
+            </ul>
+            <ul class="page-sidebar-menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+                @foreach (var module in listParentModule
+                    .GroupBy(m => m.ModuleId)
+                    .Select(g => g.First()))
+                {
+                    <li>
+                        @if (string.IsNullOrEmpty(module.Url))
+                        {
+                            <a href="#">
+                                <img class="imgicon" src="@module.IconUrl" />
+                                <span class="title">@module.Name</span>
+                                @if (string.IsNullOrEmpty(@module.Url))
+                                {
+                                    <span class="arrow"></span>
+                                }
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@module.Url.Trim()">
+                                <img class="imgicon" src="@module.IconUrl" />
+                                <span class="title">@module.Name</span>
+                                @if (string.IsNullOrEmpty(@module.Url))
+                                {
+                                    <span class="arrow"></span>
+                                }
+                            </a>
+                        }
+
+                        @{
+                            var lstChildsByParent = listChildModule.Where(c => c.ModuleIdParent == module.ModuleId).ToList();
+                            if (lstChildsByParent.Count > 0)
+                            {
+                                <ul class="sub-menu">
+                                    @foreach (var item in lstChildsByParent)
+                                    {
+                                        <li>
+                                            <a href="@item.Url.Trim()">
+                                                <span class="title">@item.Name</span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                        }
+                    </li>
+                            }
+                @if (isDevShow != null && Convert.ToInt32(isDevShow.ToString()) == 1)
+                {
+                    <li>
+                        <a href='@Url.Action("GenerateOuputUploadPpnCredit", "DataCompare")'>
+                            <img class="imgicon" src="/Content/images/icon/app-setting.png" />
+                            <span class="title">Generate Output UploadPPNCredit</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- END SIDEBAR MENU -->
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@expandcollapse' == "expand") {
+            $.cookie('sidebar_closed', '0');
+        }
+        else if ('@expandcollapse' == "collapse") {
+            $.cookie('sidebar_closed', '1');
+        }
+        setTimeout(function () {
+            $('ul.page-sidebar-menu li').not("#lisub").each(function () {
+                var source = $(this).find('img').attr('src');
+                if (source != undefined) {
+                    if ($(this).attr('class') == "active") {
+                        $(this).find('img').attr('src', source.slice(0, -4) + '-hover.png');
+                    }
+                }
+            });
+        }, 100);
+    });
+    $('.sidebar-toggler').click(function (e) {
+        var ExpandCollapse = $(this).attr("data-toggler");
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("SetSideBarSession", "Setting")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ expandCollapse: ExpandCollapse }),
+            cache: false,
+        });
+    });
+</script>
+<style>
+    .imgicon {
+        width: 20px;
+        margin: 0 5px 5px 2px;
+    }
+</style>

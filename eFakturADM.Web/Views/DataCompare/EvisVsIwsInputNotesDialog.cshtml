@@ -1,0 +1,62 @@
+﻿@model eFakturADM.Web.Models.DataCompareEvisVsIwsInputNotesDialogModel
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Input Notes" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" id="form-evisvsiws-inputreason" role="form">
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-12">
+                    Notes :
+                </div>
+                <div class="col-md-12">
+                    <textarea rows="3" class="form-control" style="resize:none" id="input-notes">@Model.Notes</textarea>
+                    <input type="hidden" id="input-evisvsiws-id" value="@Model.Id" />
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    App.PreventDoubleSubmit();
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 500, "auto", true,
+            {
+                OK: function () {
+                    var _reason = $('#input-notes').val();
+                    if (_reason == '' || _reason == null) {
+                        var errorMsg = 'Notes is required';
+                        toastr.error(errorMsg, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    }
+                    else {
+                        var id = $('#input-evisvsiws-id').val();
+                        var notes = $('#input-notes').val();
+                        var jsonData = { id: id, notes: notes };
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("EvisVsIwsSaveNotes", "DataCompare")",
+                            data: jsonData,
+                            cache: false,
+                            success: function (data) {
+                                switch (data.Html.InfoType) {
+                                    case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                    case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                };
+                                if (data.Html.InfoType == 1) {
+                                    dialog.close();
+                                    ReloadTable();
+                                }
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                App.DialogError(xhr, textStatus, errorThrown);
+                            }
+                        });
+                    }
+                }
+            },
+            true);
+    });
+</script>

@@ -1,0 +1,113 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+@model eFakturADM.Web.Models.ViewLogSAPInfoModel
+@{
+    var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+
+    var listStatus = EnumHelper.GetValues<ApplicationEnums.EnumSapStatusLogDetail>().Select(d => new SelectListItem()
+    {
+        Text = EnumHelper.GetDescription(d),
+        Value = ((int)d).ToString(),
+        Selected = d == ApplicationEnums.EnumSapStatusLogDetail.All
+    }).ToList();
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Log SAP Detail" data-dialog-spinner="spinner-@dialogId">
+    <div class="form-group padder row">
+        <div class="form-group row">
+            <label class="col-md-2 control-label">Status</label>
+            <div class="col-md-4">
+                @Html.DropDownList("ddl-search-status", listStatus, new { @class = "form-control w-sm" })
+            </div>
+        </div>
+    </div>
+    <table id="table-view-logsap" class="table table-hover">
+        <thead>
+            <tr class="bg-light">
+                <th>Accounting Doc. No Credit</th>
+                <th>Accounting Doc. Debet</th>
+                <th>Amount PPN</th>
+                <th>Fiscal Year Debet</th>
+                <th>FP</th>
+                <th>GL Account</th>
+                <th>Line Item</th>
+                <th>Masa Pajak</th>
+                <th>NPWP</th>
+                <th>Message</th>
+                <th>Pembetulan Ke</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+    </table>
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var dialog = App.DialogBootstrap("#@templateId", 1150, "auto", true,
+            {
+
+            },
+            true, InitTable);
+
+    });
+    function InitTable() {
+        var idNo = '@Model.IdNo';
+        var status = $('#ddl-search-status option:selected').val();
+        var oTable = $('#table-view-logsap').dataTable({
+            "stateSave": false,
+            "iDisplayLength": 10,
+            "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+            "autoWidth": false,
+            "serverSide": false,
+            "sDom": "<'row bg-light dker b-b'<'col-sm-6 ddl-status'><'col-sm-6'f>r>t<'row'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+            "sPaginationType": "simple_numbers",
+            "sAjaxSource": '@Url.Action("GetOutputUploadPPNCredit", "LogMonitoring")',
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "idNo", "value": idNo },
+                    { "name": "filterstatus", "value": status }
+                );
+            },
+            "columns": [
+                { "data": "AccountingDocNoCredit", "orderable": true, "searchable": true },
+                { "data": "AccountingDocDebet", "orderable": true, "searchable": true },
+                { "data": "AmountPPN", "orderable": true, "searchable": true },
+                { "data": "FiscalYearDebet", "orderable": true, "searchable": true },
+                { "data": "FP", "orderable": true, "searchable": true },
+                { "data": "GLAccount", "orderable": true, "searchable": true },
+                { "data": "LineItem", "orderable": true, "searchable": true },
+                {
+                    "orderable": false, "searchable": false,
+                    "render": function (data, type, row, full, meta) {
+                        return '<label id="label-evissap-masapajak">' + row.MasaPajakBulan + '/' + row.MasaPajakTahun + '</label>';
+                    }
+                },
+                { "data": "NPWP", "orderable": true, "searchable": true },
+                { "data": "Message", "orderable": true, "searchable": true },
+                { "data": "PembetulanKe", "orderable": true, "searchable": true },
+                {
+                    "data": "Status", "orderable": true, "searchable": true,
+                    "render": function (data, type, row, full, meta) {
+                        if(row.Status == 2)
+                            return '<label id="label-evissap-status">Gagal</label>';
+                        else if(row.Status == 1)
+                            return '<label id="label-evissap-status">Sukses</label>';
+                        else
+                            return '<label id="label-evissap-status">Submitted</label>';
+                    }
+                }
+            ],
+            "order": [[0, "asc"]]
+        });
+        $('#ddl-search-status').on('change', function () {
+            idNo = '@Model.IdNo';
+            status = $('#ddl-search-status option:selected').val();
+            var table = $('#table-view-logsap').DataTable();
+            table.ajax.reload();
+        });
+    };
+
+</script>

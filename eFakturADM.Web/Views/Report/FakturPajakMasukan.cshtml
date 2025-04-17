@@ -1,0 +1,350 @@
+﻿@using eFakturADM.Web.Helpers
+@{
+    ViewBag.Title = "List Filing Index Faktur Pajak Masukan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+    var yearList = new List<SelectListItem>();
+    var pics = GlobalFunctionHelper.GetAllPic(true, "");
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_download = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("57", _loginResult.RoleId[0]);
+    var check_download = roleActivities_download.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            List Filing Index Faktur Pajak Masukan
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10">
+                <div class="form-group row">
+                    <div class="col-md-7">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tanggal Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-tglawalreport" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-tglakhirreport" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-9 w-sm">
+                                @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun Pajak</label>
+                            <div class="col-md-9 w-sm">
+                                @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Filling Index</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-fillingindex1" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-fillingindex2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">PIC Entry</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("input-search-picentry", pics, new { @class = "form-control", @id = "input-search-picentry" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0">
+                    <div class="table-scrollable">
+                        <table id="tbl-report-fpmasukan" class="tblheader table table-striped table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        No
+                                    </th>
+                                    <th style="min-width:200px">
+                                        Nama Penjual
+                                    </th>
+                                    <th style="min-width:150px">
+                                        NPWP Penjual
+                                    </th>
+                                    <th style="min-width:150px">
+                                        No. FP
+                                    </th>
+                                    <th style="min-width:100px">
+                                        Tanggal FP
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PPN
+                                    </th>
+                                    <th style="min-width:100px">
+                                        PIC Entry (Kode)
+                                    </th>
+                                    <th>
+                                        Masa Pajak
+                                    </th>
+                                    <th>
+                                        Tahun Pajak
+                                    </th>
+                                    <th style="min-width:150px">
+                                        Filling Index
+                                    </th>
+                                    <th>
+                                        Is Creditable
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_download)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-download-excel">
+                                    Download Excel
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var firstLoad;
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        ReportFakturPajakMasukan.init();
+
+        $('#btn-search').click(function () {
+            firstLoad = false;
+            searchClick();
+        });
+
+        $('#btn-reset').click(function () {
+            firstLoad = true;
+            resetClick();
+        });
+
+        $('#btn-download-excel').click(function () {
+            downloadExcelReport();
+        });
+
+        $('#listMasaPajak').change(function () {
+            var selectedMonth = $('#listMasaPajak option:selected').val();
+            loadTahunPajak(selectedMonth);
+        });
+
+        //FirstLoad
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+    });
+
+    var tglFakturStart;
+    var tglFakturEnd;
+    var picEntry;
+    var fillingIndexStart;
+    var fillingIndexEnd;
+    var masaPajak;
+    var tahunPajak;
+
+    function downloadExcelReport() {
+        picEntry = $('#input-search-picentry option:selected').val();
+        tglFakturStart = $('#input-search-tglawalreport').val();
+        tglFakturEnd = $('#input-search-tglakhirreport').val();
+        fillingIndexStart = $('#input-search-fillingindex1').val();
+        fillingIndexEnd = $('#input-search-fillingindex2').val();
+        masaPajak = $('#listMasaPajak option:selected').val();
+        tahunPajak = $('#listTahunPajak option:selected').val();
+
+        var search = $('.dataTables_filter input').val();
+        var strUrl = '@Url.Action("ExportReportFakturPajakMasukanToExcel", "ExportDownload")' + "?sTglFakturStart=" + tglFakturStart + '&sTglFakturEnd=' + tglFakturEnd + '&picEntry='
+            + picEntry + '&search=' + search + '&fillingIndexStart=' + fillingIndexStart + '&fillingIndexEnd=' + fillingIndexEnd + '&masaPajak=' + masaPajak + '&tahunPajak=' + tahunPajak;
+        window.open(strUrl, '_blank');
+    }
+
+    function resetClick() {
+        $('#input-search-picentry').val('');
+        $('#input-search-tglawalreport').val('');
+        $('#input-search-tglakhirreport').val('');
+        $('#input-search-fillingindex1').val('');
+        $('#input-search-fillingindex2').val('');
+        $('#listMasaPajak').val('');
+        $('#listTahunPajak').val('');
+
+        picEntry = $('#input-search-picentry option:selected').val();
+        tglFakturStart = $('#input-search-tglawalreport').val();
+        tglFakturEnd = $('#input-search-tglakhirreport').val();
+        fillingIndexStart = $('#input-search-fillingindex1').val();
+        fillingIndexEnd = $('#input-search-fillingindex2').val();
+        masaPajak = $('#listMasaPajak option:selected').val();
+        tahunPajak = $('#listTahunPajak option:selected').val();
+
+        var table = $('#tbl-report-fpmasukan').DataTable();
+        table.search('').draw();
+
+    }
+
+    function searchClick() {
+        picEntry = $('#input-search-picentry option:selected').val();
+        tglFakturStart = $('#input-search-tglawalreport').val();
+        tglFakturEnd = $('#input-search-tglakhirreport').val();
+        fillingIndexStart = $('#input-search-fillingindex1').val();
+        fillingIndexEnd = $('#input-search-fillingindex2').val();
+        masaPajak = $('#listMasaPajak option:selected').val();
+        tahunPajak = $('#listTahunPajak option:selected').val();
+
+        var table = $('#tbl-report-fpmasukan').DataTable();
+        table.ajax.reload();
+
+    }
+
+    var ReportFakturPajakMasukan = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                var table = $('#tbl-report-fpmasukan');
+
+                picEntry = $('#input-search-picentry option:selected').val();
+                tglFakturStart = $('#input-search-tglawalreport').val();
+                tglFakturEnd = $('#input-search-tglakhirreport').val();
+                fillingIndexStart = $('#input-search-fillingindex1').val();
+                fillingIndexEnd = $('#input-search-fillingindex2').val();
+                masaPajak = $('#listMasaPajak option:selected').val();
+                tahunPajak = $('#listTahunPajak option:selected').val();
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetListFakturPajakMasukan", "Report")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "sTglFakturStart", "value": tglFakturStart },
+                            { "name": "sTglFakturEnd", "value": tglFakturEnd },
+                            { "name": "picEntry", "value": picEntry },
+                            { "name": "fillingIndexStart", "value": fillingIndexStart },
+                            { "name": "fillingIndexEnd", "value": fillingIndexEnd },
+                            { "name": "masaPajak", "value": masaPajak },
+                            { "name": "tahunPajak", "value": tahunPajak }
+                        );
+                    },
+                    "columns": [
+                        { "data": "VSequenceNumber", "orderable": false, "searchable": false },
+                        { "data": "NamaPenjual", "orderable": true, "searchable": true },
+                        { "data": "FormatedNpwpPenjual", "orderable": true, "searchable": true },
+                        { "data": "FormatedNoFaktur", "orderable": true, "searchable": true },
+                        { "data": "TglFakturString", "orderable": true, "searchable": true },
+                        { "data": "JumlahPpnString", "orderable": true, "searchable": true },
+                        { "data": "CreatedBy", "orderable": true, "searchable": true },
+                        { "data": "MasaPajak", "orderable": true, "searchable": true },
+                        { "data": "TahunPajak", "orderable": true, "searchable": true },
+                        { "data": "FillingIndex", "orderable": true, "searchable": true },
+                        { "data": "Dikreditkan", "orderable": true, "searchable": true }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-report-fpmasukan').on('draw.dt', function () {
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+    function loadTahunPajak(aMonth) {
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '<option value=""></option>';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+</script>

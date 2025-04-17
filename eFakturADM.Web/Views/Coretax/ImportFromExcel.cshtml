@@ -1,0 +1,409 @@
+﻿@{
+    ViewBag.Title = "Import Faktur Pajak from Coretax";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-head">
+    <div class="page-title">
+        <h1>Import Faktur Pajak from Coretax</h1>
+    </div>
+</div>
+
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet-body">
+        <h2>Upload File</h2>
+        <form enctype="multipart/form-data" id="uploadForm" style="display: block;">
+            <div class="form-group row" id="fileGroup">
+                <label for="file" class="col-form-label col-md-2">Pilih File Excel:</label>
+                <div class="col-md-8 input-group">
+                    <input type="file" name="file" id="file" class="form-control" required />
+                    <div class="input-group-append">
+                        <button type="submit" id="uploadButton" class="btn btn-primary">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabs for Valid and Invalid Data -->
+        <ul class="nav nav-tabs" id="dataTabs" style="display: none;">
+            <li class="active" id="validTab">
+                <a href="#valid" data-toggle="tab">Valid Data (<span id="validCount">0</span>)</a>
+            </li>
+            <li id="invalidTab">
+                <a href="#invalid" data-toggle="tab">Invalid Data (<span id="invalidCount">0</span>)</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="tabContent" style="display: none;">
+            <!-- Table for Valid Data -->
+            <div class="tab-pane active" id="valid">
+                <h3>Valid Data</h3>
+                <div class="table-responsive">
+                    <table id="tbl-valid-faktur-pajak" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>NPWP Penjual</th>
+                                <th>Nama Penjual</th>
+                                <th>Nomor Faktur Pajak</th>
+                                <th>Tanggal Faktur Pajak</th>
+                                <th>Masa Pajak</th>
+                                <th>Tahun</th>
+                                <th>Harga Jual</th>
+                                <th>DPP Nilai Lain</th>
+                                <th>PPN</th>
+                                <th>PPnBM</th>
+                                <th>Status Faktur</th>
+                                <th>Perekam</th>
+                                <th>Nomor SP2D</th>
+                                <th>Valid</th>
+                                <th>Dilaporkan</th>
+                                <th>Dilaporkan oleh Penjual</th>
+                                <th>Created On</th>
+                                <th>Created By</th>
+                                <th>Updated On</th>
+                                <th>Updated By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data rows will be inserted here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table for Invalid Data -->
+            <div class="tab-pane" id="invalid">
+                <h3>Invalid Data</h3>
+                <div class="table-responsive">
+                    <table id="tbl-invalid-faktur-pajak" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>NPWP Penjual</th>
+                                <th>Nama Penjual</th>
+                                <th>Nomor Faktur Pajak</th>
+                                <th>Tanggal Faktur Pajak</th>
+                                <th>Masa Pajak</th>
+                                <th>Tahun</th>
+                                <th>Harga Jual</th>
+                                <th>DPP Nilai Lain</th>
+                                <th>PPN</th>
+                                <th>PPnBM</th>
+                                <th>Status Faktur</th>
+                                <th>Perekam</th>
+                                <th>Nomor SP2D</th>
+                                <th>Valid</th>
+                                <th>Dilaporkan</th>
+                                <th>Dilaporkan oleh Penjual</th>
+                                <th>Created On</th>
+                                <th>Created By</th>
+                                <th>Updated On</th>
+                                <th>Updated By</th>
+                                <th>Errors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data rows will be inserted here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <button type="button" id="resetButton" class="btn btn-danger" style="display: none;">Reset</button>
+            <!-- Submit Button for Valid Data -->
+            <button id="submitButton" class="btn btn-success" style="display: none;">Submit Valid Data</button>
+        </div>
+    </div>
+</div>
+<!-- Spinner untuk menunjukkan loading -->
+<div id="loadingSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+    <div class="spinner-border text-white" role="status">
+        <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i> Please wait...
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // Handle file upload
+        $('#uploadForm').on('submit', function (e) {
+            e.preventDefault(); // Prevent form from submitting normally
+
+            var fileInput = $('#file')[0];
+            if (!fileInput.files.length) {
+                alert('Harap pilih file sebelum mengupload!');
+                return;
+            }
+
+            var file = fileInput.files[0];
+            var allowedExtensions = /(\.xls|\.xlsx)$/i;
+            if (!allowedExtensions.exec(file.name)) {
+                alert('Hanya file Excel (.xls, .xlsx) yang diperbolehkan!');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading spinner
+            $('#loadingSpinner').show();
+            $('#uploadButton').prop('disabled', true);
+            $('#fileGroup').prop('disabled', true);
+
+            // Call backend to process the file
+            $.ajax({
+                url: '/Coretax/ConvertExcelToJson',  // Backend method to process the file
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // Hide the loading spinner and reset button
+                    $('#loadingSpinner').hide();
+                    $('#uploadButton').prop('disabled', false);
+                    $('#fileGroup').prop('disabled', false);
+
+                    if (response.success) {
+                        var validData = response.validData || [];
+                        var invalidData = response.invalidData || [];
+
+                        // Store data in localStorage
+                        localStorage.setItem('validData', JSON.stringify(validData));
+                        localStorage.setItem('invalidData', JSON.stringify(invalidData));
+
+                        // Update the counts
+                        $('#validCount').text(validData.length);
+                        $('#invalidCount').text(invalidData.length);
+
+                        // Display tables
+                        displayDataTables();
+
+                        // Show tabs and submit button after upload
+                        $('#dataTabs').show();
+                        $('#tabContent').show();
+                        $('#submitButton').show();
+                        $('#resetButton').show(); // Show reset button after upload
+                        $('#uploadButton').hide(); // Hide the upload button
+                        $('#fileGroup').hide(); // Hide the upload button
+
+                    } else {
+                        alert('Gagal mengkonversi file Excel!');
+                    }
+                },
+                error: function () {
+                    $('#loadingSpinner').hide();
+                    $('#uploadButton').prop('disabled', false);
+                    $('#fileGroup').prop('disabled', false);
+
+                    alert('Terjadi kesalahan saat mengkonversi file!');
+                }
+            });
+        });
+
+        // Display data in tables
+        function displayDataTables() {
+            var validData = JSON.parse(localStorage.getItem('validData')) || [];
+            var invalidData = JSON.parse(localStorage.getItem('invalidData')) || [];
+
+            // Ensure DataTables are not reinitialized
+            if ($.fn.dataTable.isDataTable('#tbl-valid-faktur-pajak')) {
+                $('#tbl-valid-faktur-pajak').DataTable().clear().destroy();
+            }
+
+            if ($.fn.dataTable.isDataTable('#tbl-invalid-faktur-pajak')) {
+                $('#tbl-invalid-faktur-pajak').DataTable().clear().destroy();
+            }
+
+            // Populate Valid Data table
+            $('#tbl-valid-faktur-pajak').DataTable({
+                "bFilter": true,
+                "bLengthChange": true,
+                "bStateSave": false,
+                "serverSide": false,
+                "iDisplayLength": 10,
+                "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                "autoWidth": false,
+                "data": validData, // Use the data from your valid data source
+                "columns": [
+                    { "data": "NPWP_Penjual" },
+                    { "data": "Nama_Penjual" },
+                    { "data": "Nomor_Faktur_Pajak" },
+                    { "data": "Tanggal_Faktur_Pajak", "render": renderDate },
+                    { "data": "Masa_Pajak" },
+                    { "data": "Tahun" },
+                    { "data": "Harga_Jual" },
+                    { "data": "DPP_Nilai_Lain" },
+                    { "data": "PPN" },
+                    { "data": "PPnBM" },
+                    { "data": "Status_Faktur" },
+                    { "data": "Perekam" },
+                    { "data": "Nomor_SP2D" },
+                    { "data": "Valid" },
+                    { "data": "Dilaporkan" },
+                    { "data": "Dilaporkan_oleh_Penjual" },
+                    { "data": "CreatedOn", "render": renderDate },
+                    { "data": "CreatedBy" },
+                    { "data": "UpdatedOn", "render": renderDate },
+                    { "data": "UpdatedBy" }
+                ]
+            });
+
+            // Populate Invalid Data table
+            $('#tbl-invalid-faktur-pajak').DataTable({
+                "bFilter": true,
+                "bLengthChange": true,
+                "bStateSave": false,
+                "serverSide": false,
+                "iDisplayLength": 10,
+                "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                "autoWidth": false,
+                "data": invalidData, // Use the data from your invalid data source
+                "columns": [
+                    { "data": "NPWP_Penjual" },
+                    { "data": "Nama_Penjual" },
+                    { "data": "Nomor_Faktur_Pajak" },
+                    { "data": "Tanggal_Faktur_Pajak", "render": renderDate },
+                    { "data": "Masa_Pajak" },
+                    { "data": "Tahun" },
+                    { "data": "Harga_Jual" },
+                    { "data": "DPP_Nilai_Lain" },
+                    { "data": "PPN" },
+                    { "data": "PPnBM" },
+                    { "data": "Status_Faktur" },
+                    { "data": "Perekam" },
+                    { "data": "Nomor_SP2D" },
+                    { "data": "Valid" },
+                    { "data": "Dilaporkan" },
+                    { "data": "Dilaporkan_oleh_Penjual" },
+                    { "data": "CreatedOn", "render": renderDate },
+                    { "data": "CreatedBy" },
+                    { "data": "UpdatedOn", "render": renderDate },
+                    { "data": "UpdatedBy" },
+                    { "data": 'errors', "render": function (data) { return data.join('<br>'); } }
+                ]
+            });
+        }
+
+        function renderDate(data) {
+            if (data && data.indexOf("/Date(") === 0) {
+                var timestamp = data.match(/\/Date\((\d+)\)\//);
+                if (timestamp) {
+                    return new Date(parseInt(timestamp[1])).toLocaleString();
+                }
+            }
+            return ''; // If invalid data, return empty
+        }
+
+        // Reset everything (clear data, hide tabs, and show upload button again)
+        $('#resetButton').on('click', function () {
+            localStorage.removeItem('validData');
+            localStorage.removeItem('invalidData');
+            $('#validCount').text(0);
+            $('#invalidCount').text(0);
+
+            // Clear DataTables data and reset
+            $('#tbl-valid-faktur-pajak').DataTable().clear().draw();
+            $('#tbl-invalid-faktur-pajak').DataTable().clear().draw();
+
+            // Hide tabs and reset the form
+            $('#dataTabs').hide();
+            $('#tabContent').hide();
+            $('#submitButton').hide();
+            $('#resetButton').hide();
+            $('#uploadButton').show(); // Show upload button again
+            $('#fileGroup').show(); // Show upload button again
+
+            $('#fileGroup').val(''); // Clear the file input
+        });
+
+        // Submit valid data (send to server)
+        $('#submitButton').on('click', function () {
+            // Show confirmation dialog before submitting
+            BootstrapDialog.show({
+                title: 'Konfirmasi',
+                message: 'Apakah Anda yakin ingin mengirim data yang valid?',
+                type: BootstrapDialog.TYPE_WARNING,
+                buttons: [
+                    {
+                        label: 'Batal',
+                        cssClass: 'btn-secondary',
+                        action: function (dialogRef) { dialogRef.close(); }
+                    },
+                    {
+                        label: 'Kirim',
+                        cssClass: 'btn-warning',
+                        action: function (dialogRef) {
+                            var fileInput = $('#file')[0];
+                            var file = fileInput.files[0];  // Get the selected file
+
+                            var formData = new FormData();
+                            formData.append('file', file);  // Append the file to formData
+
+                            // Send the file using AJAX
+                            $.ajax({
+                                url: '/Coretax/UploadFileFakturPajak',  // Backend method for handling the upload
+                                type: 'POST',
+                                data: formData,  // Send formData with the file
+                                contentType: false,  // Do not set contentType, let jQuery handle it
+                                processData: false,  // Do not process the data
+                                success: function (response) {
+                                    if (response.success) {
+                                        // Reset tables
+                                        $('#tbl-valid-faktur-pajak').DataTable().clear().draw();
+                                        $('#tbl-invalid-faktur-pajak').DataTable().clear().draw();
+
+                                        // Reset the file input
+                                        $('#fileGroup').val('');
+
+                                        // Reset the counters for valid and invalid data
+                                        $('#validCount').text(0);
+                                        $('#invalidCount').text(0);
+
+                                        // Hide the data tables and buttons
+                                        $('#dataTabs').hide();
+                                        $('#tabContent').hide();
+                                        $('#submitButton').hide();
+                                        $('#resetButton').hide();
+                                        $('#uploadButton').show();  // Show the upload button again
+                                        $('#fileGroup').show(); // Show upload button again
+
+                                        // Clear form (if any additional fields are present)
+                                        $('#uploadForm')[0].reset();
+
+                                        BootstrapDialog.alert({
+                                            title: 'Sukses',
+                                            message: 'Data berhasil dikirim.',
+                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            buttonLabel: 'OK',
+                                        });
+                                    } else {
+                                        BootstrapDialog.alert({
+                                            title: 'Error',
+                                            message: response.message,
+                                            type: BootstrapDialog.TYPE_DANGER,
+                                            buttonLabel: 'OK',
+                                        });
+                                    }
+                                },
+                                error: function () {
+                                    BootstrapDialog.alert({
+                                        title: 'Error',
+                                        message: 'Terjadi kesalahan saat mengirim data.',
+                                        type: BootstrapDialog.TYPE_DANGER,
+                                        buttonLabel: 'OK',
+                                    });
+                                }
+                            });
+
+                            dialogRef.close();
+                        }
+                    }
+                ]
+            });
+        });
+    });
+
+    $('#loadingSpinner').hide();
+</script>
+
+

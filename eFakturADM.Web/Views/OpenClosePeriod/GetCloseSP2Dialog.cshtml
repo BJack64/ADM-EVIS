@@ -1,0 +1,116 @@
+﻿@model string
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Close Period SP2" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" id="form-closesp2" role="form" enctype="multipart/form-data" method="post">
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-2">
+                    SP2 :
+                </div>
+                <div class="col-md-8" style="margin-top:-7px">
+                    <input type="file" name="FileToUpload" title="Browse" accept=".pdf, .jpg, .jpeg" class="file-input upload" id="file-closesp2-sp2" style="margin-top:5px">
+                    <input type="hidden" name="FilePath" id="FilePath" />
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    var docForm;
+    var options = {
+        iframe: true,
+        dataType: "json",
+        cache: false,
+        url: "@Url.Action("UploadFileSp2", "Setting")",
+        success: function(data) {
+            if (data.UploadStatus == true) {
+                $('#FilePath').val(data.FilePath);
+                InitSave();
+            } else if (data.UploadStatus == false) {
+                toastr.warning(data.Messages, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            }
+        },
+        error: function() {
+            toastr.warning("Upload failed, please try again", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+    };
+
+    function InitForm() {
+        App.PreventDoubleSubmit();
+
+        docForm = $("#form-closesp2").ajaxForm();
+
+        docForm.submit(function () {
+            // submit the form
+            $(this).ajaxSubmit(options);
+            // return false to prevent normal browser submit and page navigation
+            return false;
+        });
+    }
+
+    function InitSave() {
+        var openClosePeriodId = '@Model';
+        var filePath = $('#FilePath').val();
+
+        var jsonData = {
+            OpenClosePeriodId: openClosePeriodId,
+            FilePath: filePath
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ValidationAndPushCloseSP2", "OpenClosePeriod")",
+            data: jsonData,
+            cache: false,
+            success: function (data) {
+                switch (data.Html.InfoType) {
+                    case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                };
+                if (data.Html.InfoType == 1) {
+                    $("#@dialogId").remove();
+                    $("body").attr("style", "overflow-y:scroll");
+
+                    dataSelectedCrew = [];
+                    $('#selectall').parent().removeClass("checked");
+                    $('#selectall').removeAttr("checked");
+                    ReloadTable();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+    }
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 500, "auto", true,
+            {
+                Save: function () {
+                    var errorMsg = "";
+                    if ($("#file-closesp2-sp2").val() == "") {
+                        errorMsg += "Attachment is required, " + '<br/>';
+                    }
+                    if (errorMsg != "") {
+                        return toastr.warning(errorMsg.slice(0, -7) + ".", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    }
+                    else {
+                        if ($("#file-closesp2-sp2").val() != "") {
+                            docForm = $("#form-closesp2").ajaxForm();
+                            docForm.submit();
+                        }
+                        else {
+                            InitSave();
+                        }
+                    }
+                }
+            },
+            true, InitForm);
+    });
+</script>

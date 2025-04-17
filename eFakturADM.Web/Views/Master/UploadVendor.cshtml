@@ -1,0 +1,85 @@
+﻿@using eFakturADM.Logic.Core
+@using eFakturADM.Shared.Utility
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Add Vendor" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form" enctype="multipart/form-data" id="form-vendor-upload" method="post">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Browse File<span class="required"> *</span></label>
+                <div class="col-md-9">
+                    <input type="file" name="file-vendor-upload" title="Browse" accept=".xls .xlsx" class="file-input upload"
+                           id="file-vendor-upload" style="margin-top:7px">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">&nbsp;</label>
+                <div class="col-md-9" id="err-validasi-div">
+                    
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    var uploadForm;
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        uploadForm = $("#form-vendor-upload").ajaxForm();
+
+        uploadForm.submit(function () {
+            // submit the form
+            $(this).ajaxSubmit(options);
+            // return false to prevent normal browser submit and page navigation
+            return false;
+        });
+    };
+
+    var options = {
+        iframe: true,
+        dataType: "json",
+        data: { sEcho: "echo-upload-vendor" },
+        cache: false,
+        url: "@Url.Action("ProcessUploadVendor", "Master")",
+        success: function (response) {
+            if (response.Html.InfoType == 1) {
+                //success
+                toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                App.RefreshTable("#tbl-vendor", "/Master/ListVendor");
+                BootstrapDialog.closeAll();
+            } else {
+                //failed
+                if (response.Html.InfoType == 4) {
+                    //Error with file download
+                    $('#err-validasi-div').html('');
+                    toastr.warning("Error Validation, please see attachment.", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                    $('#err-validasi-div').append(response.Html.Message);
+                } else {
+                    toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                }
+            }
+        },
+        error: function () {
+            toastr.warning("Upload failed, please try again", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+    };
+
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 600, "auto", true,
+            {
+                Save: function () {
+                    if ($("#file-vendor-upload").val() != "") {
+                        uploadForm = $("#form-vendor-upload").ajaxForm();
+                        uploadForm.submit();
+                    }
+                }
+            },
+            true, InitForm);
+    });
+
+</script>

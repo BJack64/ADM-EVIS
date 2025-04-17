@@ -1,0 +1,181 @@
+﻿@model User
+@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+
+ List<Role> listRole = eFakturADM.Logic.Collections.Roles.Get();
+
+ var listUserRole = UserRoles.GetByUserId(Model.UserId);
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Edit User Management" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">User Name</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="input-user-name" maxlength="128" value="@Model.UserName" readonly="readonly">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Email</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="input-user-email" maxlength="128" value="@Model.Email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Initial</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="input-user-initial" maxlength="20" value="@Model.UserInitial">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Roles</label>
+                <div class="col-md-8" style="padding: 10px 0px 0px 15px;">
+                    <div id="roleList" style="border:1px solid #eaeaea; max-height:150px; max-width: 300px; padding-left: 30px; overflow-y: scroll;">
+                        @for (int i = 0; i < listRole.Count; i++)
+                        {
+                            <label class="checkbox">
+                                @if (@listUserRole.Where(x => x.RoleId == listRole[i].RoleId).Any())
+                                {
+                                    <input type="checkbox" name="@listRole[i].RoleId" value="@listRole[i].RoleId" class="cbxrole" checked="checked" />
+                                    <label>
+                                        @listRole[i].Name
+                                    </label>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" name="@listRole[i].RoleId" value="@listRole[i].RoleId" class="cbxrole" />
+                                    <label>
+                                        @listRole[i].Name
+                                    </label>
+                                }
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    var RoleInfo = [];
+    var RoleDeleteInfo = [];
+
+    function InitForm() {
+
+    };
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 750, "auto", true,
+            {
+                Save: function() {
+                    $('.cbxrole:checked').each(function() {
+                        var _role = {};
+                        _role.RoleId = $(this).attr("name");
+                        RoleInfo.push(_role);
+                    });
+
+                    $('.cbxrole:not(:checked)').each(function() {
+                        var _deleteRole = {};
+                        _deleteRole.RoleId = $(this).attr("name");
+                        RoleDeleteInfo.push(_deleteRole);
+                    });
+
+                    var UserManagementInfo = {
+                        UserId: @Model.UserId,
+                        UserName: '@Model.UserName',
+                        Email: $("#input-user-email").val(),
+                        UserInitial: $('#input-user-initial').val(),
+                        Role: RoleInfo,
+                        DeleteRole: RoleDeleteInfo
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ValidationUserManagement", "Setting")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(UserManagementInfo),
+                        cache: false,
+                        success: function(data) {
+                            if (data.IsClose == "close") {
+                                BootstrapDialog.closeAll();
+                                App.RefreshTable("#tbl-usermanagement", "/Setting/ListUserManagement");
+                            }
+                            switch (data.Html.InfoType) {
+                            case 2:
+                                toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                break;
+                            }
+                            ;
+                            if (data.Html.InfoType == 1) {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    title: 'Save Confirmation',
+                                    message: 'Are you sure want to Save this data?',
+                                    buttons: [{
+                                            label: 'Yes',
+                                            cssClass: 'btn-danger btn-delay',
+                                            action: function(dialog) {
+                                                App.DelayButton();
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "@Url.Action("SaveUserManagement", "Setting")",
+                                                    dataType: "json",
+                                                    contentType: 'application/json; charset=utf-8',
+                                                    data: JSON.stringify(UserManagementInfo),
+                                                    cache: false,
+                                                    success: function(data) {
+                                                        switch (data.Html.InfoType) {
+                                                        case 0:
+                                                            toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 1:
+                                                            toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 2:
+                                                            toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            break;
+                                                        case 3:
+                                                            toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        }
+                                                        if (data.Html.InfoType == 1) {
+                                                            BootstrapDialog.closeAll();
+                                                            App.RefreshTable("#tbl-usermanagement", "/Setting/ListUserManagement");
+                                                        }
+                                                    },
+                                                    error: function(xhr, textStatus, errorThrown) {
+                                                        App.DialogError(xhr, textStatus, errorThrown);
+                                                    }
+                                                });
+                                            }
+                                        }, {
+                                            label: 'No',
+                                            cssClass: 'btn-danger',
+                                            action: function(dialog) {
+                                                dialog.close();
+                                            }
+                                        }]
+                                });
+                            }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            },
+            true, InitForm);
+    });
+
+</script>

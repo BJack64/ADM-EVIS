@@ -1,0 +1,31 @@
+﻿@model RequestResultModel
+
+@using eFakturADM.Web.Models
+
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+
+<!-- Dialog defenition -->
+<template type="text/template" id="@templateId" data-dialog-tittle="@Model.Title" data-dialog-spinner="spinner-@dialogId">
+    @{
+        string CSS = "";
+        switch (Model.InfoType)
+        {
+            case RequestResultInfoType.Information: CSS = "alert alert-info"; break;
+            case RequestResultInfoType.Success: CSS = "alert alert-success"; break;
+            case RequestResultInfoType.Warning: CSS = "alert alert-block"; break;
+            case RequestResultInfoType.ErrorOrDanger: CSS = "alert alert-danger"; break;
+        }
+    }
+    <br />
+    <div class="@CSS" style="text-align:center"><h3>@Model.Message</h3></div>
+</template>
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function(e){var dialog = App.DialogBootstrap("#@templateId", @Model.Width, @Model.Height, false,null);}, 500);
+        setTimeout(function(e){dialog.close() }, @Model.HideInSeconds);
+    });
+</script>

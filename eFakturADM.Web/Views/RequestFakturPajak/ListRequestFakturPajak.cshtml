@@ -1,0 +1,440 @@
+﻿@using eFakturADM.Web.Helpers
+@{
+    ViewBag.Title = "Request Detail Transaksi Faktur Pajak";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+    var yearList = new List<SelectListItem>();
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_sendrequest = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("14", _loginResult.RoleId[0]);
+    var check_sendrequest = roleActivities_sendrequest.Count != 0 ? true : false;
+    var roleActivities_sendrequestall = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("15", _loginResult.RoleId[0]);
+    var check_sendrequestall = roleActivities_sendrequestall.Count != 0 ? true : false;
+    var roleActivities_retry = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("16", _loginResult.RoleId[0]);
+    var check_retry = roleActivities_retry.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Request Detail Transaksi Faktur Pajak
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-nofaktur1" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-nofaktur2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tgl. Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglawal" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control datepicker" size="16" type="text" id="input-search-tglakhir" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak<span class="required"> *</span></label>
+                            <div class="col-md-9 w-sm">
+                                @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun</label>
+                            <div class="col-md-9 w-sm">
+                                @Html.DropDownList("listTahunPajak", yearList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="" style="text-align:right">
+                            <div class="m-t-xs">
+                                <button type="button" class="btn btn-success" id="btn-search">
+                                    Search
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn-reset">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                    <legend class="title-legend">List Data</legend>
+                </fieldset>
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                    <div class="table-scrollable">
+                        <table id="tbl-reqfakturpajak" class="table table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th width="10px" style="padding-left:12px"><input id="selectall" name="select_all" type="checkbox" /></th>
+                                    <th>
+                                        No Faktur
+                                    </th>
+                                    <th>
+                                        Scan URL
+                                    </th>
+                                    <th>
+                                        Tanggal Faktur
+                                    </th>
+                                    <th>
+                                        NPWP
+                                    </th>
+                                    <th>
+                                        Nama
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_sendrequest)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-send-request">
+                                    Send Request Baris Pertama
+                                </button>
+                            }
+                            @if (check_sendrequestall)
+                            {
+                                <button type="button" class="btn btn-success btn-sm" id="btn-send-request-all">
+                                    Send Request All
+                                </button>
+                            }
+                            @*
+                                    @if (check_retry)
+                                    {
+                                    <button type="button" class="btn btn-success btn-sm" id="btn-retry">
+                                    Retry
+                                </button>
+                                    }*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var NoFaktur1;
+    var NoFaktur2;
+    var TglFakturStart;
+    var TglFakturEnd;
+    var MasaPajak;
+    var TahunPajak;
+    var firstLoad;
+
+    var dataSelectedFakturPajak = [];
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        RequestFakturPajak.init();
+
+
+        $('#listMasaPajak').change(function () {
+            var selectedMonth = $('#listMasaPajak option:selected').val();
+            loadTahunPajak(selectedMonth);
+        });
+
+        //FirstLoad
+        var selectedMonth = $('#listMasaPajak option:selected').val();
+        loadTahunPajak(selectedMonth);
+
+        //$("#div-search input, #div-search select").keypress(function (e) {
+        //    if (e.keyCode == 13) {
+        //        NoFaktur1 = $("#input-search-nofaktur1").val();
+        //        NoFaktur2 = $("#input-search-nofaktur2").val();
+        //        TglFakturStart = $("#input-search-tglawal").val();
+        //        TglFakturEnd = $("#input-search-tglakhir").val();
+        //        MasaPajak = $("#listMasaPajak option:selected").val();
+        //        TahunPajak = $("#listTahunPajak option:selected").val();
+
+        //        var table = $('#tbl-reqfakturpajak').DataTable();
+        //        firstLoad = false;
+        //        table.ajax.reload();
+        //    }
+        //});
+
+        $("#btn-search").bind("click", function (e) {
+            NoFaktur1 = $("#input-search-nofaktur1").val();
+            NoFaktur2 = $("#input-search-nofaktur2").val();
+            TglFakturStart = $("#input-search-tglawal").val();
+            TglFakturEnd = $("#input-search-tglakhir").val();
+            MasaPajak = $("#listMasaPajak option:selected").val();
+            TahunPajak = $("#listTahunPajak option:selected").val();
+
+            var table = $('#tbl-reqfakturpajak').DataTable();
+            firstLoad = false;
+            table.ajax.reload();
+        });
+
+        $("#btn-reset").bind("click", function (e) {
+            $("#input-search-nofaktur1").val('');
+            $("#input-search-nofaktur2").val('');
+            $("#input-search-tglawal").val('');
+            $("#input-search-tglakhir").val('');
+            //App.InitDatePicker();
+            $("#listMasaPajak").val(0);
+            $("#listTahunPajak").val(0);
+
+            NoFaktur1 = $("#input-search-nofaktur1").val();
+            NoFaktur2 = $("#input-search-nofaktur2").val();
+            TglFakturStart = $("#input-search-tglawal").val();
+            TglFakturEnd = $("#input-search-tglakhir").val();
+            MasaPajak = $("#listMasaPajak option:selected").val();
+            TahunPajak = $("#listTahunPajak option:selected").val();
+            var table = $('#tbl-reqfakturpajak').DataTable();
+            firstLoad = true;
+            //table.search('').draw();
+            table.ajax.reload();
+        });
+
+        $("#btn-send-request").bind("click", function (e) {
+            sendReq(false);
+        });
+
+        $("#btn-send-request-all").bind("click", function (e) {
+            sendReq(true);
+        });
+
+        $("#btn-retry").bind("click", function (e) {
+
+        });
+
+        function sendReq(uData) {
+            if ($(".checkbox:checked").length == 0) {
+                toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            }
+            else {
+                $('#tbl-reqfakturpajak').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var fpId = $(this).find('.checkbox').val();
+                        var fillingIndex = $(this).find('.checkbox').attr("data-fillingindex");
+
+                        var _detail = {};
+                        _detail.FakturPajakId = fpId;
+                        _detail.FillingIndex = fillingIndex;
+
+                        if (fpId != undefined) {
+                            dataSelectedFakturPajak.push(_detail);
+                        }
+
+                    }
+                });
+
+                BootstrapDialog.show({
+                    type: BootstrapDialog.TYPE_DANGER,
+                    title: 'Send Request Confirmation',
+                    message: 'Apakah anda yakin akan Request Detail Transaksi ini?',
+                    buttons: [{
+                        label: 'Ya',
+                        cssClass: 'btn-danger btn-delay',
+                        action: function (dialog) {
+                            var oData = JSON.stringify({ fakturPajakIds: dataSelectedFakturPajak, isAllDetail: uData });
+                            hitSendRequest(oData, dialog);
+                        }
+                    }, {
+                        label: 'Tidak',
+                        cssClass: 'btn-danger',
+                        action: function (dialog) {
+                            dialog.close();
+                        }
+                    }]
+                });
+            }
+        }
+
+        function hitSendRequest(oData, dialog) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("SendRequestFakturPajak", "RequestFakturPajak")",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: oData,
+                cache: false,
+                success: function (response) {
+                    switch (response.Html.InfoType) {
+                        case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    };
+                    if (response.Html.InfoType == 1) {
+                        dataSelectedFakturPajak = [];
+                        $("#btn-search").click();
+                    }
+                    dialog.close();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    App.DialogError(xhr, textStatus, errorThrown);
+                }
+            });
+        }
+    });
+
+    var RequestFakturPajak = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                var table = $('#tbl-reqfakturpajak');
+
+                NoFaktur1 = $("#input-search-nofaktur1").val();
+                NoFaktur2 = $("#input-search-nofaktur2").val();
+                TglFakturStart = $("#input-search-tglawal").val();
+                TglFakturEnd = $("#input-search-tglakhir").val();
+                MasaPajak = $("#listMasaPajak option:selected").val();
+                TahunPajak = $("#listTahunPajak option:selected").val();
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("GetListRequestFakturPajakDataTable", "RequestFakturPajak")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "NoFaktur1", "value": NoFaktur1 },
+                            { "name": "NoFaktur2", "value": NoFaktur2 },
+                            { "name": "TglFakturStart", "value": TglFakturStart },
+                            { "name": "TglFakturEnd", "value": TglFakturEnd },
+                            { "name": "MasaPajak", "value": MasaPajak },
+                            { "name": "TahunPajak", "value": TahunPajak }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "FakturPajakId",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input type="checkbox" name="checkbox" class="checkbox" data-fillingindex="' + row.FillingIndex + '" value="' + row.FakturPajakId + '">';
+                            }
+                        },
+                        { "data": "FormatedNoFaktur", "width": 150, "orderable": true, "searchable": true },
+                        {
+                            "data": "UrlScan",
+                            "orderable": true,
+                            "render": function (data, type, full, meta) {
+                                return '<div class="expander" style="display: inline-block">' + data + '</div>';
+                            }
+                        },
+                        { "data": "TglFakturString", "orderable": true, "searchable": true },
+                        { "data": "FormatedNpwpPenjual", "width": 150, "orderable": true, "searchable": true },
+                        { "data": "NamaPenjual", "width": 150, "orderable": true, "searchable": true },
+                        { "data": "StatusFaktur", "width": 150, "orderable": true, "searchable": true }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+                $('#tbl-reqfakturpajak tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    //Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // Handle click on table cells with checkboxes
+                $('#tbl-reqfakturpajak tbody').on('click', 'tbody td, thead th:first-child', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-reqfakturpajak').DataTable();
+                // Handle click on "Select all" control
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-reqfakturpajak tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-reqfakturpajak tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-reqfakturpajak').on('draw.dt', function () {
+                    App.InitExpander(50);
+                });
+
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+    function loadTahunPajak(aMonth) {
+        $('#listTahunPajak option').remove();
+        var jsonData = JSON.stringify({ masaPajak: aMonth });
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetOpenTahunPajakByMasaPajak", "Master")",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            data: jsonData,
+            cache: false,
+            success: function (response) {
+
+                if (response.aaData.length > 0) {
+                    var htmlSelect = '<option value=""></option>';
+                    for (var i = 0; i < response.aaData.length; i++) {
+                        htmlSelect = htmlSelect + '<option value="' + response.aaData[i].Year + '">' + response.aaData[i].Year + '</option>';
+                    }
+                    $('#listTahunPajak').append(htmlSelect);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                App.DialogError(xhr, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+</script>

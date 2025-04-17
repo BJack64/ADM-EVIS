@@ -1,0 +1,88 @@
+﻿using System.Reflection;
+using eFakturADM.Shared.Utility;
+using eFakturADM.Web.Controllers;
+using log4net;
+using log4net.Config;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Optimization;
+using System.Web.Routing;
+
+namespace eFakturADM.Web
+{
+    // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
+    // visit http://go.microsoft.com/?LinkId=9394801
+
+    public class MvcApplication : System.Web.HttpApplication
+    {
+        
+        protected void Application_Start()
+        {
+            log4net.Config.XmlConfigurator.Configure();
+
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            AreaRegistration.RegisterAllAreas();
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+        
+        protected void Application_Error()
+        {
+            var exception = Server.GetLastError();
+            var httpException = exception as HttpException;
+
+            string Message = exception.Message;
+            string Details = String.Format("Source: {0}\r\nStackTrace: {1}", exception.Source, exception.StackTrace);
+
+            if (exception.InnerException != null)
+            {
+                Message += " " + exception.InnerException.Message;
+                Details += String.Format("\r\nSource: {0}\r\nStackTrace: {1}", exception.InnerException.Source, exception.InnerException.StackTrace);
+            }
+
+            //log.Fatal(Message, exception);
+            if (!Message.Contains("arterySignalR/ping"))
+            {
+                var msgToLog = Message + Environment.NewLine + Details;
+                string logKey;
+                Logger.WriteSpecificLog(out logKey, "Unhandle Exception", LogLevel.Fatal, msgToLog, MethodBase.GetCurrentMethod(), exception);    
+            }
+
+            Response.Clear();
+            Server.ClearError();
+
+            var routeData = new RouteData();
+            routeData.Values["controller"] = "Errors";
+            routeData.Values["action"] = "General";
+            routeData.Values["exception"] = exception;
+            Response.StatusCode = 500;
+
+            if (httpException != null)
+            {
+                Response.StatusCode = httpException.GetHttpCode();
+                switch (Response.StatusCode)
+                {
+                    case 403:
+                        routeData.Values["action"] = "Http403";
+                        break;
+                    case 404:
+                        routeData.Values["action"] = "Http404";
+                        break;
+                }
+            }
+
+            Response.TrySkipIisCustomErrors = true;
+
+            IController errorsController = new ErrorsController();
+            var rc = new RequestContext(new HttpContextWrapper(Context), routeData);
+            errorsController.Execute(rc);
+
+            //System.Web.HttpContext.Current.ApplicationInstance.CompleteRequest();
+            //Server.ClearError();
+
+        }
+    }
+}

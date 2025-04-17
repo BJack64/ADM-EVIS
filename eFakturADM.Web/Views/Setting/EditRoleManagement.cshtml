@@ -1,0 +1,183 @@
+﻿@model Role
+@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+
+ List<Module> listModule = Modules.GetForRoleMenu();
+
+ List<Activity> listActivity = Activities.Get();
+
+ var listRoleActivity = RoleActivities.GetByRoleId(Model.RoleId);
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Edit Role Management" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Role Name<span class="required"> *</span></label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="input-role-name" maxlength="128" value="@Model.Name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Priviledges</label>
+                <div class="col-md-9" style="max-height:500px; overflow-y:scroll">
+                    <table id="tbl_priviledges" class="table table-striped table-hover table-blue">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Module
+                                </th>
+                                <th>
+                                    Activity
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Module module in listModule)
+                            {
+                                <tr>
+                                    <td style="padding:10px;">
+                                        @module.Name
+                                    </td>
+                                    <td style="padding:5px 10px 5px 10px">
+                                        @foreach (var activity in listActivity.Where(x => x.ModuleId == @module.ModuleId))
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                @if (@listRoleActivity.Where(x => x.ActivityId == activity.ActivityId).Any())
+                                                {
+                                                    <input type="checkbox" name="@activity.ActivityId" class="checkbox cbxw18" id="@activity.ActivityName" style="float:left" checked="checked" />
+                                                    <label style="float:left; padding: 3px 0 0 5px;">@activity.ActivityName</label>
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="@activity.ActivityId" class="checkbox cbxw18" id="@activity.ActivityName" style="float:left" />
+                                                    <label style="float:left; padding: 3px 0 0 5px;">@activity.ActivityName</label>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    function InitForm() {
+
+    };
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 1024, "auto", true,
+            {
+                Save: function() {
+                    var activityInfo = [];
+                    $('.checkbox:checked').each(function() {
+                        var _activity = {};
+                        _activity.ActivityID = $(this).attr("name");
+                        _activity.ActivityName = $(this).attr("name");
+                        activityInfo.push(_activity);
+                    });
+
+                    var activityDeleteInfo = [];
+                    $('.checkbox:not(:checked)').each(function() {
+                        var _delete = {};
+                        _delete.ActivityID = $(this).attr("name");
+                        activityDeleteInfo.push(_delete);
+                    });
+
+                    var RoleManagementInfo = {
+                        Activity: activityInfo,
+                        RoleID: @Model.RoleId,
+                        RoleName: $("#input-role-name").val(),
+                        Delete: activityDeleteInfo
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ValidationRoleManagement", "Setting")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(RoleManagementInfo),
+                        cache: false,
+                        success: function(data) {
+                            if (data.IsClose == "close") {
+                                BootstrapDialog.closeAll();
+                                App.RefreshTable("#tbl-rolemanagement", "/Setting/ListRoleManagement");
+                            }
+                            switch (data.Html.InfoType) {
+                                case 2:
+                                    toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                    break;
+                            }
+                            ;
+                            if (data.Html.InfoType == 1) {
+                                BootstrapDialog.show({
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    title: 'Save Confirmation',
+                                    message: 'Are you sure want to Save this data?',
+                                    buttons: [{
+                                        label: 'Yes',
+                                        cssClass: 'btn-danger btn-delay',
+                                        action: function(dialog) {
+                                            App.DelayButton();
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "@Url.Action("SaveRoleManagement", "Setting")",
+                                                dataType: "json",
+                                                contentType: 'application/json; charset=utf-8',
+                                                data: JSON.stringify(RoleManagementInfo),
+                                                cache: false,
+                                                success: function(response) {
+                                                    switch (response.Html.InfoType) {
+                                                        case 0:
+                                                            toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 1:
+                                                            toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                        case 2:
+                                                            toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            break;
+                                                        case 3:
+                                                            toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                            dialog.close();
+                                                            break;
+                                                    }
+                                                    if (response.Html.InfoType == 1) {
+                                                        BootstrapDialog.closeAll();
+                                                        App.RefreshTable("#tbl-rolemanagement", "/Setting/ListRoleManagement");
+                                                    }
+                                                },
+                                                error: function(xhr, textStatus, errorThrown) {
+                                                    App.DialogError(xhr, textStatus, errorThrown);
+                                                }
+                                            });
+                                        }
+                                    }, {
+                                        label: 'No',
+                                        cssClass: 'btn-danger',
+                                        action: function(dialog) {
+                                            dialog.close();
+                                        }
+                                    }]
+                                });
+                            }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            },
+            true, InitForm);
+    });
+</script>

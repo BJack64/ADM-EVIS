@@ -1,0 +1,88 @@
+﻿@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Upload" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" role="form" enctype="multipart/form-data" id="form-fpdigantioutstanding-upload" method="post">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Browse File<span class="required"> *</span></label>
+                <div class="col-md-9">
+                    <input type="file" name="file-fpdigantioutstanding-upload" title="Browse" accept=".xls, .xlsx" class="file-input upload"
+                           id="file-fpdigantioutstanding-upload" style="margin-top:7px">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">&nbsp;</label>
+                <div class="col-md-9" id="err-validasi-div">
+
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    var uploadForm;
+    function InitForm() {
+        App.PreventDoubleSubmit();
+        uploadForm = $("#form-fpdigantioutstanding-upload").ajaxForm();
+
+        uploadForm.submit(function () {
+            //validate file extension
+            var fileName = $('#file-fpdigantioutstanding-upload').val();
+            var fileExt = fileName.split(".");
+            if (fileExt[fileExt.length - 1] == "xls" || fileExt[fileExt.length - 1] == "xlsx")
+            // submit the form
+                $(this).ajaxSubmit(options);            
+            else
+                toastr.warning("Please upload .xls or .xlsx files only.", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            // return false to prevent normal browser submit and page navigation
+            return false;
+        });
+    };
+    
+    var options = {
+        iframe: true,
+        dataType: "json",
+        data: { sEcho: "echo-upload-fpdigantioutstanding" },
+        cache: false,
+        url: "@Url.Action("ProcessUpload", "FpDigantiOutstanding")",
+        success: function (response) {
+        if (response.Html.InfoType == 1) {
+            //success
+            toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            App.RefreshTable("#tbl-fpdigantioutstanding", "/Master/ListVendor");
+            BootstrapDialog.closeAll();
+        } else {
+            //failed
+            if (response.Html.InfoType == 4) {
+                //Error with file download
+                $('#err-validasi-div').html('');
+                toastr.warning("Error Validation, please see attachment.", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                $('#err-validasi-div').append(response.Html.Message);
+            } else {
+                toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            }
+        }
+    },
+    error: function () {
+        toastr.warning("Upload failed, please try again", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+    }
+    };
+
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 600, "auto", true,
+            {
+                Save: function () {
+                    if ($("#file-fpdigantioutstanding-upload").val() != "") {
+                        uploadForm = $("#form-fpdigantioutstanding-upload").ajaxForm();
+                        uploadForm.submit();
+                    }
+                }
+            },
+            true, InitForm);
+    });
+    
+</script>

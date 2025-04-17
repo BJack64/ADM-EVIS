@@ -1,0 +1,62 @@
+﻿using System;
+using System.Data;
+using eFakturADM.Logic.Core;
+using eFakturADM.Logic.Utilities;
+
+namespace eFakturADM.Logic.Objects
+{
+    public partial class Vendor
+    {
+        public int TotalItems { get; set; }
+        public string TglPkpDicabutString { get; set; }
+    }
+
+    public partial class Vendor
+    {
+        public int VendorId { get; set; }
+        public string NPWP { get; set; }
+        public string JenisNPWP { get; set; }
+        public string Nama { get; set; }
+        public string Alamat { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Modified { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
+        public bool PkpDicabut { get; set; }
+        public DateTime? TglPkpDicabut { get; set; }
+        public string KeteranganTambahan { get; set; }
+        public string FormatedNpwp { get; set; }
+    }
+
+    public partial class Vendor : ApplicationObject, IApplicationObject
+    {
+        public bool Load(IDataReader dr)
+        {
+            IsValid = false;
+            VendorId = DBUtil.GetIntField(dr, "VendorId");
+            NPWP = DBUtil.GetCharField(dr, "NPWP");
+            JenisNPWP = DBUtil.GetCharField(dr, "JenisNPWP");
+            Nama = DBUtil.GetCharField(dr, "Nama");
+            Alamat = DBUtil.GetCharField(dr, "Alamat");
+
+            IsDeleted = DBUtil.GetBoolField(dr, "IsDeleted");
+            Created = DBUtil.GetDateTimeField(dr, "Created");
+            Modified = DBUtil.GetDateTimeNullField(dr, "Modified");
+            CreatedBy = DBUtil.GetCharField(dr, "CreatedBy");
+            ModifiedBy = DBUtil.GetCharField(dr, "ModifiedBy");
+
+            TotalItems = DBUtil.GetIntField(dr, "TotalItems");
+
+            FormatedNpwp = DBUtil.GetCharField(dr, "FormatedNpwp");
+
+            PkpDicabut = DBUtil.GetBoolField(dr, "PkpDicabut");
+            TglPkpDicabut = DBUtil.GetDateTimeNullField(dr, "TglPkpDicabut");
+            KeteranganTambahan = DBUtil.GetCharField(dr, "KeteranganTambahan");
+            TglPkpDicabutString = ConvertHelper.DateTimeConverter.ToShortDateString(TglPkpDicabut, "dd/MM/yyyy");
+
+            IsValid = true;
+            return IsValid;
+        }
+    }
+}

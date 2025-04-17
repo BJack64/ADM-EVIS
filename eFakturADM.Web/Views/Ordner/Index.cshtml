@@ -1,0 +1,508 @@
+﻿@{
+    ViewBag.Title = "Create Ordner";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<SelectListItem> listStatusApproval = new List<SelectListItem>();
+    listStatusApproval.Add(new SelectListItem { Text = "", Value = "", Selected = true });
+    listStatusApproval.Add(new SelectListItem { Text = "Approve", Value = "Approve" });
+    listStatusApproval.Add(new SelectListItem { Text = "Belum Approve", Value = "Belum Approve" });
+    listStatusApproval.Add(new SelectListItem { Text = "Reject", Value = "Reject" });
+
+    int monthNow = DateTime.Now.Month;
+
+    List<SelectListItem> listMasaPajak = new List<SelectListItem>();
+    listMasaPajak.Add(new SelectListItem { Text = "", Value = "", Selected = monthNow == 1 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Januari", Value = "1", Selected = monthNow == 1 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Februari", Value = "2", Selected = monthNow == 2 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Maret", Value = "3", Selected = monthNow == 3 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "April", Value = "4", Selected = monthNow == 4 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Mei", Value = "5", Selected = monthNow == 5 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Juni", Value = "6", Selected = monthNow == 6 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Juli", Value = "7", Selected = monthNow == 7 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Agustus", Value = "8", Selected = monthNow == 8 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "September", Value = "9", Selected = monthNow == 9 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Oktober", Value = "10", Selected = monthNow == 10 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "November", Value = "11", Selected = monthNow == 11 ? true : false });
+    listMasaPajak.Add(new SelectListItem { Text = "Desember", Value = "12", Selected = monthNow == 12 ? true : false });
+
+
+    int yearNow = DateTime.Now.Year;
+    List<SelectListItem> listTahunPajak = new List<SelectListItem>();
+    listTahunPajak.Add(new SelectListItem { Text = "", Value = "", Selected = false });
+    for (int i = yearNow - 2; i < yearNow + 2; i++)
+    {
+        listTahunPajak.Add(new SelectListItem { Text = i.ToString(), Value = i.ToString(), Selected = i == yearNow ? true : false });
+    }
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Create Ordner
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea">
+                <div class="form-group padder row">
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control form-control-inline" id="input-search-noreturstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control form-control-inline w-sm" id="input-search-noreturend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">NPWP Vendor</label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="input-search-npwpvendor" />
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="input-search-namavendor" />
+                            </div>
+                            <div class="col-md-2" style="padding-left:0">
+                                <button type="button" class="btn btn-success" id="btn-search-browsevendor">
+                                    ...
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Status</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("listStatusApproval", listStatusApproval as List<SelectListItem>, new { @class = "form-control w-sm" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tanggal Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-tglfakturstart" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-tglfakturend" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listMasaPajak", listMasaPajak as List<SelectListItem>, new { @class = "form-control w-sm" })
+                                    </div>
+                                    <div class="input-group w-sm">
+                                        @Html.DropDownList("listTahunPajak", listTahunPajak as List<SelectListItem>, new { @class = "form-control w-sm" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">PIC Entry</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" style="padding:0" id="input-search-picentry" />
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:table; margin:auto">
+                            <div class="">
+                                <div class="m-t-md">
+                                    <button type="button" class="btn btn-success" id="btn-search">
+                                        Search
+                                    </button>
+                                    <button type="button" class="btn btn-default" id="btn-reset">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" style="padding:5px">
+                <div class="">
+                    <button type="button" class="btn btn-success" id="btn-detail">
+                        Detail
+                    </button>
+                </div>
+            </div>
+            <div class="form-group row">
+                <table id="tbl-ordner" class="table table-hover table-blue">
+                    <thead>
+                        <tr>
+                            <th width="10px" style="padding-left:12px"><input id="selectall" name="select_all" type="checkbox" /></th>
+                            <th>
+                                NPWP Vendor
+                            </th>
+                            <th>
+                                Nama Vendor
+                            </th>
+                            <th>
+                                Nomor Faktur
+                            </th>
+                            <th>
+                                Tanggal Faktur
+                            </th>
+                            <th>
+                                Masa Pajak (Bulan)
+                            </th>
+                            <th>
+                                Masa Pajak (Tahun)
+                            </th>
+                            <th>
+                                DPP
+                            </th>
+                            <th>
+                                PPN
+                            </th>
+                            <th>
+                                PPnBM
+                            </th>
+                            <th>
+                                Tanggal Approval
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                PIC Entry
+                            </th>
+                            <th>
+                                Filling Index
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="form-group row" style="display:table; margin:auto">
+                <div class="">
+                    <button type="button" class="btn btn-success btn-sm" id="btn-create">
+                        Create Ordner
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var noFakturStart;
+    var noFakturEnd;
+    var npwpVendor;
+    var namaVendor;
+    var status;
+    var tglFakturStart;
+    var tglFakturEnd;
+    var bulanPajak;
+    var tahunPajak;
+    var pic;
+
+    var dataSelectedCrew = [];
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        Ordner.init();
+
+        var initSelect2Pic = new InitSelect2PicEntry();
+        initSelect2Pic.init();
+
+        $("#btn-search").bind("click", function (e) {
+            ReloadTable();
+        });
+
+        $("#btn-reset").bind("click", function (e) {
+            //reset
+            var dtnow = new Date();
+            var monthNow = dtnow.getMonth() + 1;
+            var yearNow = dtnow.getFullYear();
+
+            $("#input-search-noreturstart").val('');
+            $("#input-search-noreturend").val('');
+            $("#input-search-npwpvendor").val('');
+            $("#input-search-namavendor").val('');
+            $("#listStatusApproval").val('');
+            $("#input-search-tglfakturstart").datepicker('setDate', new Date());
+            $("#input-search-tglfakturend").datepicker('setDate', new Date());
+            $("#listMasaPajak").val(monthNow);
+            $("#listTahunPajak").val(yearNow);
+            $("#input-search-picentry").val('');
+            $("#input-search-picentry").val('');
+
+            $('#selectall').parent().removeClass("checked");
+            $('#selectall').removeAttr("checked");
+
+            ReloadTable();
+        });
+
+        $("#btn-create").bind("click", function (e) {
+            if ($(".checkbox:checked").length == 0) {
+                toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+            }
+            else {
+                $('#tbl-ordner').find('tr').each(function () {
+                    var row = $(this);
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        var fpId = $(this).find('.checkbox').val();
+                        var fillingIndex = $(this).find('.checkbox').attr("data-fillingindex");
+
+                        var _detail = {};
+                        _detail.FakturPajakId = fpId;
+                        _detail.FillingIndex = fillingIndex;
+
+                        if (fpId != undefined) {
+                            dataSelectedCrew.push(_detail);
+                        }
+
+                    }
+                });
+
+                if (dataSelectedCrew.length > 0) {
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Submit Confirmation',
+                        message: 'Apakah Anda yakin untuk submit data ini?',
+                        buttons: [{
+                            label: 'Ya',
+                            cssClass: 'btn-danger btn-delay',
+                            action: function (dialog) {
+                                var oData = JSON.stringify({ ListFakturPajakId: dataSelectedCrew });
+                                hitCreateOrdner(oData, dialog);
+                            }
+                        }, {
+                            label: 'Tidak',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                }
+
+            }
+        });
+
+        function hitCreateOrdner(oData, dialog) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("CreateOrdner", "Ordner")",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: oData,
+                cache: false,
+                success: function (response) {
+                    switch (response.Html.InfoType) {
+                        case 0: toastr.info(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 1: toastr.success(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 2: toastr.warning(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        case 3: toastr.error(response.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                    };
+                    if (response.Html.InfoType == 1) {
+                        dataSelectedCrew = [];
+                        ReloadTable();
+                    }
+                    dialog.close();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    App.DialogError(xhr, textStatus, errorThrown);
+                }
+            });
+        }
+
+        $("#btn-search-browsevendor").bind("click", function (e) {
+            App.DialogGet("/Master/BrowseVendorDialog", e, {
+                AccessFrom: "Search"
+            });
+        });
+
+    });
+
+    var InitSelect2PicEntry = function () {
+        return {
+            init: function () {
+                //select 2 PicEntry
+                $("#input-search-picentry").select2({
+                    placeholder: "Type to find a PIC Entry",
+                    allowClear: true,
+                    minimumInputLength: 1,
+                    ajax: {
+                        cache: false,
+                        dataType: "json",
+                        type: "GET",
+                        quietMillis: 100,
+                        url: "@Url.Action("FecthListUser", "Master")",
+                        data: function (searchTerm) {
+                            return {
+                                query: searchTerm
+                            };
+                        },
+                        results: function (data) {
+                            return { results: data };
+                        }
+                    },
+                    id: function (data) {
+                        return data.UserName;
+                    },
+                    multiple: false,
+                    formatResult: contractFormatResultUser,
+                    formatSelection: contractFormatSelectiontUser,
+                    initSelection: function (element, callback) {
+                        callback(null);
+                    },
+                    escapeMarkup: function (m) { return m; }
+                }).select2('val', []);
+
+                function contractFormatResultUser(data) {
+                    var markup = data.UserName;
+                    return markup;
+                }
+
+                function contractFormatSelectiontUser(data) {
+                    var result = data.UserName;
+                    return result;
+                }
+            }
+        };
+    };
+
+    var Ordner = function () {
+        return {
+            initTable: function () {
+                noFakturStart = $("#input-search-noreturstart").val();
+                noFakturEnd = $("#input-search-noreturend").val();
+                npwpVendor = $("#input-search-npwpvendor").val();
+                namaVendor = $("#input-search-namavendor").val();
+                status = $("#listStatusApproval option:selected").val();
+                tglFakturStart = $("#input-search-tglfakturstart").val();
+                tglFakturEnd = $("#input-search-tglfakturend").val();
+                bulanPajak = $("#listMasaPajak option:selected").val();
+                tahunPajak = $("#listTahunPajak option:selected").val();
+                pic = $("#input-search-picentry").val();
+
+                var table = $('#tbl-ordner');
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-6'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": false,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("GetListOrdnerDataTable", "Ordner")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "NoFakturStart", "value": noFakturStart },
+                            { "name": "NoFakturEnd", "value": noFakturEnd },
+                            { "name": "NPWPVendor", "value": npwpVendor },
+                            { "name": "NamaVendor", "value": namaVendor },
+                            { "name": "Status", "value": status },
+                            { "name": "TglFakturStart", "value": tglFakturStart },
+                            { "name": "TglFakturEnd", "value": tglFakturEnd },
+                            { "name": "BulanPajak", "value": bulanPajak },
+                            { "name": "TahunPajak", "value": tahunPajak },
+                            { "name": "PIC", "value": pic }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "FakturPajakId",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input type="checkbox" name="checkbox" class="checkbox" data-fillingindex="' + row.FillingIndex + '" value="' + row.FakturPajakId + '">';
+                            }
+                        },
+                        { "data": "NPWPLawanTransaksi", "orderable": true, "searchable": true },
+                        { "data": "NamaLawanTransaksi", "orderable": true, "searchable": true },
+                        { "data": "NoFakturPajak", "orderable": true, "searchable": true },
+                        { "data": "TglFakturString", "orderable": true, "searchable": true },
+                        { "data": "MasaPajak", "orderable": true, "searchable": true },
+                        { "data": "TahunPajak", "orderable": true, "searchable": true },
+                        { "data": "DPPString", "orderable": true, "searchable": true },
+                        { "data": "PPNString", "orderable": true, "searchable": true },
+                        { "data": "PPNBMString", "orderable": true, "searchable": true },
+                        { "data": "ReceivingDateString", "orderable": true, "searchable": true },
+                        { "data": "StatusApproval", "orderable": true, "searchable": true },
+                        { "data": "CreatedBy", "orderable": true, "searchable": true },
+                        { "data": "FillingIndex", "orderable": true, "searchable": true }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+                $('#tbl-ordner tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    //Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // Handle click on table cells with checkboxes
+                $('#tbl-ordner').on('click', 'tbody td, thead th:first-child', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-ordner').DataTable();
+                // Handle click on "Select all" control
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-ordner tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-ordner tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+            },
+
+            initHandlers: function () {
+                $('#tbl-ordner').on('draw.dt', function () {
+                    App.InitExpander(50);
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+    function ReloadTable() {
+        noFakturStart = $("#input-search-noreturstart").val();
+        noFakturEnd = $("#input-search-noreturend").val();
+        npwpVendor = $("#input-search-npwpvendor").val();
+        namaVendor = $("#input-search-namavendor").val();
+        status = $("#listStatusApproval option:selected").val();
+        tglFakturStart = $("#input-search-tglfakturstart").val();
+        tglFakturEnd = $("#input-search-tglfakturend").val();
+        bulanPajak = $("#listMasaPajak option:selected").val();
+        tahunPajak = $("#listTahunPajak option:selected").val();
+        pic = $("#input-search-picentry").val();
+
+        var table = $('#tbl-ordner').DataTable();
+        table.ajax.reload();
+    }
+
+</script>

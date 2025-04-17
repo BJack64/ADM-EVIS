@@ -1,0 +1,189 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "Vendor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_add = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("48", _loginResult.RoleId[0]);
+    var check_add = roleActivities_add.Count != 0 ? true : false;
+    var roleActivities_upload = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("49", _loginResult.RoleId[0]);
+    var check_upload = roleActivities_upload.Count != 0 ? true : false;
+    var roleActivities_edit = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("50", _loginResult.RoleId[0]);
+    var check_edit = roleActivities_edit.Count != 0 ? true : false;
+    var roleActivities_delete = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("51", _loginResult.RoleId[0]);
+    var check_delete = roleActivities_delete.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Vendor
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <table id="tbl-vendor" class="table table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th>
+                            NPWP
+                        </th>
+                        <th>
+                            Nama
+                        </th>
+                        <th>
+                            Alamat
+                        </th>
+                        <th style="width: 140px; min-width:140px;">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        Vendor.init();
+
+    });
+
+    var Vendor = function () {
+
+        return {
+            initTable: function () {
+                var table = $('#tbl-vendor');
+
+                table.dataTable({
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": false,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("ListVendor","Master")',
+                    "columns": [
+                        { "data": "FormatedNpwp", "orderable": true, "searchable": true },
+                        { "data": "Nama", "orderable": true, "searchable": true },
+                        { "data": "Alamat", "orderable": true, "searchable": true },
+                        {
+                            "data": "VendorId",
+                            "orderable": false,
+                            "searchable": false,
+                            "class": "text-center",
+                            "render": function (data, type, full, meta) {
+                                if ('@check_edit.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default vendor-edit" data-vendor-id="' + data + '">Modify</button>' +
+                                    '<button type="button" class="btn btn-sm btn-danger vendor-delete" data-vendor-id="' + data + '">Delete</button></div>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'false') {
+                                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default vendor-edit" data-vendor-id="' + data + '">Modify</button>';
+                                }
+                                else if ('@check_edit.ToString().ToLower()' == 'false' && '@check_delete.ToString().ToLower()' == 'true') {
+                                    return '<button type="button" class="btn btn-sm btn-danger vendor-delete" data-vendor-id="' + data + '">Delete</button></div>';
+                                }
+                                else {
+                                    return '';
+                                }
+                            }
+                        }
+                    ],
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6 btncollection'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "sPaginationType": "simple_numbers"
+                });
+
+                if ('@check_add.ToString().ToLower()' == 'true' && '@check_upload.ToString().ToLower()' == 'true') {
+                    $(".btncollection").html('<a class="btn green-meadow btn-sm m-t-sm vendor-add" id="add-vendor">Add New </a>&nbsp;&nbsp;<a class="btn green-meadow btn-sm m-t-sm vendor-upload" id="upload-vendor">Upload</a>');
+                }
+                else if ('@check_add.ToString().ToLower()' == 'true' && '@check_upload.ToString().ToLower()' == 'false') {
+                    $(".btncollection").html('<a class="btn green-meadow btn-sm m-t-sm vendor-add" id="add-vendor">Add New </a>');
+                }
+                else if ('@check_add.ToString().ToLower()' == 'false' && '@check_upload.ToString().ToLower()' == 'true') {
+                    $(".btncollection").html('<a class="btn green-meadow btn-sm m-t-sm vendor-upload" id="upload-vendor">Upload</a>');
+                }
+
+            },
+
+            initHandlers: function () {
+                _this = this;
+                $("body").on("click", ".vendor-add", function (e) { App.DialogGet("../Master/GetAddVendorDialog", e); });
+                $("body").on("click", ".vendor-upload", function (e) {
+                    App.DialogGet("../Master/UploadVendor", e);
+                });
+                $("body").on("click", ".vendor-edit", function (e) { App.DialogGet("../Master/GetEditVendorDialog", e, { VendorId: parseInt($(this).attr("data-vendor-id")) }); });
+                $("body").on("click", ".vendor-delete", function (e) {
+
+                    var vendorId = parseInt($(this).attr("data-vendor-id"));
+
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Delete Confirmation',
+                        message: 'Are you sure to delete data?',
+                        buttons: [{
+                            label: 'Delete',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "../Master/RemoveVendor",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify({ VendorId: vendorId }),
+                                    cache: false,
+                                    success: function (data) {
+                                        switch (data.Html.InfoType) {
+                                            case 0:
+                                                toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                            case 1:
+                                                toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                            case 2:
+                                                toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                break;
+                                            case 3:
+                                                toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                                                dialog.close();
+                                                break;
+                                        }
+                                        ;
+                                        alert("ZZZZZZZZZZZZZZZZZZ2");
+
+                                        App.RefreshTable("#tbl-vendor", "/Master/ListVendor");
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'Cancel',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+</script>

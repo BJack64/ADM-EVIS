@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://idepbpn-uapoa01:8011/PIR_QueryService/Proxy_Service/PIRServiceProxy?SCHEMA%2FPIR_QueryService%2FWSDL%2FXMLSchema_1606292474" namespace="http://schemas.datacontract.org/2004/07/PIRService" />
+  <xs:element name="GetDataByGGI">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GGI" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataByGGIResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PIRService" minOccurs="0" name="GetDataByGGIResult" nillable="true" type="q1:EmployeeInformation" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataByField">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="where" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="orderBy" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataByFieldResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PIRService" minOccurs="0" name="GetDataByFieldResult" nillable="true" type="q2:ArrayOfEmployeeInformation" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAllEntity">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAllEntityResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/PIRService" minOccurs="0" name="GetAllEntityResult" nillable="true" type="q3:ArrayOfOrganization" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

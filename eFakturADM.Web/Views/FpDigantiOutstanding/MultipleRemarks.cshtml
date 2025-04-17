@@ -1,0 +1,59 @@
+﻿@using eFakturADM.Web.Helpers
+
+@model eFakturADM.Web.Models.FpDigantiOutstandingModel
+@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+    var dialogId = templateId.Replace("-view-", "-");
+    var contentId = templateId.Replace("-view-", "-content-");
+    var remarkList = GlobalFunctionHelper.GetFpdoRemarkList(false, "");
+}
+<script type="text/template" id="@templateId" data-dialog-tittle="Input Notes" data-dialog-spinner="spinner-@dialogId">
+    <div id="notify-message"></div>
+    <form class="form-horizontal" id="form-evisvsiws-inputreason" role="form">
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-12">
+                    Remark :
+                </div>
+                <div class="col-md-12">
+                    @Html.DropDownList("lst-remark", remarkList, new { @class = "form-control w-sm", @style = "width:100%" })
+                    <input type="hidden" id="input-fpdo-id" value="@Model.FakturPajakDigantiOutstandingIDs" />
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<script type="text/javascript">
+    App.PreventDoubleSubmit();
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 500, "auto", true,
+            {
+                OK: function () {
+                    var id = $('#input-fpdo-id').val();
+                    var remarks = $('#lst-remark').val();
+                    var jsonData = { ids: id, remarks: remarks };
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("FPDSSaveRemarks", "FpDigantiOutstanding")",
+                        data: jsonData,
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            };
+                            if (data.Html.InfoType == 1) {
+                                dialog.close();
+                                searchFunction(); 
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                    
+                }
+            },
+            true);
+    });
+</script>

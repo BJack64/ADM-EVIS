@@ -1,0 +1,27 @@
+﻿
+<!DOCTYPE html>
+<html>
+<body>
+    <div>
+        <label id="email-to">Dear @Model.To,</label>
+        <br />
+        <br />
+        <label id="email-Description">
+            There is error while request to DJP Server for url : <br />
+            <b>@Model.ScanUrl</b><br /><br />
+            Contact Administrator for further information. Log Key: <b>@Model.LogKey</b>
+        </label>
+        <br />
+        <br />
+        <br />
+        <label id="email-footer">
+            Thank You
+            <br />
+            <br />
+            Best Regards,
+        </label>
+        <br />
+        <label id="email-from">@Model.From</label>
+    </div>
+</body>
+</html>

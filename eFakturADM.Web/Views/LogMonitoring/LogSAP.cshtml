@@ -1,0 +1,377 @@
+﻿@model LogSAPInfoModel
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "Log SAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var lstStatus = GlobalFunctionHelper.GetLogSapStatusList(true, "");
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_retry = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("37", _loginResult.RoleId[0]);
+    var check_retry = roleActivities_retry.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Log SAP
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search">
+                <div class="form-group padder row">
+                    <div class="col-md-5">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Status</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("listStatus", lstStatus, new { @class = "form-control w-sm" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="row form-group">
+                            <label class="col-md-5 control-label">Post to VAT Centralized Date</label>
+                            <div class="col-md-7 form-inline">
+                                <div class="input-group w-sm">
+                                    <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                           id="input-search-tglrekam" data-toggle="tooltip" data-placement="right"
+                                           data-original-title="Format Date dd/MM/yyyy" />
+                                    <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="" style="text-align:right">
+                            <div class="m-t-xs">
+                                <button type="button" class="btn btn-success" id="btn-search">
+                                    Search
+                                </button>
+                                <button type="button" class="btn btn-default" id="btn-reset">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+                <legend class="title-legend">List Data</legend>
+            </fieldset>
+            <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+                <div class="table-scrollable">
+                    <table id="tbl-logSAP" class="table table-hover table-blue">
+                        <thead>
+                            <tr>
+                                <th width="10px" style="padding-left:12px"><input id="selectall" name="select_all" type="checkbox" /></th>
+                                <th>
+                                    No
+                                </th>
+                                <th>
+                                    Nama File
+                                </th>
+                                <th>
+                                    Post to VAT Centralized Date
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    Notes
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="input-group" style="text-align:left">
+                    <div class="m-t-md">
+                        @if (check_retry)
+                        {
+                            <button type="button" class="btn btn-success" id="btn-retry">
+                                Retry
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    var Status;
+    var TanggalRekam;
+    var firstLoad;
+
+
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        LogSAP.init();
+
+        //$("#div-search input, #div-search select").keypress(function (e) {
+        //    if (e.keyCode == 13) {
+        //        TanggalRekam = $("#input-search-tglrekam").val();
+        //        Status = $("#listStatus option:selected").val();
+
+        //        $('#selectall').parent().removeClass("checked");
+        //        $('#selectall').removeAttr("checked");
+
+        //        var table = $('#tbl-logSAP').DataTable();
+        //        firstLoad = false;
+        //        table.ajax.reload();
+        //    }
+        //});
+
+        $("#btn-search").bind("click", function (e) {
+            TanggalRekam = $("#input-search-tglrekam").val();
+            Status = $("#listStatus option:selected").val();
+
+            $('#selectall').parent().removeClass("checked");
+            $('#selectall').removeAttr("checked");
+
+            var table = $('#tbl-logSAP').DataTable();
+            firstLoad = false;
+            table.ajax.reload();
+        });
+
+        $("#btn-reset").bind("click", function (e) {
+
+            $("#input-search-tglrekam").val('');
+
+            $("#listStatus").val('');
+
+            TanggalRekam = $("#input-search-tglrekam").val();
+            Status = $("#listStatus option:selected").val();
+
+            $('#selectall').parent().removeClass("checked");
+            $('#selectall').removeAttr("checked");
+
+            var table = $('#tbl-logSAP').DataTable();
+            firstLoad = true;
+            table.ajax.reload();
+        });
+
+        $("#btn-retry").bind("click", function (e) {
+            retryFileTransfer();
+        });
+
+    });
+
+    var selectedData = [];
+    function retryFileTransfer() {
+        if ($(".checkbox:checked").length == 0) {
+            toastr.warning("No Data Selected", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+        }
+        else {
+            var errorsOnly = true;
+            selectedData = [];
+            $('#tbl-logSAP').find('tr').each(function () {
+                var row = $(this);
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    var id = $(this).find('.checkbox').val();
+                    var status = $(this).find('.checkbox').attr("data-status");
+                    if (id != undefined) {
+                        if (status == 2 || status == 3) {
+                            selectedData.push(parseInt(id));
+                        }
+                        else {
+                            toastr.warning("Only data with error status can be retried", "", { "positionClass": "toast-top-center", "showDuration": "30000" });
+                            errorsOnly = false;
+                            return false;
+                        }
+                    }
+                }
+            });
+
+            if (selectedData.length > 0 && errorsOnly == true) {
+                var oData = JSON.stringify({ logSapId: selectedData });
+                var oDataValidate = JSON.stringify({ logSapId: selectedData });
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ValidationRetryFileTransfer", "LogMonitoring")",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: oDataValidate,
+                    cache: false,
+                    success: function (data) {
+                        switch (data.Html.InfoType) {
+                            case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                        };
+                        if (data.Html.InfoType == 1) {
+                            doFileTransfer(oData);
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        App.DialogError(xhr, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    }
+
+    function doFileTransfer(oData) {
+        BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_DANGER,
+            title: 'Submit Confirmation',
+            message: 'Are you sure want to Submit this data?',
+            buttons: [{
+                label: 'Yes',
+                cssClass: 'btn-danger btn-delay',
+                action: function (dialog) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("RetryFileTransfer", "LogMonitoring")",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: oData,
+                        cache: false,
+                        success: function (data) {
+                            switch (data.Html.InfoType) {
+                                case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                            };
+                            if (data.Html.InfoType == 1) {
+                                selectedData = [];
+                                dialog.close();
+
+                                $('#selectall').parent().removeClass("checked");
+                                $('#selectall').removeAttr("checked");
+
+                                var table = $('#tbl-logSAP').DataTable();
+                                table.ajax.reload();
+
+                            }
+
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            App.DialogError(xhr, textStatus, errorThrown);
+                        }
+                    });
+                }
+            }, {
+                label: 'No',
+                cssClass: 'btn-danger',
+                action: function (dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+    }
+
+    var LogSAP = function () {
+        return {
+            initTable: function () {
+
+                firstLoad = true;
+                TanggalRekam = $("#input-search-tglrekam").val();
+                Status = $("#listStatus option:selected").val();
+
+                var table = $('#tbl-logSAP');
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("GetListLogSAPDataTable", "LogMonitoring")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "TanggalRekam", "value": TanggalRekam },
+                            { "name": "Status", "value": Status }
+                        );
+                    },
+                    "columns": [
+                        {
+                            "data": "LogSapId",
+                            "orderable": false,
+                            "className": "text-center clickcheckbox",
+                            "render": function (data, type, row, full, meta) {
+                                return '<input type="checkbox" name="checkbox" data-status="' + row.Status + '" class="checkbox" value="' + row.LogSapId + '">';
+                            }
+                        },
+                        { "data": "VSequenceNumber", "orderable": false, "searchable": false },
+                        { "data": "FileName", "orderable": true, "searchable": true },
+                        { "data": "CreatedString", "orderable": true, "searchable": true },
+                        { "data": "StatusString", "orderable": false, "searchable": false },
+                        { "data": "Note", "orderable": true, "searchable": true },
+                        {
+                            "data": "IdNo",
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row, full, meta) {
+                                return '<button type="button" class="btn btn-sm btn-default logsap-view" data-idNo="' + row.IdNo + '">View</button></div>';
+                            },
+                            "width": 60
+                        }
+                    ],
+
+                    "order": [
+                        [3, "asc"]
+                    ]
+                });
+
+                $('#tbl-logSAP tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    //Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // Handle click on table cells with checkboxes
+                $('#tbl-logSAP tbody').on('click', '.clickcheckbox', function (e) {
+                    $(this).parent().find('input[type="checkbox"]').trigger('click');
+                });
+
+                var oTable = $('#tbl-logSAP').DataTable();
+                // Handle click on "Select all" control
+                $('thead input[name="select_all"]', oTable.table().container()).on('click', function (e) {
+                    if (this.checked) {
+                        $('#tbl-logSAP tbody input[type="checkbox"]:not(:checked)').trigger('click');
+                    } else {
+                        $('#tbl-logSAP tbody input[type="checkbox"]:checked').trigger('click');
+                    }
+
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+            },
+            initHandlers: function () {
+                $('#tbl-logSAP').on('draw.dt', function () {
+                    App.InitExpander(50);
+                });
+
+                $("body").on("click", ".logsap-view", function (e) {
+                    var IdNo = $(this).attr("data-idNo");
+                    App.DialogGet('@Url.Action("ViewLogSAPDetail", "LogMonitoring")', e, {
+                        IdNo: IdNo
+                    });
+                });
+            },
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+</script>

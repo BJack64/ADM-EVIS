@@ -1,0 +1,66 @@
+﻿@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Browse User" data-dialog-spinner="spinner-@dialogId">
+
+    <table id="table-browse-user" class="table table-hover">
+        <thead>
+            <tr class="bg-light">
+                <th>UserName</th>
+                <th>Email</th>
+                <th>Initial</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</script>
+
+<script type="text/javascript">
+    var selected = [];
+    App.PreventDoubleSubmit();
+    function InitTable() {
+        var oTable = $('#table-browse-user').dataTable({
+            "stateSave": false,
+            "pageLength": 10,
+            "autoWidth": false,
+            "sDom": "<'row bg-light dker b-b'<'col-sm-6'><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            "sPaginationType": "simple_numbers",
+            "sAjaxSource": '@Url.Action("ListUser", "Master")',
+            "columns": [
+                { "data": "UserName", "orderable": true, "searchable": true },
+                { "data": "Email", "orderable": true, "searchable": true },
+                { "data": "UserInitial", "orderable": true, "searchable": true },
+                {
+                    "data": "UserId",
+                    "orderable": false,
+                    "className": "text-center",
+                    "render": function (data, type, row, full, meta) {
+                        return '<button type="button" class="btn btn-sm btn-default user-select" data-user-id="' + row.UserId + '" data-user-username="'
+                            + row.UserName + '" data-user-email="' + row.Email + '" data-user-initial="' + row.UserInitial + '">Select</button>';
+                    }
+                }
+            ],
+            "order": [[0, "desc"]]
+        });
+
+        $("body").on("click", ".user-select", function (e) {
+            if('@Model' == "Search"){
+                $("#input-search-picentry").val($(this).attr("data-user-username"));
+
+                $("#@dialogId").remove();
+                $("body").attr("style", "overflow-y:scroll");
+            }
+        });
+    };
+
+
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 700, "auto", true,
+            {
+                
+            },
+            true, InitTable);
+    });
+</script>

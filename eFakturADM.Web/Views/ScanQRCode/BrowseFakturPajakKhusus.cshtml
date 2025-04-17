@@ -1,0 +1,226 @@
+﻿@{ var templateId = String.Format("dialog-view-{0}", DateTime.Now.Ticks.ToString());
+ var dialogId = templateId.Replace("-view-", "-");
+ var contentId = templateId.Replace("-view-", "-content-");
+}
+
+<script type="text/template" id="@templateId" data-dialog-tittle="Browse Faktur Pajak" data-dialog-spinner="spinner-@dialogId">
+    <form class="form-horizontal" id="form-coc" role="form" enctype="multipart/form-data" method="post">
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">NPWP Penjual</label>
+                        <div class="col-md-8 w-md">
+                            <input type="text" class="form-control" id="input-browsefakturpajak-npwpsearch">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Nama Penjual</label>
+                        <div class="col-md-8 w-md">
+                            <input type="text" class="form-control" id="input-browsefakturpajak-namasearch">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Tgl. Faktur</label>
+                        <div class="col-md-8" style="display:table;">
+                            <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                            <input class="form-control datepicker" size="16" type="text" id="input-browsefakturpajak-tglsearch" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="" style="text-align:right;margin-right:20px">
+                            <div class="m-t-md">
+                                <button type="button" class="btn btn-success btn-sm" id="btn-browsefakturpajak-search">
+                                    Search
+                                </button>
+                                <button type="button" class="btn btn-default btn-sm" id="btn-browsefakturpajak-reset">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group padder">
+                <table id="table-browse-fakturpajak" class="table table-hover">
+                    <thead>
+                        <tr class="bg-light">
+                            <th>Tanggal Faktur</th>
+                            <th>No Faktur</th>
+                            <th>NPWP Penjual</th>
+                            <th>Nama Penjual</th>
+                            <th>Tipe Transaksi</th>
+                            <th>Masa Pajak</th>
+                            <th>Tahun Pajak</th>
+                            <th>DPP</th>
+                            <th>PPN</th>
+                            <th>PPnBM</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script type="text/javascript">
+    var TglFakturSearch;
+    var NpwpSearch;
+    var NamaSearch;
+
+    function InitForm() {
+        App.InitDatePicker();
+        App.PreventDoubleSubmit();
+        InitTable();
+
+        $("#btn-browsefakturpajak-search").bind("click", function (e) {
+            TglFakturSearch = $("#input-browsefakturpajak-tglsearch").val();
+            NpwpSearch = $("#input-browsefakturpajak-npwpsearch").val();
+            NamaSearch = $("#input-browsefakturpajak-namasearch").val();
+
+            var otable = $('#table-browse-fakturpajak').DataTable();
+            otable.ajax.reload();
+        });
+
+        $("#btn-browsefakturpajak-reset").bind("click", function (e) {
+            $("#input-browsefakturpajak-tglsearch").val("");
+            $("#input-browsefakturpajak-npwpsearch").val("");
+            $("#input-browsefakturpajak-namasearch").val("");
+
+            TglFakturSearch = $("#input-browsefakturpajak-tglsearch").val();
+            NpwpSearch = $("#input-browsefakturpajak-npwpsearch").val();
+            NamaSearch = $("#input-browsefakturpajak-namasearch").val();
+
+            var otable = $('#table-browse-fakturpajak').DataTable();
+            otable.ajax.reload();
+        });
+    }
+
+    function InitTable() {
+        TglFakturSearch = $("#input-browsefakturpajak-tglsearch").val();
+        NpwpSearch = $("#input-browsefakturpajak-npwpsearch").val();
+        NamaSearch = $("#input-browsefakturpajak-namasearch").val();
+
+        var otable = $('#table-browse-fakturpajak');
+        otable.dataTable({
+            "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-6'i><'col-sm-6'p>>",
+            "bFilter": true,
+            "bLengthChange": false,
+            "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+            "serverSide": true,
+            "iDisplayLength": 10,
+            "autoWidth": false,
+            "sAjaxSource": '@Url.Action("GetListBrowseFakturPajakKhususDataTable", "ScanQRCode")',
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                        { "name": "TglFaktur", "value": TglFakturSearch },
+                        { "name": "NPWP", "value": NpwpSearch },
+                        { "name": "Nama", "value": NamaSearch }
+                    );
+            },
+            "columns": [
+                { "data": "TglFakturString", "orderable": true, "searchable": true },
+                { "data": "FormatedNoFaktur", "orderable": true, "searchable": true },
+                { "data": "FormatedNpwpPenjual", "orderable": true, "searchable": true },
+                { "data": "NamaPenjual", "orderable": true, "searchable": true },
+                { "data": "FCode", "orderable": true, "searchable": true },
+                { "data": "MasaPajakName", "orderable": true, "searchable": true },
+                { "data": "TahunPajak", "orderable": true, "searchable": true },
+                {
+                    "data": "JumlahDPP",
+                    "orderable": true,
+                    "searchable": true,
+                    "className": "text-right",
+                    "render": function (data, type, row, full, meta) {
+                        return _addCommas(data);
+                    }
+                },
+                {
+                    "data": "JumlahPPN",
+                    "orderable": true,
+                    "searchable": true,
+                    "className": "text-right",
+                    "render": function (data, type, row, full, meta) {
+                        return _addCommas(data);
+                    }
+                },
+                {
+                    "data": "JumlahPPNBM",
+                    "orderable": true,
+                    "searchable": true,
+                    "className": "text-right",
+                    "render": function (data, type, row, full, meta) {
+                        return _addCommas(data);
+                    }
+                },
+                {
+                    "data": "FakturPajakId",
+                    "orderable": false,
+                    "className": "text-center",
+                    "render": function (data, type, row, full, meta) {
+                        return '<button type="button" class="btn btn-sm btn-default fakturpajak-select" data-fakturpajak-id="' + row.FakturPajakId + '" data-fakturpajak-nofaktur="' + row.FormatedNoFaktur + '"' +
+                            'data-fakturpajak-npwp="' + row.FormatedNpwpPenjual + '" data-fakturpajak-nama="' + row.NamaPenjual + '" data-fakturpajak-tglfaktur="' + row.TglFakturString + '" data-fakturpajak-alamat="' + row.AlamatPenjual +
+                            '" data-fakturpajak-vendorid="' + row.VendorId +
+                            '" data-fakturpajak-jumlahdpp="' + row.JumlahDPP +
+                            '" data-fakturpajak-jumlahppn="' + row.JumlahPPN +
+                            '" data-fakturpajak-jumlahppnbm="' + row.JumlahPPNBM +
+                            '" data-fakturpajak-pesan="' + row.Pesan +
+                            '" data-fakturpajak-masapajak="' + row.MasaPajak +
+                            '" data-fakturpajak-tahunpajak="' + row.TahunPajak +
+                            '" data-fakturpajak-jenistransaksi="' + row.JenisTransaksi +
+                            '" data-fakturpajak-jenisdokumen="' + row.JenisDokumen +
+                            '" data-fakturpajak-kdjenistransaksi="' + row.KdJenisTransaksi +
+                            '" data-fakturpajak-fgpengganti="' + row.FgPengganti +
+                            '">Select</button>';
+                    }
+                }
+            ],
+            "order": [[0, "desc"]]
+        });
+
+        $("body").on("click", ".fakturpajak-select", function (e) {
+            $("#input-search-nofpyangdiganti").val($(this).attr("data-fakturpajak-nofaktur"));
+            $("#input-scanmanual-nofaktur").val($(this).attr("data-fakturpajak-nofaktur"));
+            $("#input-scanmanual-namalawantransaksi").val($(this).attr("data-fakturpajak-nama"));
+            $("#input-scanmanual-npwplawantransaksi").val($(this).attr("data-fakturpajak-npwp"));
+            $("#input-scanmanual-tanggalfaktur").val($(this).attr("data-fakturpajak-tglfaktur"));
+            //$("#hdn-scanmanual-fakturpajakid").val($(this).attr("data-fakturpajak-id"));
+            $('#input-scanmanual-alamatlawantransaksi').val($(this).attr("data-fakturpajak-alamat"));
+            $('#hdn-scanmanual-vendorid').val($(this).attr("data-fakturpajak-vendorid"));
+
+            $("#input-scanmanual-jumlahdpp").val(_addCommas($(this).attr("data-fakturpajak-jumlahdpp")));
+            $("#input-scanmanual-jumlahppn").val(_addCommas($(this).attr("data-fakturpajak-jumlahppn")));
+            $("#input-scanmanual-jumlahppnbm").val(_addCommas($(this).attr("data-fakturpajak-jumlahppnbm")));
+            $("#input-scanmanual-pesan").val($(this).attr("data-fakturpajak-pesan"));
+
+            $('#listMasaPajak').val($(this).attr("data-fakturpajak-masapajak"));
+            $('#input-search-jenistransaksi').val($(this).attr("data-fakturpajak-jenistransaksi"));
+
+            //console.log($(this).attr("data-fakturpajak-tahunpajak"));
+
+            var selectedMonth = $('#listMasaPajak option:selected').val();
+            loadTahunPajak(selectedMonth, $(this).attr("data-fakturpajak-tahunpajak"));
+
+            var selectedJenisDoc = $(this).attr("data-fakturpajak-jenisdokumen");
+            var selectedKdJenisTransaksi = $(this).attr("data-fakturpajak-kdjenistransaksi");
+    
+            var jnisTransaksi = $(this).attr("data-fakturpajak-jenistransaksi");
+            loadJenisDokumen(jnisTransaksi, selectedJenisDoc);
+            loadKodeJenisTransaksi(jnisTransaksi, selectedKdJenisTransaksi);
+
+            $("#@dialogId").remove();
+            $("body").attr("style", "overflow-y:scroll");
+        });
+    };
+    
+    $(function () {
+        var dialog = App.DialogBootstrap("#@templateId", 1200, 600, true,
+            {
+
+            },
+            true, InitForm);
+    });
+</script>

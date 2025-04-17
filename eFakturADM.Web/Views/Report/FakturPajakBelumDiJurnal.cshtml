@@ -1,0 +1,313 @@
+﻿@{
+    ViewBag.Title = "Report Faktur Pajak belum di Jurnal ke SAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_download = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("61", _loginResult.RoleId[0]);
+    var check_download = roleActivities_download.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Report Faktur Pajak belum di Jurnal ke SAP
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <div class="form-group padding-bottom-10">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tanggal Faktur Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-report-tglfakturstart" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <div class="input-group-addon"><i class="icon-calendar"></i></div>
+                                        <input class="form-control form-control-inline datepicker" size="16" type="text" value=""
+                                               id="input-search-report-tglfakturend" data-toggle="tooltip" data-placement="right"
+                                               data-original-title="Format Date dd/MM/yyyy" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No Faktur Pajak</label>
+                            <div class="col-md-9 form-inline">
+                                <div>
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-report-nofakturstart" />
+                                    </div>
+                                    s/d
+                                    <div class="input-group w-sm">
+                                        <input type="text" class="form-control" id="input-search-report-nofakturend" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="" style="text-align:right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn btn-success" id="btn-search">
+                                Search
+                            </button>
+                            <button type="button" class="btn btn-default" id="btn-reset">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0;">
+                    <div class="table-scrollable">
+                        <table id="tbl-report-fpbelumdijurnal" class="tblheader table table-striped table-hover table-blue">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">
+                                        No
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        NPWP Penjual
+                                    </th>
+                                    <th rowspan="2" style="min-width:300px">
+                                        Nama Penjual
+                                    </th>
+                                    <th rowspan="2" style="min-width:80px">
+                                        Tax Period
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        FP No.
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        PIC Entry
+                                    </th>
+                                    <th rowspan="2" style="min-width:150px">
+                                        Filling Index
+                                    </th>
+                                    <th rowspan="2" style="min-width:75px">
+                                        FP Date
+                                    </th>
+                                    <th colspan="2" class="text-center">
+                                        Surat Pemberitahuan Masa (SPM)
+                                    </th>
+                                    <th rowspan="2" style="min-width:100px">
+                                        Amount in FP
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        Tax Period
+                                    </th>
+                                    <th style="min-width:150px">
+                                        FP No.
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="input-group" style="text-align:left">
+                        <div class="m-t-md">
+                            @if (check_download)
+                            {
+                                <button type="button" class="btn btn-success" id="btn-download-excel">
+                                    Download Excel
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var firstLoad;
+    $(document).ready(function () {
+        App.PreventDoubleSubmit();
+        App.InitDatePicker();
+        ReportFpBelumDiJurnal.init();
+
+        $('#btn-search').click(function () {
+            firstLoad = false;
+            searchClick();
+        });
+
+        $('#btn-reset').click(function () {
+            firstLoad = true;
+            resetClick();
+        });
+
+        $('#btn-download-excel').click(function () {
+            downloadExcelReport();
+        });
+
+    });
+
+    var tglFakturStart;
+    var tglFakturEnd;
+    var noFakturStart;
+    var noFakturEnd;
+
+    function downloadExcelReport() {
+        tglFakturStart = $('#input-search-report-tglfakturstart').val();
+        tglFakturEnd = $('#input-search-report-tglfakturend').val();
+        noFakturStart = $('#input-search-report-nofakturstart').val();
+        noFakturEnd = $('#input-search-report-nofakturend').val();
+
+        var search = $('.dataTables_filter input').val();
+
+        var strUrl = '@Url.Action("ExportReportFakturPajakBelumDiJurnalToExcel", "ExportDownload")' + "?tglFakturStart=" + tglFakturStart + '&tglFakturEnd=' + tglFakturEnd
+            + '&noFakturStart=' + noFakturStart + '&noFakturEnd=' + noFakturEnd + '&search=' + search;
+
+        window.open(strUrl, '_blank');
+
+        console.log('echo');
+
+    }
+
+    function resetClick() {
+        $('#input-search-report-tglfakturstart').val('');
+        $('#input-search-report-tglfakturend').val('');
+        $('#input-search-report-nofakturstart').val('');
+        $('#input-search-report-nofakturend').val('');
+
+        tglFakturStart = $('#input-search-report-tglfakturstart').val();
+        tglFakturEnd = $('#input-search-report-tglfakturend').val();
+        noFakturStart = $('#input-search-report-nofakturstart').val();
+        noFakturEnd = $('#input-search-report-nofakturend').val();
+
+        var table = $('#tbl-report-fpbelumdijurnal').DataTable();
+        table.search('').draw();
+
+    }
+
+    function searchClick() {
+        tglFakturStart = $('#input-search-report-tglfakturstart').val();
+        tglFakturEnd = $('#input-search-report-tglfakturend').val();
+        noFakturStart = $('#input-search-report-nofakturstart').val();
+        noFakturEnd = $('#input-search-report-nofakturend').val();
+
+        var table = $('#tbl-report-fpbelumdijurnal').DataTable();
+        table.ajax.reload();
+
+    }
+
+    var ReportFpBelumDiJurnal = function () {
+        return {
+            initTable: function () {
+                firstLoad = true;
+                var table = $('#tbl-report-fpbelumdijurnal');
+
+                tglFakturStart = $('#input-search-report-tglfakturstart').val();
+                tglFakturEnd = $('#input-search-report-tglfakturend').val();
+                noFakturStart = $('#input-search-report-nofakturstart').val();
+                noFakturEnd = $('#input-search-report-nofakturend').val();
+
+                table.dataTable({
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6' <'refresh pull-left m-r-sm'>><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+                    "bFilter": true,
+                    "bLengthChange": true,
+                    "bStateSave": false, // save datatable state(pagination, sort, etc) in cookie.
+                    "serverSide": true,
+                    "scrollY": '375px',
+                    "scrollX": true,
+                    "scrollCollapse": true,
+                    "iDisplayLength": 10,
+                    "aLengthMenu": [[10, 20, 50, 100], [10, 20, 50, 100]],
+                    "autoWidth": false,
+                    "initComplete": function () {
+                        $(".dataTables_scrollBody th").removeAttr('class');
+                    },
+                    "sAjaxSource": '@Url.Action("GetListFakturPajakBelumDiJurnal", "Report")',
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                            { "name": "firstLoad", "value": firstLoad },
+                            { "name": "tglFakturStart", "value": tglFakturStart },
+                            { "name": "tglFakturEnd", "value": tglFakturEnd },
+                            { "name": "noFakturStart", "value": noFakturStart },
+                            { "name": "noFakturEnd", "value": noFakturEnd }
+                        );
+                    },
+                    "columns": [
+                        { "data": "VSequenceNumber",  "orderable": false, "searchable": false },
+                        { "data": "FormatedNpwpPenjual", "className": "min_width150", "orderable": true, "searchable": true },
+                        { "data": "NamaPenjual", "className": "min_width200", "orderable": true, "searchable": true },
+                        {
+                            "data": "FakturPajakId",                          
+                            "orderable": false,
+                            "className": "text-center min_width100",
+                            "render": function (data, type, row, full, meta) {
+                                if (row.MasaPajak == null) {
+                                    return '-';
+                                } else {
+                                    return row.MasaPajak + ' - ' + row.TahunPajak;
+                                }
+                            }
+                        },
+                        { "data": "FormatedNoFaktur", "className": "min_width150", "orderable": true, "searchable": true },
+                        { "data": "CreatedBy", "className": "min_width100", "orderable": true, "searchable": true },
+                        { "data": "FillingIndex", "className": "min_width150", "orderable": true, "searchable": true },
+                        { "data": "TglFakturString", "className": "min_width100", "orderable": true, "searchable": true },
+                        {
+                            "data": "FakturPajakId",                           
+                            "orderable": false,
+                            "className": "text-center min_width100",
+                            "render": function (data, type, row, full, meta) {
+                                if (row.MasaPajakSpm == null) {
+                                    return '-';
+                                } else {
+                                    return row.MasaPajakSpm + ' - ' + row.TahunPajakSpm;
+                                }
+                            }
+                        },
+                        {
+                            "data": "FakturPajakId",                         
+                            "orderable": false,
+                            "className": "text-center min_width150",
+                            "render": function (data, type, row, full, meta) {
+                                if (row.FpNoSpm == null || row.FpNoSpm == '') {
+                                    return '-';
+                                } else {
+                                    return row.FpNoSpm;
+                                }
+                            }
+                        },
+                        { "data": "JumlahPpnString", "className": "min_width100", "orderable": true, "searchable": true }
+                    ],
+
+                    "order": [
+                        [1, "asc"]
+                    ]
+                });
+
+
+            },
+
+            initHandlers: function () {
+                $('#tbl-report-fpbelumdijurnal').on('draw.dt', function () {
+                    $(".dataTables_scrollBody th").removeAttr('class');
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        };
+    }();
+
+</script>

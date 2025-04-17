@@ -1,0 +1,145 @@
+﻿@using eFakturADM.Logic.Collections
+@using eFakturADM.Logic.Objects
+@using eFakturADM.Logic.Utilities
+@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "Role Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    eFakturADM.Web.Models.LoginResult _loginResult = (eFakturADM.Web.Models.LoginResult)Session["Login"];
+    var roleActivities_add = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("39", _loginResult.RoleId[0]);
+    var check_add = roleActivities_add.Count != 0 ? true : false;
+    var roleActivities_edit = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("40", _loginResult.RoleId[0]);
+    var check_edit = roleActivities_edit.Count != 0 ? true : false;
+    var roleActivities_delete = eFakturADM.Logic.Collections.RoleActivities.GetByActivityId_RoleId_Auth("41", _loginResult.RoleId[0]);
+    var check_delete = roleActivities_delete.Count != 0 ? true : false;
+}
+<div class="page-head">
+    <div class="page-title">
+        <h1>
+            Role Management
+        </h1>
+    </div>
+</div>
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <table id="tbl-rolemanagement" class="table table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th>
+                            Role Name
+                        </th>
+                        <th style="width: 140px; min-width:140px;">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        RoleManagement.init();
+    });
+
+    var RoleManagement = function () {
+        return {
+            initTable: function () {
+                var table = $('#tbl-rolemanagement');
+
+                table.dataTable({
+                    "stateSave": false,
+                    "pageLength": 10,
+                    "autoWidth": false,
+                    "sAjaxSource": '@Url.Action("ListRoleManagement", "Setting")',
+                    "columns": [
+                          { "data": "Name", "orderable": true, "searchable": true },
+                          {
+                              "data": "RoleId",
+                              "orderable": false,
+                              "searchable": false,
+                              "class": "text-center",
+                              "render": function (data, type, full, meta) {
+                                  if ('@check_edit.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'true') {
+                                      return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default rolemanagement-edit" data-rolemanagement-id="' + data + '">Modify</button>'
+                                      + '<button type="button" class="btn btn-sm btn-danger rolemanagement-delete" data-rolemanagement-id="' + data + '">Delete</button></div>';
+                                  }
+                                  else if ('@check_edit.ToString().ToLower()' == 'true' && '@check_delete.ToString().ToLower()' == 'false') {
+                                      return '<div class="btn-group"><button type="button" class="btn btn-sm btn-default rolemanagement-edit" data-rolemanagement-id="' + data + '">Modify</button>';
+                                  }
+                                  else if ('@check_edit.ToString().ToLower()' == 'false' && '@check_delete.ToString().ToLower()' == 'true') {
+                                      return '<button type="button" class="btn btn-sm btn-danger rolemanagement-delete" data-rolemanagement-id="' + data + '">Delete</button></div>';
+                                  }
+                                  else {
+                                      return '';
+                                  }
+                              }
+                          }
+                    ],
+                    "sDom": "<'row bg-light dker b-b'<'col-sm-6 btnaddRM'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-6'i><'col-sm-6'p>>",
+                    "sPaginationType": "simple_numbers"
+                });
+
+                if ('@check_add.ToString().ToLower()' == 'true') {
+                    $(".btnaddRM").html('<a class="btn green-meadow btn-sm m-t-sm rolemanagement-add" id="add-rolemanagement">Add New </a>');
+                }
+
+            },
+
+            initHandlers: function () {
+                _this = this;
+                $("body").on("click", ".rolemanagement-add", function (e) { App.DialogGet('@Url.Action("GetAddRoleManagementDialog", "Setting")', e); });
+                $("body").on("click", ".rolemanagement-edit", function (e) { App.DialogGet('@Url.Action("GetEditRoleManagementDialog", "Setting")', e, { RoleID: parseInt($(this).attr("data-rolemanagement-id")) }); });
+                $("body").on("click", ".rolemanagement-delete", function (e) {
+                    var roleId = parseInt($(this).attr("data-rolemanagement-id"));
+                    BootstrapDialog.show({
+                        type: BootstrapDialog.TYPE_DANGER,
+                        title: 'Delete Confirmation',
+                        message: 'Are you sure to delete data?',
+                        buttons: [{
+                            label: 'Delete',
+                            cssClass: 'btn-danger',
+                            action: function (dialog) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("RemoveRoleManagement", "Setting")',
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify({ RoleId: roleId }),
+                                    cache: false,
+                                    success: function (data) {
+                                        switch (data.Html.InfoType) {
+                                            case 0: toastr.info(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break
+                                            case 1: toastr.success(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break
+                                            case 2: toastr.warning(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); break;
+                                            case 3: toastr.error(data.Html.Message, "", { "positionClass": "toast-top-center", "showDuration": "30000" }); dialog.close(); break
+                                        };
+                                        App.RefreshTable("#tbl-rolemanagement", '@Url.Action("ListRoleManagement", "Setting")');
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        App.DialogError(xhr, textStatus, errorThrown);
+                                    }
+                                });
+                            }
+                        }, {
+                            label: 'Cancel',
+                            action: function (dialog) {
+                                dialog.close();
+                            }
+                        }]
+                    });
+                });
+            },
+
+            init: function () {
+                this.initTable();
+                this.initHandlers();
+            }
+        }
+    }();
+</script>

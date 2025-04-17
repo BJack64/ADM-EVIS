@@ -1,0 +1,544 @@
+﻿@using eFakturADM.Web.Helpers
+@using eFakturADM.Web.Models
+
+@{
+    ViewBag.Title = "Faktur Pajak Penampung Coretax";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var monthList = GlobalFunctionHelper.GetMonthList(true, "");
+    var dataTypeList = GlobalFunctionHelper.GetFpTypeList(true, "All");
+    var statusDjpList = GlobalFunctionHelper.GetFpStatusDjpList(true, "");
+}
+
+<!--Kalau function sorting ingin digunakan kembali, hapus seluruh section styles ini untuk mengembalikkan icon sorting-->
+@section Styles {
+    <style>
+        /* Remove sorting icons from DataTables */
+        table.dataTable thead .sorting:after,
+        table.dataTable thead .sorting:before,
+        table.dataTable thead .sorting_asc:after,
+        table.dataTable thead .sorting_asc:before,
+        table.dataTable thead .sorting_desc:after,
+        table.dataTable thead .sorting_desc:before {
+            display: none !important;
+        }
+
+        table.dataTable thead th {
+            background-image: none !important;
+        }
+    </style>
+}
+
+<div class="page-head">
+    <div class="page-title">
+        <h1>Daftar Faktur Pajak Penampung Coretax</h1>
+    </div>
+</div>
+
+<!-- BEGIN EXAMPLE TABLE PORTLET-->
+<div class="portlet light">
+    <div class="portlet">
+        <div class="portlet-body">
+            <form class="form-group padding-bottom-10" style="border-bottom:1px solid #eaeaea" id="div-search" method="GET" action="?Filter">
+                <div class="form-group padder row">
+                    <div class="col-md-6" style="padding-right:0px">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Nama Penjual</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control w-49" id="input-search-nama-penjual" name="namaPenjual" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">NPWP Penjual</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control w-49" id="input-search-npwp-penjual" name="npwpPenjual" maxlength="22" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,22)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">No. Faktur</label>
+                            <div class="col-md-7 form-inline">
+                                <input type="text" class="form-control w-55" id="input-search-nomor-faktur-start" name="nomorFakturStart" maxlength="17" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,17)" />
+                                <span class="mx-2">s/d</span>
+                                <input type="text" class="form-control w-55" id="input-search-nomor-faktur-end" name="nomorFakturEnd" maxlength="17" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,17)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tgl. Faktur</label>
+                            <div class="col-md-9 form-inline">
+                                <div class="input-group w-sm">
+                                    <input class="form-control datepicker" style="width: 196px;" type="date" id="input-search-tgl-faktur-start" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                </div>
+                                s/d
+                                <div class="input-group w-sm">
+                                    <input class="form-control datepicker" style="width: 196px;" type="date" id="input-search-tgl-faktur-end" value="" data-toggle="tooltip" data-placement="right" data-original-title="Format Date dd/MM/yyyy" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Masa Pajak</label>
+                            <div class="col-md-7">
+                                @Html.DropDownList("listMasaPajak", monthList, new { @class = "form-control", @name = "masaPajak" })
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Tahun Pajak</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" id="input-search-tahun" name="tahun" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,4)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <label class="col-md-3 control-label">Status Faktur</label>
+                            <div class="col-md-7">
+                                @Html.DropDownList("lst-status-faktur", new SelectList(new[] { "", "APPROVED", "AMENDED", "CANCELED", "CREDITED", "UNCREDITED", "WAITING FOR CANCELLATION", "WAITING FOR AMENDMENT" }), new { @class = "form-control", @name = "statusFaktur" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="text-right">
+                        <div class="m-t-xs">
+                            <button type="button" class="btn" id="openUploadModal" style="background-color: #FF0800; color: white; border: none;">Import Document Excel</button>
+                            <button type="submit" class="btn btn-success" id="btn-search">Search</button>
+                            <button type="reset" class="btn btn-default" id="btn-reset">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="form-group row">
+    <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+        <legend class="title-legend">List Data</legend>
+    </fieldset>
+    <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+        <div class="table-scrollable">
+            <table id="tbl-faktur-pajak-from-coretax" class="tblheader table table-striped table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th class="text-center">NPWP Penjual</th>
+                        <th class="text-center">Nama Penjual</th>
+                        <th class="text-center">No Faktur</th>
+                        <th class="text-center">Tgl Faktur</th>
+                        <th class="text-center">Masa Pajak</th>
+                        <th class="text-center">Tahun Pajak</th>
+                        <th class="text-center">Status Faktur</th>
+                        <th class="text-center">Harga Jual</th>
+                        <th class="text-center">DPP</th>
+                        <th class="text-center">PPN</th>
+                        <th class="text-center">PPnBM</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="input-group" style="text-align:left">
+            <div class="m-t-md">
+                <button type="button" class="btn" id="exportButton" style="background-color: #4B5320; color: white; border: none;">Export Document Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-group row" style="display: none">
+    <fieldset class="fieldset" style="padding:0 0 0 10px; border-bottom:none">
+        <legend class="title-legend">List Data</legend>
+    </fieldset>
+    <div style="padding:5px; margin:0 4px; border:1px solid #c0c0c0; border-top:none">
+        <div class="table-scrollable">
+            <table id="tbl-faktur-pajak-from-coretax2" class="tblheader table table-striped table-hover table-blue">
+                <thead>
+                    <tr>
+                        <th class="text-center">NPWP Penjual</th>
+                        <th class="text-center">Nama Penjual</th>
+                        <th class="text-center">No Faktur</th>
+                        <th class="text-center">Tgl Faktur</th>
+                        <th class="text-center">Masa Pajak</th>
+                        <th class="text-center">Tahun Pajak</th>
+                        <th class="text-center">Status Faktur</th>
+                        <th class="text-center">Harga Jual</th>
+                        <th class="text-center">DPP</th>
+                        <th class="text-center">PPN</th>
+                        <th class="text-center">PPnBM</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="input-group" style="text-align:left">
+            <div class="m-t-md">
+                <button type="button" class="btn" id="exportButton" style="background-color: #4B5320; color: white; border: none;">Export Document Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Upload -->
+<div id="uploadModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Import File Excel</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Pilih File Excel:</label>
+                        <input type="file" name="file" id="file" class="form-control" accept=".xls, .xlsx" required />
+                    </div>
+                    <div id="uploadResult"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" id="confirmUpload">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    // Open upload modal
+    $('#openUploadModal').on('click', function () {
+        $('#uploadModal').modal('show');
+
+    });
+
+    document.getElementById("exportButton").addEventListener("click", function () {
+        let table = $('#tbl-faktur-pajak-from-coretax2').DataTable();
+        let rawData = table.rows().data().toArray(); // Mengambil seluruh data dari DataTable
+
+        // Fungsi untuk menambahkan delimiter ribuan pada angka
+        function formatNumber(num) {
+            return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+        }
+
+        // Fungsi untuk mengubah angka menjadi nama bulan
+        function convertMonthToIndonesian(month) {
+            const months = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            // Convert to integer and return month name or empty string if invalid
+            const index = parseInt(month) - 1;
+            return (index >= 0 && index < 12) ? months[index] : '';
+        }
+
+
+        // Transformasi data agar sesuai dengan header di controller
+        let formattedData = rawData.map(item => [
+            item.NPWP_Penjual,
+            item.Nama_Penjual,
+            item.Nomor_Faktur_Pajak,
+            formatTanggal(item.Tanggal_Faktur_Pajak),
+            convertMonthToIndonesian(item.Masa_Pajak),
+            item.Tahun,
+            convertMonthToIndonesian(item.Masa_Pajak_Pengkreditan),
+            item.Tahun_Pengkreditan,
+            item.Status_Faktur,
+            formatNumber(item.Harga_Jual),
+            formatNumber(item.DPP_Nilai_Lain),
+            formatNumber(item.PPN),
+            formatNumber(item.PPnBM),
+            item.Perekam,
+            item.Nomor_SP2D,
+            item.Valid,
+            item.Dilaporkan,
+            item.Dilaporkan_oleh_Penjual
+        ]);
+
+        // Kirim data ke backend
+        fetch('/Coretax/DownloadExcel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formattedData)
+        })
+            .then(response => response.blob())
+            .then(blob => {
+                let link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'FakturPajak.xlsx';
+                link.click();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Fungsi untuk konversi format tanggal
+    function formatTanggal(timestamp) {
+        if (!timestamp) return ""; // Jika kosong, return string kosong
+        let match = timestamp.match(/\/Date\((\d+)\)\//);
+        if (!match) return timestamp; // Jika format tidak sesuai, kembalikan apa adanya
+        let date = new Date(parseInt(match[1])); // Konversi timestamp ke Date object
+        return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    }
+
+    // Confirm upload and show confirmation dialog
+    $('#confirmUpload').on('click', function () {
+        var fileInput = $('#file')[0];
+
+        if (!fileInput.files.length) {
+            BootstrapDialog.alert({
+                title: 'Error',
+                message: 'Silakan pilih file terlebih dahulu.',
+                type: BootstrapDialog.TYPE_DANGER,
+                buttonLabel: 'OK'
+            });
+            return;
+        }
+
+        var file = fileInput.files[0];
+        var allowedExtensions = ['xls', 'xlsx'];
+        var fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            BootstrapDialog.alert({
+                title: 'Error',
+                message: 'Hanya file Excel (.xls, .xlsx) yang diizinkan!',
+                type: BootstrapDialog.TYPE_DANGER,
+                buttonLabel: 'OK'
+            });
+            return;
+        }
+
+        BootstrapDialog.show({
+            title: 'Konfirmasi',
+            message: 'Apakah Anda yakin ingin mengupload file ini?',
+            type: BootstrapDialog.TYPE_WARNING,
+            buttons: [
+                {
+                    label: 'Batal',
+                    cssClass: 'btn-secondary',
+                    action: function (dialogRef) { dialogRef.close(); }
+                },
+                {
+                    label: 'Kirim',
+                    cssClass: 'btn-warning',
+                    action: function (dialogRef) {
+                        var formData = new FormData();
+                        formData.append('file', file);
+
+                        $.ajax({
+                            url: '@Url.Action("UploadFileFakturPajak", "Coretax")',
+                            type: 'POST',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#file').val('');
+                                    $('#uploadModal').modal('hide');
+                                    $('#tbl-faktur-pajak-from-coretax').DataTable().ajax.reload();
+
+                                    BootstrapDialog.alert({
+                                        title: 'Sukses',
+                                        message: response.message,
+                                        type: BootstrapDialog.TYPE_SUCCESS,
+                                        buttonLabel: 'OK'
+                                    });
+                                } else {
+                                    // Alert pertama untuk response.message
+                                    BootstrapDialog.alert({
+                                        title: 'Konfirmasi',
+                                        message: response.message,
+                                        type: BootstrapDialog.TYPE_SUCCESS,
+                                        buttonLabel: 'OK',
+                                        callback: function () {
+                                            // Jika ada error, tampilkan tabel detailnya
+                                            if (response.errors && response.errors.length > 0) {
+                                                let modalContent = `
+                                                    <div class="table-responsive">
+                                                        <table id="errorTable" class="table table-bordered table-striped">
+                                                            <thead id="custom-header" style="background-color: #28a745 !important; color: white !important; font-weight: bold !important;">
+                                                                <tr>
+                                                                    <th>Line ke</th>
+                                                                    <th>Error Message</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                ${response.errors.map(error =>
+                                                                    `<tr><td>${error.Baris}</td><td>${error.Errors.join('<br>')}</td></tr>`).join('')}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>`;
+
+                                                BootstrapDialog.show({
+                                                    title: '<i class="fa fa-exclamation-triangle"></i> DATA TIDAK VALID',
+                                                    message: modalContent,
+                                                    type: BootstrapDialog.TYPE_WARNING,
+                                                    size: BootstrapDialog.SIZE_WIDE,
+                                                    buttons: [{
+                                                        label: 'OK',
+                                                        cssClass: 'btn-success',
+                                                        action: function (dialogRef) {
+                                                            $('#file').val('');
+                                                            $('#uploadModal').modal('hide');
+                                                            $('#tbl-faktur-pajak-from-coretax').DataTable().ajax.reload();
+                                                            dialogRef.close();
+                                                        }
+                                                    }],
+                                                    onshown: function () {
+                                                        $('#errorTable').DataTable({
+                                                            paging: true,
+                                                            searching: false,
+                                                            info: true,
+                                                            lengthChange: false,
+                                                            autoWidth: false,
+                                                            pageLength: 10,
+                                                            language: {
+                                                                paginate: {
+                                                                    previous: "Previous",
+                                                                    next: "Next"
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            },
+                            error: function () {
+                                BootstrapDialog.alert({
+                                    title: 'Error',
+                                    message: 'Terjadi kesalahan saat mengirim data.',
+                                    type: BootstrapDialog.TYPE_DANGER,
+                                    buttonLabel: 'OK'
+                                });
+                            }
+                        });
+
+                        dialogRef.close();
+                    }
+                }
+            ]
+        });
+    });
+
+
+
+
+   var FakturPajakFromCoretax = (function () {
+    var table = null;
+    var excel = null;
+
+    function getFilterParams() {
+        return {
+            namaPenjual: $('#input-search-nama-penjual').val(),
+            npwpPenjual: $('#input-search-npwp-penjual').val(),
+            nomorFakturStart: $('#input-search-nomor-faktur-start').val(),
+            nomorFakturEnd: $('#input-search-nomor-faktur-end').val(),
+            tglFakturStart: $('#input-search-tgl-faktur-start').val(),
+            tglFakturEnd: $('#input-search-tgl-faktur-end').val(),
+            masaPajak: $('#listMasaPajak').val(),
+            tahun: $('#input-search-tahun').val(),
+            statusFaktur: $('#lst-status-faktur').val() ? $('#lst-status-faktur').val().replace(/\s+/g, '_') : ''
+        };
+    }
+
+    function formatTanggal(data) {
+        var millis = data.match(/\/Date\((\d+)\)\//);
+        if (millis) {
+            var date = new Date(parseInt(millis[1]));
+            return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+        }
+        return data;
+    }
+
+    function formatMasaPajak(data) {
+        const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        return bulan[data - 1] || data;
+    }
+
+    function initTable(filterParams) {
+        if (table) {
+            table.clear().destroy();
+        }
+
+        table = $('#tbl-faktur-pajak-from-coretax').DataTable({
+            searching: false,
+            bFilter: true,
+            bLengthChange: true,
+            bStateSave: false,
+            serverSide: true,
+            ajax: {
+                url: '@Url.Action("GetListFakturPajak", "Coretax")' + '?' + new URLSearchParams(filterParams).toString(),
+                type: 'GET',
+                dataSrc: function (json) {
+                    excel = json.excel;
+                    fillTable2();
+                    return json.data;
+                }
+            },
+            columns: getTableColumns(),
+            sDom: "<'row bg-light dker b-b'<'col-sm-6 btncollection'><'col-sm-6'f>r><'table-scrollable't><'row m-t-sm m-b-xs'<'col-sm-3 m-t-n-sm'l><'col-sm-3 m-t-xs'i><'col-sm-6'p>>",
+            sPaginationType: 'simple_numbers'
+        });
+    }
+
+    function fillTable2() {
+        if (!excel) return;
+
+        var table2 = $('#tbl-faktur-pajak-from-coretax2').DataTable();
+        if (table2) {
+            table2.clear().destroy();
+        }
+
+        table2 = $('#tbl-faktur-pajak-from-coretax2').DataTable({
+            searching: false,
+            bFilter: false,
+            bLengthChange: false,
+            paging: false,
+            info: false,
+            data: excel,
+            columns: getTableColumns()
+        });
+    }
+
+    function getTableColumns() {
+        return [
+            { data: 'NPWP_Penjual', className: 'text-center' },
+            { data: 'Nama_Penjual' },
+            { data: 'Nomor_Faktur_Pajak', className: 'text-center' },
+            { data: 'Tanggal_Faktur_Pajak', className: 'text-center', render: formatTanggal },
+            { data: 'Masa_Pajak', className: 'text-center', render: formatMasaPajak },
+            { data: 'Tahun', className: 'text-center' },
+            { data: 'Status_Faktur', className: 'text-center' },
+            { data: 'Harga_Jual', render: formatCurrency },
+            { data: 'DPP_Nilai_Lain', render: formatCurrency },
+            { data: 'PPN', render: formatCurrency },
+            { data: 'PPnBM', render: formatCurrency }
+        ];
+    }
+
+       function formatCurrency(data) {
+           // return data ? data.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+           return data != null
+               ? data.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+               : (0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+       }
+
+    return {
+        init: function () {
+            initTable({});
+
+            $('#btn-reset').click(function () {
+                $('#div-search')[0].reset();
+                initTable({});
+            });
+
+            $('#div-search').submit(function (e) {
+                e.preventDefault();
+                initTable(getFilterParams());
+            });
+        }
+    };
+})();
+
+FakturPajakFromCoretax.init();
+});
+</script>
