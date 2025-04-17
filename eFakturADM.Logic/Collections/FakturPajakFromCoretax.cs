@@ -305,6 +305,7 @@ namespace eFakturADM.Logic.Collections
 
                 // Execute the MERGE query
                 sp.ExecuteNonQuery();
+                AssemblyAlgorithmIdAttribute;
             }
         }
 
